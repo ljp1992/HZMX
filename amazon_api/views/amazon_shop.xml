@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="amazon_shop_tree" model="ir.ui.view">
+			<field name="name">amazon_shop_tree</field>
+			<field name="model">amazon.shop</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="name"/>
+                    <field name="seller_id"/>
+				</tree>
+			</field>
+		</record>
+
+		<record id="amazon_shop_form" model="ir.ui.view">
+			<field name="name">amazon_shop_form</field>
+			<field name="model">amazon.shop</field>
+			<field name="arch" type="xml">
+				<form>
+					<header>
+					</header>
+					<sheet>
+						<div class="oe_title" style="width:400px;">
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+						<group>
+							<group>
+								<field name="seller_id"/>
+								<field name="marketplace_id"/>
+							</group>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+        <record id="amazon_shop_act" model="ir.actions.act_window">
+			<field name="name">amazon_shop_act</field>
+			<field name="res_model">amazon.shop</field>
+            <field name="view_mode">tree,form</field>
+			<field name="view_type">form</field>
+		</record>
+
+        <menuitem id="amazon_shop_menu" name="店铺管理" parent="account_authorized_menu" sequence="2"
+                  action="amazon_shop_act"/>
+	</data>
+</odoo>
