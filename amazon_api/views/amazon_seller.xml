@@ -31,6 +31,19 @@
                                 <field name="merchant_id" password="1"/>
 							</group>
 						</group>
+						<notebook>
+							<page string="市场">
+								<field name="marketplace_ids">
+									<tree editable="bottom">
+										<field name="country_id"/>
+										<field name="currency_id"/>
+										<field name="lang_id"/>
+										<field name="marketplace_id"/>
+										<field name="domain_name"/>
+									</tree>
+								</field>
+							</page>
+						</notebook>
 					</sheet>
 				</form>
 			</field>
@@ -43,7 +56,7 @@
 			<field name="view_type">form</field>
 		</record>
 		
-        <menuitem id="amazon_seller_menu" name="站点管理" parent="account_authorized_menu" sequence="1"
+        <menuitem id="amazon_seller_menu" name="卖家" parent="account_authorized_menu" sequence="1"
                   action="amazon_seller_act"/>
 	</data>
 </odoo>		

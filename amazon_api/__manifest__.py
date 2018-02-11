@@ -15,10 +15,10 @@
 
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
-        'views/menu.xml',
-        'views/amazon_seller.xml',
-        'views/amazon_shop.xml',
+        # 'data/ir_cron.xml',
+        # 'views/menu.xml',
+        # 'views/amazon_seller.xml',
+        # 'views/amazon_shop.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

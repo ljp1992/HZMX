@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="maintain_amazon_marketplace" model="ir.cron">
+            <field name="name">亚马逊市场数据维护</field>
+            <field name="user_id">1</field>
+            <field name="active" eval="False"/>
+            <field name="model">amazon.marketplace</field>
+            <field name="function">maintain_amazon_marketplace</field>
+            <field name="args" eval="False"/>
+        </record>
+    </data>
+</odoo>

@@ -43,7 +43,7 @@
 			<field name="view_type">form</field>
 		</record>
 
-        <menuitem id="amazon_shop_menu" name="店铺管理" parent="account_authorized_menu" sequence="2"
+        <menuitem id="amazon_shop_menu" name="店铺" parent="account_authorized_menu" sequence="2"
                   action="amazon_shop_act"/>
 	</data>
 </odoo>
