@@ -11,8 +11,8 @@ class AmazonMarketplace(models.Model):
 
     seller_ids = fields.Many2many('amazon.seller', 'seller_market_rel', 'market_id', 'seller_id')
     country_id = fields.Many2one('amazon.country', string=u'国家')
-    # currency_id = fields.Many2one('amazon.currency', string=u'货币')
-    # lang_id = fields.Many2one('amazon.lang', string=u'语言')
+    currency_id = fields.Many2one('amazon.currency', string=u'货币')
+    lang_id = fields.Many2one('amazon.lang', string=u'语言')
 
     # @api.model
     # def maintain_amazon_marketplace(self):
