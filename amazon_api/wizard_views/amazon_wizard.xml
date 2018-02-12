@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+        <!--创建店铺-->
+        <!--<record id="create_shop_wizard" model="ir.ui.view">-->
+			<!--<field name="name">create_shop_wizard</field>-->
+			<!--<field name="model">amazon.wizard</field>-->
+			<!--<field name="arch" type="xml">-->
+				<!--<form>-->
+					<!--<sheet>-->
+						<!--<group>-->
+							<!--<group>-->
+								<!--<field name="name" string="店铺名称"/>-->
+							<!--</group>-->
+						<!--</group>-->
+                        <!--<footer>-->
+                            <!--<button string='创建' name="create_shop" type="object" class="btn-primary"/>-->
+                            <!--<button string="取消" class="btn-default" special="cancel"/>-->
+                        <!--</footer>-->
+					<!--</sheet>-->
+				<!--</form>-->
+			<!--</field>-->
+		<!--</record>-->
+	</data>
+</odoo>

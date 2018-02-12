@@ -1,10 +1,12 @@
-。主站导入按钮隐藏
+。所有tree视图导入按钮隐藏
 。主站name宽度使用百分比控制
 。添加字段active，筛选出有效的国家、语言
+。list_marketplaces 报错！无法获取到亚马逊的所有市场信息。
+。市场数据用户可维护
+。man2many明细行添加button，点击button没有执行后台方法。
 
 
-
-
+seller info:
 AKIAICI2QBFVUDSSTXOA
 FDQWrV3r+HBvfOSnPgsKX5Bx1bOmFI//lGrDe2CO
 A2YUAAEMOGAIQV

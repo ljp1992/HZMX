@@ -17,6 +17,7 @@
 			<field name="arch" type="xml">
 				<form>
 					<header>
+						<button name="load_marketplace" type="object" string="获取市场" class="oe_highlight"/>
 					</header>
 					<sheet>
 						<div class="oe_title" style="width:400px;">
@@ -33,13 +34,20 @@
 						</group>
 						<notebook>
 							<page string="市场">
-								<field name="marketplace_ids">
-									<tree editable="bottom">
+								<field name="marketplace_ids" readonly="1">
+									<tree>
 										<field name="country_id"/>
 										<field name="currency_id"/>
 										<field name="lang_id"/>
 										<field name="marketplace_id"/>
-										<field name="domain_name"/>
+									</tree>
+								</field>
+							</page>
+							<page string="店铺" attrs="{'invisible':[('shop_ids','=',False)]}">
+								<field name="shop_ids" readonly="1" >
+									<tree>
+										<field name="name"/>
+										<field name="marketplace_id" string="市场"/>
 									</tree>
 								</field>
 							</page>
@@ -50,7 +58,7 @@
 		</record>
 
         <record id="amazon_seller_act" model="ir.actions.act_window">
-			<field name="name">amazon_seller_act</field>
+			<field name="name">卖家</field>
 			<field name="res_model">amazon.seller</field>
             <field name="view_mode">tree,form</field>
 			<field name="view_type">form</field>

@@ -186,6 +186,7 @@ class MWS( object ):
             # My answer is, here i have to get the url parsed string of params in order to sign it, so
             # if i pass the params dict as params to request, request will repeat that step because it will need
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
+            # print url
             response = request( method, url, data=kwargs.get( 'body', '' ), headers=headers,proxies=self.proxies or {})
             self.response = response
             if response.status_code!=200:
@@ -559,6 +560,16 @@ class Sellers( MWS ):
     URI = '/Sellers/2011-07-01'
     VERSION = '2011-07-01'
     NS = '{http://mws.amazonservices.com/schema/Sellers/2011-07-01}'
+
+    def list_marketplaces(self):
+        """
+            Returns a list of marketplaces a seller can participate in and
+            a list of participations that include seller-specific information in that marketplace.
+            The operation returns only those marketplaces where the seller's account is in an active state.
+        """
+
+        data = dict(Action='ListMarketplaces')
+        return self.make_request(data)
 
     def list_marketplace_participations( self ):
         """

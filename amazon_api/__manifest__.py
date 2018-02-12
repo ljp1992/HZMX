@@ -15,10 +15,10 @@
 
     # always loaded
     'data': [
-        # 'data/ir_cron.xml',
-        # 'views/menu.xml',
-        # 'views/amazon_seller.xml',
-        # 'views/amazon_shop.xml',
+        'data/ir_cron.xml',
+        'views/menu.xml',
+        'views/amazon_seller.xml',
+        'views/amazon_shop.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
