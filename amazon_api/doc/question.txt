@@ -4,9 +4,18 @@
 。list_marketplaces 报错！无法获取到亚马逊的所有市场信息。
 。市场数据用户可维护
 。man2many明细行添加button，点击button没有执行后台方法。
+。权限配置，以selection形式配置
+。删除user，同时删除partner
 
+
+需求确认：
+。卖家a在系统注册成功后，该卖家又创建了子账号b，那么b是只看到自己的产品、订单等信息，还是也可以看到a的产品、订单等信息吗？
+  目前是可以看到的。
+。商户子账号几个层级？a创建b，会不会再有b创建c的情况？
 
 seller info:
 AKIAICI2QBFVUDSSTXOA
 FDQWrV3r+HBvfOSnPgsKX5Bx1bOmFI//lGrDe2CO
 A2YUAAEMOGAIQV
+
+

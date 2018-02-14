@@ -31,6 +31,7 @@ class AmazonSeller(models.Model):
         for seller in self:
             if seller.shop_ids:
                 raise UserError(u'请先删除店铺！')
+        return super(AmazonSeller, self).unlink()
 
     @api.multi
     def load_marketplace(self):

@@ -15,8 +15,8 @@
 
     # always loaded
     'data': [
+        'security/ir.model.access.csv',
         'data/ir_cron.xml',
-        'views/menu.xml',
         'views/amazon_seller.xml',
         'views/amazon_shop.xml',
     ],

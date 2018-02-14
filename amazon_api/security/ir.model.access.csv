@@ -1,2 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_amazon_api_amazon_api,amazon_api.amazon_api,model_amazon_api_amazon_api,,1,0,0,0
+amazon_country_id,amazon_country,model_amazon_country,b2b_platform.b2b_shop_operator,1,1,1,1
+amazon_currency_id,amazon_currency,model_amazon_currency,b2b_platform.b2b_shop_operator,1,1,1,1
+amazon_lang_id,amazon_lang,model_amazon_lang,b2b_platform.b2b_shop_operator,1,1,1,1
+amazon_seller_id,amazon_seller,model_amazon_seller,b2b_platform.b2b_shop_operator,1,1,1,1
+amazon_shop_id,amazon_shop,model_amazon_shop,b2b_platform.b2b_shop_operator,1,1,1,1
+amazon_marketplace_id,amazon_marketplace,model_amazon_marketplace,b2b_platform.b2b_shop_operator,1,1,1,1

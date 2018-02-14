@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+        <menuitem id="ecommerce_menu_root" name="跨境电商" sequence="2"/>
+            <menuitem id="account_authorized_menu" parent="ecommerce_menu_root" name="账户授权" sequence="1"/>
+
+        <menuitem id="platform_manage_root" name="平台运营" sequence="4" groups="b2b_manager"/>
+            <menuitem id="merchant_menu_parent" name="商户" parent="platform_manage_root" sequence="1"/>
+	</data>
+</odoo>

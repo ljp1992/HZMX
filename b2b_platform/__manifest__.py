@@ -18,17 +18,19 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'sale', 'purchase', 'stock', 'account'],
+    'depends': ['base', 'mail', 'sale', 'purchase', 'account'],
 
     # always loaded
     'data': [
+        'security/res_groups.xml',
         # 'security/ir.model.access.csv',
-        'views/views.xml',
-        'views/templates.xml',
+        'views/menu.xml',
+        'views/res_users.xml',
+
     ],
     # only loaded in demonstration mode
     'demo': [
-        'demo/demo.xml',
+        # 'demo/demo.xml',
     ],
     'application': True,
 }
