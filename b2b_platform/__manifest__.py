@@ -18,7 +18,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'mail', 'sale', 'purchase', 'account'],
+    'depends': ['base', 'mail', 'sale', 'purchase', 'account', 'website'],
 
     # always loaded
     'data': [
@@ -26,6 +26,7 @@
         # 'security/ir.model.access.csv',
         'views/menu.xml',
         'views/res_users.xml',
+        'views/auth_signup.xml',
 
     ],
     # only loaded in demonstration mode

@@ -3,10 +3,11 @@
 	<data noupdate="0">
 		<record id="b2b_shop_operator" model="res.groups">
             <field name="name">b2b业务员</field>
-            <field name="implied_ids" eval="[(4, ref('purchase.group_purchase_manager')),
-                                             (4, ref('sales_team.group_sale_salesman_all_leads')),
-                                             (4, ref('stock.group_stock_manager'))
-                                             ]"/>
+            <field name="implied_ids" eval="[(6, 0, [
+                ref('purchase.group_purchase_manager'),
+                ref('sales_team.group_sale_salesman_all_leads'),
+                ref('stock.group_stock_manager'),
+                ])]"/>
         </record>
 
         <record id="b2b_seller" model="res.groups">
@@ -16,12 +17,14 @@
 
         <record id="b2b_manager" model="res.groups">
             <field name="name">b2b管理员</field>
-            <field name="implied_ids" eval="[(4, ref('b2b_seller'))]"/>
+            <field name="implied_ids" eval="[(6, 0, [
+                ref('base.group_erp_manager'),
+                ])]"/>
         </record>
 
-        <!--<record id="b2b_manager" model="res.groups">-->
-            <!--<field name="name">b2b管理员</field>-->
-            <!--<field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>-->
+        <!--只有admin账号可以看到销售、采购、仓储、会计菜单-->
+        <!--<record id="admin_group" model="res.groups">-->
+            <!--<field name="name">只有在admin账号下显示</field>-->
         <!--</record>-->
 	</data>
 </odoo>

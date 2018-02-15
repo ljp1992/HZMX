@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="categories_recursive" name="Category list">
+            <li t-att-class="'active' if c.id == int(category or 0) else None">
+                <a t-att-href="keep('/supplier/category/' + slug(c), category=0)+'#suppliers_container'" t-field="c.name"></a>
+                <ul t-if="c.child_id" class="nav nav-pills nav-stacked nav-hierarchy">
+                    <t t-foreach="c.child_id" t-as="c">
+                        <t t-call="b2b_platform.categories_recursive" />
+                    </t>
+                </ul>
+            </li>
+        </template>
+
+        <!--注册-->
+        <template id="signup_fields" inherit_id="auth_signup.fields">
+            <xpath expr="//input[@name='login']" position="attributes">
+                <attribute name="placeholder">请务必填写真实有效的邮箱</attribute>
+            </xpath>
+
+            <xpath expr="//div[@class='form-group field-confirm_password']">
+                <div class="form-group field-qdoo_func o_hidden">
+                    <label for="qdoo_func" class="control-label">账号类别</label>
+                    <input type="text" name="qdoo_func" id="qdoo_func" class="form-control" t-att-value="categ"/>
+                </div>
+                <div class="form-group field-mobile">
+                    <label for="mobile" class="control-label"><br/>联系手机</label>
+                    <input type="text" name="mobile" id="mobile" class="form-control" t-att-value="mobile"  placeholder="请保持畅通，方便与您联系"/>
+                </div>
+                <div t-if="categ=='supplier'" class="form-group field-category_id" style="display:none">
+                    <label class="control-label">我是:</label><br/>
+                    <t t-foreach="partner_categs" t-as="partner_categ">
+                        <label style="font-weight: normal">
+                            <input type="checkbox" t-attf-name="partner_categ_#{partner_categ['id']}"
+                                   t-att-value="partner_categ['id']"
+                                   t-att-checked="'checked' if qdoo_check('partner_categ_%s' % partner_categ['id']) else None"/>
+                            <span t-raw="partner_categ['name']"/>
+                        </label>
+                    </t>
+                </div>
+                <div class="form-group field-introduction">
+                    <label for="introduction" class="control-label">公司简介</label>
+                    <textarea name="introduction" id="introduction" class="form-control" placeholder="作为入驻的审核条件之一，请做一下简单介绍"><t t-raw="introduction"/></textarea>
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" id="accept_agreement" name="accept_agreement" required="required"
+                           t-att-checked="'checked' if accept_agreement else None"/>
+                    <label for="accept_agreement">接受入驻协议</label>
+                    <a href="/page/agreements" target="_blank">入驻协议</a>
+                </div>
+
+            </xpath>
+        </template>
+
+        <template id="signup" inherit_id="auth_signup.signup">
+            <xpath expr="//form[@class='oe_signup_form']" position="before">
+                <style type="text/css">
+                    #user_categs a {display: inline-block;text-decoration:none;width:125px;}
+                    #user_categs a .thumbnail {padding-top: 15px;color: #337ab7;}
+                    #user_categs a.active .thumbnail {background-color: rgb(95, 206, 185);color: #fff;}
+                    #user_categs a .thumbnail .caption {color: #337ab7;}
+                    #user_categs a.active .thumbnail .caption {color: #fff;}
+                    #user_categs a .thumbnail h3 {margin: 0;}
+                    #user_categs a .thumbnail i {font-size: 30px;}
+                </style>
+                <div id="user_categs" class="col-md-12 text-center" style="z-index: 100;">
+                    <a href="/web/signup?categ=supplier" t-att-class="'active' if categ else ''">
+                        <div class="thumbnail">
+                            <i class="fa fa-desktop"/>
+                            <div class="caption">
+                                <h3>公司入驻</h3>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </xpath>
+            <xpath expr="//p[@class='alert alert-danger']" position="replace">
+            </xpath>
+            <xpath expr="//input[@name='csrf_token']" position="after">
+                <div class="col-md-12">
+                <p class="alert alert-danger" t-if="error">
+                    <t t-esc="error"/>
+                </p>
+                </div>
+            </xpath>
+            <xpath expr="//form" position="after">
+                <script>
+                    $('form button[type="submit"]').click(function(fv){
+                        //注册时验证邮箱格式
+                        var login = document.getElementById('login').value;
+                        var myReg = /^[a-zA-Z0-9_-]+@([a-zA-Z0-9]+\.)/;
+                        if (!myReg.test(login)){
+                            fv.preventDefault();
+                            fv.stopPropagation();
+                            alert("邮箱格式有误");
+                        }
+                    })
+                </script>
+            </xpath>
+        </template>
+
+        <template id="login" inherit_id="web.login">
+            <xpath expr="//div[@class='form-group field-password']" position="after">
+                <div class="form-group">
+                    <span id="v_container" style="width: 180px;height: 50px;float:right;"/>
+                    <input type="text" id="code_input" class="form-control" value="" placeholder="请输入验证码"
+                           style="width:110px;height:50px"/>
+                </div>
+            </xpath>
+            <xpath expr="//form" position="after">
+                <script src="/b2b_platform/static/src/js/gVerify.js"></script>
+                <script>
+                    var verifyCode = new GVerify("v_container");
+                    $('form button[type="submit"]').click(function(ev){
+                        //禁止同步账号登录 Added by ljp on 2017-05-18
+                        var login = document.getElementById('login').value;
+                        if (login == 'data_sync_admin@qq.com'){
+                            ev.preventDefault();
+                            ev.stopPropagation();
+                            alert('禁止使用该账号登录系统！');
+                            return false;
+                        }
+
+                        var res = verifyCode.validate(document.getElementById("code_input").value);
+                        if(res){
+                        }else{
+                            ev.preventDefault();
+                            ev.stopPropagation();
+                            alert("验证码错误");
+                        }
+                    })
+                </script>
+            </xpath>
+        </template>
+    </data>
+</odoo>

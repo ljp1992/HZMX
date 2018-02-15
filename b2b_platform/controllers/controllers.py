@@ -1,41 +1,37 @@
 # -*- coding: utf-8 -*-
+from odoo import http, _
+from odoo.http import request
+from odoo.addons.website_sale.controllers.main import WebsiteSale, TableCompute
+from odoo.addons.website.models.website import slug
+from odoo.addons.website.controllers.main import QueryURL
+from odoo.addons.auth_signup.controllers.main import AuthSignupHome
+from odoo.addons.auth_signup.models.res_users import SignupError
+from odoo.addons.website_portal.controllers.main import website_account
+import base64
+from odoo.exceptions import UserError
+
 import logging
 import werkzeug
-from odoo import http, _
-from odoo.addons.auth_signup.models.res_users import SignupError
-from odoo.addons.web.controllers.main import ensure_db, Home
-from odoo.http import request
-
-from odoo.addons.auth_signup.controllers.main import AuthSignupHome
 
 _logger = logging.getLogger(__name__)
 
-class AuthSignupHomeChild(AuthSignupHome):
+PPG = 20  # Products Per Page
+PPR = 4   # Products Per Row
 
-    @http.route('/web/signup', type='http', auth='public', website=True)
-    def web_auth_signup(self, *args, **kw):
-        print 'ljp'
-        qcontext = self.get_auth_signup_qcontext()
 
-        if not qcontext.get('token') and not qcontext.get('signup_enabled'):
-            raise werkzeug.exceptions.NotFound()
+class AuthSignupHomeNew(AuthSignupHome):
 
-        if 'error' not in qcontext and request.httprequest.method == 'POST':
-            try:
-                self.do_signup(qcontext)
-                #设置新注册用户为待审核状态 added by ljp
-                login = kw.get('login')
-                user = request.env['res.users'].sudo().search([('login', '=', login)])
-                user.audit_state = 'waiting'
-                #end
-                return super(AuthSignupHome, self).web_login(*args, **kw)
-            except (SignupError, AssertionError), e:
-                if request.env["res.users"].sudo().search([("login", "=", qcontext.get("login"))]):
-                    qcontext["error"] = _("Another user is already registered using this email address.")
-                else:
-                    _logger.error(e.message)
-                    qcontext['error'] = _("Could not create a new account.")
-
-        return request.render('auth_signup.signup', qcontext)
-
+    def do_signup(self, qcontext):
+        '''写入res_partner category_id值  Modefied by 刘吉平 on 2018-01-03'''
+        # assert qcontext.get('password'), u"请输入密码！"
+        super(AuthSignupHomeNew, self).do_signup(qcontext)
+        user = request.env['res.users'].sudo().search([('login', '=', qcontext.get('login'))])
+        print 11111,qcontext
+        if user:
+            user.write({
+                'user_type': 'merchant',
+                'audit_state': 'waiting',
+                'phone': qcontext.get('mobile'),
+                'introduction': qcontext.get('introduction'),
+            })
 
