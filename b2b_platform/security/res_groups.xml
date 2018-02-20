@@ -12,13 +12,16 @@
 
         <record id="b2b_seller" model="res.groups">
             <field name="name">b2b商户</field>
-            <field name="implied_ids" eval="[(4, ref('b2b_platform.b2b_shop_operator')),]"/>
+            <field name="implied_ids" eval="[
+                (4, ref('b2b_platform.b2b_shop_operator')),
+                (4, ref('base.group_erp_manager')),
+                ]"/>
         </record>
 
         <record id="b2b_manager" model="res.groups">
             <field name="name">b2b管理员</field>
             <field name="implied_ids" eval="[(6, 0, [
-                ref('base.group_erp_manager'),
+                ref('b2b_platform.b2b_seller'),
                 ])]"/>
         </record>
 

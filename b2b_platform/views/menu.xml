@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 	<data>
-        <menuitem id="ecommerce_menu_root" name="跨境电商" sequence="1" groups="b2b_shop_operator"/>
+        <menuitem id="ecommerce_menu_root" name="跨境电商" sequence="1" groups="b2b_platform.b2b_shop_operator"/>
             <menuitem id="account_authorized_menu" parent="ecommerce_menu_root" name="账户授权" sequence="1"/>
 
-        <menuitem id="platform_manage_root" name="平台运营" sequence="4" groups="b2b_manager"/>
+        <menuitem id="platform_manage_root" name="平台运营" sequence="4" groups="b2b_platform.b2b_seller"/>
             <menuitem id="acount_manage_parent" name="账号管理" parent="platform_manage_root" sequence="1"/>
-
 
         <!--隐藏销售、采购、仓库、会计菜单-->
         <record model="ir.ui.menu" id="sales_team.menu_base_partner">

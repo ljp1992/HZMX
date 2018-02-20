@@ -14,6 +14,11 @@ class AmazonShop(models.Model):
     currency_id = fields.Many2one('amazon.currency', related='marketplace_id.currency_id', string=u'货币', store=False,
                                   readonly=1)
     lang_id = fields.Many2one('amazon.lang', related='marketplace_id.lang_id', string=u'语言', store=False, readonly=1)
+    operator_id = fields.Many2one('res.users', default=lambda self: self.env.user,
+                                  domain=lambda self: ['|',('id', '=', self.env.user.id),
+                                                       ('merchant_id', '=', self.env.user.id)], string=u'操作员')
+    merchant_id = fields.Many2one('res.users', default=lambda self: self.env.user.merchant_id or self.env.user,
+                                  string=u'商户')
 
     @api.model
     def create(self, val):
@@ -39,3 +44,23 @@ class AmazonShop(models.Model):
             ])
             if len(results) > 1:
                 raise UserError(u'系统中已存在该卖家该市场的店铺！')
+
+    @api.model
+    def return_act_view(self):
+        domain = []
+        user = self.env.user
+        if user.user_type == 'operator':
+            domain = [('operator_id', '=', user.id)]
+        elif user.user_type == 'merchant':
+            domain = [('merchant_id', '=', user.id)]
+        return {
+            'type': 'ir.actions.act_window',
+            'name': u'店铺',
+            'view_mode': 'tree,form',
+            'view_type': 'form',
+            'views': [(self.env.ref('amazon_api.amazon_shop_tree').id, 'tree'),
+                      (self.env.ref('amazon_api.amazon_shop_form').id, 'form')],
+            'res_model': 'amazon.shop',
+            'domain': domain,
+            'target': 'current',
+        }

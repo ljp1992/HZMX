@@ -22,14 +22,14 @@
 					<sheet>
 						<div class="oe_title" style="width:400px;">
                             <h1>
-                                <field name="name"/>
+                                <field name="name" placeholder="名称"/>
                             </h1>
                         </div>
 						<group>
 							<group>
 								<field name="access_key" password="1"/>
 								<field name="secret_key" password="1"/>
-                                <field name="merchant_id" password="1"/>
+                                <field name="merchant_id_num" password="1"/>
 							</group>
 						</group>
 						<notebook>
@@ -38,33 +38,35 @@
 									<tree>
 										<field name="country_id"/>
 										<field name="currency_id"/>
+										<field name="currency_symbol"/>
 										<field name="lang_id"/>
 										<field name="marketplace_id"/>
 									</tree>
 								</field>
 							</page>
-							<page string="店铺" attrs="{'invisible':[('shop_ids','=',False)]}">
-								<field name="shop_ids" readonly="1" >
-									<tree>
-										<field name="name"/>
-										<field name="marketplace_id" string="市场"/>
-									</tree>
-								</field>
-							</page>
+							<!--<page string="店铺" attrs="{'invisible':[('shop_ids','=',False)]}">-->
+								<!--<field name="shop_ids" readonly="1" >-->
+									<!--<tree>-->
+										<!--<field name="name"/>-->
+										<!--<field name="marketplace_id" string="市场"/>-->
+									<!--</tree>-->
+								<!--</field>-->
+							<!--</page>-->
 						</notebook>
 					</sheet>
 				</form>
 			</field>
 		</record>
 
-        <record id="amazon_seller_act" model="ir.actions.act_window">
+        <record id="amazon_seller_act" model="ir.actions.server">
 			<field name="name">卖家</field>
-			<field name="res_model">amazon.seller</field>
-            <field name="view_mode">tree,form</field>
-			<field name="view_type">form</field>
+			<field name="model_id" ref="amazon_api.model_amazon_seller"/>
+			<field name="code">
+    			action = model.return_act_view()
+            </field>
 		</record>
 		
         <menuitem id="amazon_seller_menu" name="卖家" parent="b2b_platform.account_authorized_menu" sequence="1"
-                  action="amazon_seller_act"/>
+                  action="amazon_seller_act" groups="b2b_platform.b2b_seller"/>
 	</data>
 </odoo>		

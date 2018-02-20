@@ -1,6 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 	<data>
+		<!--b2b平台运营账号-->
+		<record id="b2b_res_users_tree" model="ir.ui.view">
+			<field name="name">res_users_tree</field>
+			<field name="model">res.users</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="name"/>
+					<field name="login" string="账号"/>
+                    <field name="email"/>
+                    <field name="phone"/>
+				</tree>
+			</field>
+		</record>
+
+		<record id="b2b_res_users_form" model="ir.ui.view">
+			<field name="name">res_users_form</field>
+			<field name="model">res.users</field>
+			<field name="arch" type="xml">
+				<form>
+					<sheet>
+						<div class="oe_title" style="width:400px;">
+                            <h1>
+                                <field name="name" required="1" placeholder="名字"/>
+                            </h1>
+                        </div>
+						<group>
+							<group>
+								<field name="login" string="账号"/>
+								<field name="email" required="1"/>
+                                <field name="phone"/>
+							</group>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+		<record id="b2b_res_users_search" model="ir.ui.view">
+			<field name="name">res_users_search</field>
+			<field name="model">res.users</field>
+			<field name="arch" type="xml">
+				<search string="">
+					<field name="name"/>
+					<field name="login"/>
+					<field name="email"/>
+					<field name="phone"/>
+				</search>
+			</field>
+		</record>
+
+        <record id="b2b_res_users_act" model="ir.actions.act_window">
+			<field name="name">平台管理员</field>
+			<field name="res_model">res.users</field>
+            <field name="view_mode">tree,form</field>
+			<field name="view_type">form</field>
+			<field name="domain">[('user_type','=','management')]</field>
+			<field name="search_view_id" ref="b2b_platform.b2b_res_users_search"/>
+			<field name="context">{'default_user_type': 'management'}</field>
+		</record>
+
+        <record id="b2b_res_users_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="b2b_platform.b2b_res_users_tree"/>
+            <field name="act_window_id" ref="b2b_platform.b2b_res_users_act"/>
+        </record>
+
+        <record id="b2b_res_users_act_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="b2b_platform.b2b_res_users_form"/>
+            <field name="act_window_id" ref="b2b_platform.b2b_res_users_act"/>
+        </record>
+
+		<menuitem id="b2b_res_users_menu" name="平台管理员" parent="acount_manage_parent" sequence="1"
+                  action="b2b_platform.b2b_res_users_act" groups="base.group_system"/>
+
+
+		
 		<!--商户-->
 		<record id="res_users_tree" model="ir.ui.view">
 			<field name="name">res_users_tree</field>
@@ -85,14 +164,11 @@
         </record>
 
         <menuitem id="res_users_menu" name="商户" parent="acount_manage_parent" sequence="2"
-                  action="b2b_platform.res_users_act"/>
+                  action="b2b_platform.res_users_act" groups="b2b_platform.b2b_manager"/>
 
-
-
-
-		<!--b2b平台运营账号-->
-		<record id="b2b_res_users_tree" model="ir.ui.view">
-			<field name="name">res_users_tree</field>
+		<!--操作员-->
+		<record id="b2b_operator_tree" model="ir.ui.view">
+			<field name="name">operator_tree</field>
 			<field name="model">res.users</field>
 			<field name="arch" type="xml">
 				<tree>
@@ -104,8 +180,8 @@
 			</field>
 		</record>
 
-		<record id="b2b_res_users_form" model="ir.ui.view">
-			<field name="name">res_users_form</field>
+		<record id="b2b_operator_form" model="ir.ui.view">
+			<field name="name">operator_form</field>
 			<field name="model">res.users</field>
 			<field name="arch" type="xml">
 				<form>
@@ -127,8 +203,8 @@
 			</field>
 		</record>
 
-		<record id="b2b_res_users_search" model="ir.ui.view">
-			<field name="name">res_users_search</field>
+		<record id="b2b_operator_search" model="ir.ui.view">
+			<field name="name">operator_search</field>
 			<field name="model">res.users</field>
 			<field name="arch" type="xml">
 				<search string="">
@@ -140,31 +216,15 @@
 			</field>
 		</record>
 
-        <record id="b2b_res_users_act" model="ir.actions.act_window">
-			<field name="name">平台管理员</field>
-			<field name="res_model">res.users</field>
-            <field name="view_mode">tree,form</field>
-			<field name="view_type">form</field>
-			<field name="domain">[('user_type','=','management')]</field>
-			<field name="search_view_id" ref="b2b_platform.b2b_res_users_search"/>
-			<field name="context">{'default_user_type': 'management'}</field>
+		<record id="b2b_operator_act" model="ir.actions.server">
+			<field name="name">店铺操作员</field>
+			<field name="model_id" ref="model_res_users"/>
+			<field name="code">
+    			action = model.return_operator_view()
+            </field>
 		</record>
 
-        <record id="b2b_res_users_act_tree" model="ir.actions.act_window.view">
-            <field name="sequence" eval="1"/>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="b2b_platform.b2b_res_users_tree"/>
-            <field name="act_window_id" ref="b2b_platform.b2b_res_users_act"/>
-        </record>
-
-        <record id="b2b_res_users_act_form" model="ir.actions.act_window.view">
-            <field name="sequence" eval="1"/>
-            <field name="view_mode">form</field>
-            <field name="view_id" ref="b2b_platform.b2b_res_users_form"/>
-            <field name="act_window_id" ref="b2b_platform.b2b_res_users_act"/>
-        </record>
-
-		<menuitem id="b2b_res_users_menu" name="平台管理员" parent="acount_manage_parent" sequence="1"
-                  action="b2b_platform.b2b_res_users_act" groups="base.group_no_one"/>
+		<menuitem id="b2b_operator_menu" name="店铺操作员" parent="acount_manage_parent" sequence="3"
+                  action="b2b_platform.b2b_operator_act" groups="b2b_platform.b2b_seller"/>
 	</data>
 </odoo>		
