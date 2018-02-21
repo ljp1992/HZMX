@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="product_attribute_value_tree" model="ir.ui.view">
+			<field name="name">product_attribute_value_tree</field>
+			<field name="model">product.attribute.value</field>
+			<field name="arch" type="xml">
+				<tree editable="top">
+					<field name="attribute_id" options="{'no_create':True}"/>
+					<field name="name"/>
+                    <field name="chinese"/>
+					<field name="english"/>
+					<field name="spanish"/>
+					<field name="german"/>
+					<field name="french"/>
+					<field name="italian"/>
+					<field name="japanese"/>
+				</tree>
+			</field>
+		</record>
+
+		<record id="product_attribute_value_form" model="ir.ui.view">
+			<field name="name">product_attribute_value_form</field>
+			<field name="model">product.attribute.value</field>
+			<field name="arch" type="xml">
+				<form>
+					<sheet>
+                        <group>
+                            <group>
+								<field name="name" />
+                                <field name="attribute_id" options="{'no_create':True}"/>
+                            </group>
+                            <group>
+                                <field name="chinese"/>
+								<field name="english"/>
+								<field name="spanish"/>
+								<field name="german"/>
+								<field name="french"/>
+								<field name="italian"/>
+								<field name="japanese"/>
+                            </group>
+                        </group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+		<record id="product_attribute_value_search" model="ir.ui.view">
+			<field name="name">product_attribute_value_search</field>
+			<field name="model">product.attribute.value</field>
+			<field name="arch" type="xml">
+				<search string="">
+					<field name="attribute_id"/>
+					<field name="name"/>
+					<field name="chinese"/>
+					<field name="english"/>
+					<field name="spanish"/>
+					<field name="german"/>
+					<field name="french"/>
+					<field name="italian"/>
+					<field name="japanese"/>
+					<group expand="1" string="Group By">
+						<filter string="属性" name='attribute' context="{'group_by':'attribute_id'}"/>
+					</group>
+				</search>
+			</field>
+		</record>
+
+		<record id="product_attribute_value_act" model="ir.actions.act_window">
+            <field name="name">属性值</field>
+            <field name="res_model">product.attribute.value</field>
+            <field name="view_mode">tree</field>
+            <field name="view_type">form</field>
+			<field name="search_view_id" ref="product_attribute_value_search"/>
+        </record>
+
+		<record id="product_attribute_value_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="product_attribute_value_tree"/>
+            <field name="act_window_id" ref="product_attribute_value_act"/>
+        </record>
+
+        <menuitem id="product_attribute_value_menu" name="属性值" parent="b2b_platform.base_data_menu" sequence="2"
+                  action="amazon_api.product_attribute_value_act" groups="b2b_platform.b2b_manager"/>
+	</data>
+</odoo>

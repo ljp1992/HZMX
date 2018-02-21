@@ -5,3 +5,13 @@ amazon_lang_id,amazon_lang,model_amazon_lang,b2b_platform.b2b_shop_operator,1,1,
 amazon_seller_id,amazon_seller,model_amazon_seller,b2b_platform.b2b_shop_operator,1,1,1,1
 amazon_shop_id,amazon_shop,model_amazon_shop,b2b_platform.b2b_shop_operator,1,1,1,1
 amazon_marketplace_id,amazon_marketplace,model_amazon_marketplace,b2b_platform.b2b_shop_operator,1,1,1,1
+merchant_category_id,merchant_category,model_merchant_category,b2b_platform.b2b_shop_operator,1,1,1,1
+copy_platform_id,copy_platform,model_copy_platform,b2b_platform.b2b_shop_operator,1,1,1,1
+product_description_id,product_description,model_product_description,b2b_platform.b2b_shop_operator,1,1,1,1
+product_image_id,product_image,model_product_image,b2b_platform.b2b_shop_operator,1,1,1,1
+product_brand_id,product_brand,model_product_brand,b2b_platform.b2b_shop_operator,1,1,1,1
+freight_line_id,freight_line,model_freight_line,b2b_platform.b2b_shop_operator,1,1,1,1
+freight_template_id,freight_template,model_freight_template,b2b_platform.b2b_shop_operator,1,1,1,1
+
+
+

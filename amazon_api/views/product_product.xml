@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="product_product_tree" model="ir.ui.view">
+			<field name="name">product_product_tree</field>
+			<field name="model">product.product</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="name"/>
+					<field name="attribute_value_ids"/>
+				</tree>
+			</field>
+		</record>
+
+		<record id="product_product_form" model="ir.ui.view">
+			<field name="name">product_product_form</field>
+			<field name="model">product.product</field>
+			<field name="arch" type="xml">
+				<form>
+					<sheet>
+						<field name="main_img_url" widget="form_image" class="oe_avatar"/>
+                        <div class="oe_title">
+                            <label class="oe_edit_only" for="name" string="产品名称"/>
+                            <h1><field name="name" placeholder="产品名称" readonly="1"/></h1>
+                        </div>
+						<group>
+							<field name="attribute_value_ids" widget="many2many_tags" readonly="1"/>
+                        </group>
+                        <group>
+                            <group>
+								<field name="sku"/>
+                                <field name="upc"/>
+                            </group>
+							<group>
+								<field name="volume"/>
+                                <field name="weight"/>
+                            </group>
+                        </group>
+						<group>
+                            <group>
+								<field name="supplier_price"/>
+                            </group>
+                        </group>
+						<notebook>
+							<page string="图片">
+                                <field name="main_images">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="url" widget="image" string="主图"/>
+                                    </tree>
+                                </field>
+                                <field name="other_images">
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="url" widget="image" string="副图"/>
+                                    </tree>
+                                </field>
+							</page>
+						</notebook>
+					</sheet>
+				</form>
+			</field>
+		</record>
+	</data>
+</odoo>

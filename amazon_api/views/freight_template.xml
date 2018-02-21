@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="freight_template_tree" model="ir.ui.view">
+			<field name="name">freight_template_tree</field>
+			<field name="model">freight.template</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="name"/>
+				</tree>
+			</field>
+		</record>
+
+        <record id="freight_template_form" model="ir.ui.view">
+			<field name="name">freight_template_form</field>
+			<field name="model">freight.template</field>
+			<field name="arch" type="xml">
+				<form>
+					<sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                            </group>
+                        </group>
+						<notebook>
+                            <page string="运费">
+                                <field name="freight_lines">
+                                    <tree editable="bottom">
+                                        <field name="country_id" options="{'no_create':True}"/>
+                                        <field name="freight"/>
+                                    </tree>
+                                </field>
+							</page>
+						</notebook>
+					</sheet>
+				</form>
+			</field>
+		</record>       
+
+        <record id="freight_template_act" model="ir.actions.act_window">
+            <field name="name">运费模板</field>
+            <field name="res_model">freight.template</field>
+            <field name="view_mode">tree</field>
+            <field name="view_type">form</field>
+        </record>
+
+        <record id="freight_template_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="freight_template_tree"/>
+            <field name="act_window_id" ref="freight_template_act"/>
+        </record>
+
+        <record id="freight_template_act_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="freight_template_form"/>
+            <field name="act_window_id" ref="freight_template_act"/>
+        </record>
+
+        <menuitem id="freight_template_menu" name="运费模板" parent="b2b_platform.account_authorized_menu" sequence="4"
+                  action="freight_template_act"/>
+	</data>
+</odoo>

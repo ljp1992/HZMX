@@ -1,0 +1,36 @@
+<odoo>
+  <data>
+    <!-- 导入excel form -->
+      <record id="import_wizard_form" model="ir.ui.view">
+        <field name="name">import_wizard_form</field>
+        <field name="model">import.wizard</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <form string="">
+                <div>
+                    <b>请选择UPC明细文件：只需一列，第一行为表头; 下边为编码内容，一行一个编码，但编码必须为文本格式，不能为数字类型</b>
+                </div>
+                <group>
+                    <group>
+                        <field name="data" nolabel="1"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="导入" name="import_excel" type="object" class="btn-primary"/>
+                    or
+                    <button string="取消" class="oe_link" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!--导入excel action-->
+      <record id="import_customer_act" model="ir.actions.act_window">
+          <field name="name">导入excel</field>
+          <field name="res_model">import.wizard</field>
+          <field name="view_type">form</field>
+          <field name="view_mode">form</field>
+          <field name="target">new</field>
+      </record>
+  </data>
+</odoo>

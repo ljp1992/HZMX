@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <template id="assets_backend" inherit_id="web.assets_backend" name="document_multi_upload assets">
+            <xpath expr="." position="inside">
+                <link rel="stylesheet" href="/document_multi_upload/static/src/less/document_multi_upload.less"/>
+                <script type="text/javascript" src="/document_multi_upload/static/src/js/document_multi_upload.js"/>
+            </xpath>
+        </template>
+    </data>
+</openerp>

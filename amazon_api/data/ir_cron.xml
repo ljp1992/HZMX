@@ -9,5 +9,14 @@
             <field name="function">maintain_amazon_marketplace</field>
             <field name="args" eval="False"/>
         </record>
+
+        <record id="create_product_attr" model="ir.cron">
+            <field name="name">创建产品属性</field>
+            <field name="user_id">1</field>
+            <field name="active" eval="False"/>
+            <field name="model">product.attribute</field>
+            <field name="function">create_product_attribute</field>
+            <field name="args" eval="False"/>
+        </record>
     </data>
 </odoo>

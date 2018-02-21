@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="product_attribute_tree" model="ir.ui.view">
+			<field name="name">product_attribute_tree</field>
+			<field name="model">product.attribute</field>
+			<field name="arch" type="xml">
+				<tree editable="top">
+					<field name="name"/>
+                    <field name="english_name"/>
+				</tree>
+			</field>
+		</record>
+
+		<record id="product_attribute_form" model="ir.ui.view">
+			<field name="name">product_attribute_form</field>
+			<field name="model">product.attribute</field>
+			<field name="arch" type="xml">
+				<form>
+					<sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                            </group>
+                            <group>
+                                <field name="english_name" required="True"/>
+                            </group>
+                        </group>
+						<notebook>
+							<page string="属性值">
+								<field name="value_ids">
+                                    <tree>
+                                        <field name="name"/>
+                                    </tree>
+                                </field>
+							</page>
+						</notebook>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+        <record id="product_attribute_search" model="ir.ui.view">
+			<field name="name">product_attribute_search</field>
+			<field name="model">product.attribute</field>
+			<field name="arch" type="xml">
+				<search string="">
+					<field name="name"/>
+					<field name="english_name"/>
+				</search>
+			</field>
+		</record>
+
+        <record id="product_attribute_act" model="ir.actions.act_window">
+            <field name="name">属性</field>
+            <field name="res_model">product.attribute</field>
+            <field name="view_mode">tree</field>
+            <field name="view_type">form</field>
+            <field name="search_view_id" ref="product_attribute_search"/>
+        </record>
+
+        <record id="product_attribute_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="product_attribute_tree"/>
+            <field name="act_window_id" ref="product_attribute_act"/>
+        </record>
+
+        <menuitem id="product_attribute_menu" name="属性" parent="b2b_platform.base_data_menu" sequence="1"
+                  action="amazon_api.product_attribute_act" groups="b2b_platform.b2b_manager"/>
+	</data>
+</odoo>

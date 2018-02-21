@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-extend="FormView.buttons">
+        <t t-jquery=".o_form_buttons_view" t-operation="append">
+            <form t-if="widget.is_action_enabled('edit') and widget.dataset and widget.dataset.model=='product.template'"
+                  class="o_form_file_upload" action="/web/binary/upload_formdata">
+                <input type="hidden" name="csrf_token" t-att-value="csrf_token"/>
+                <input type="hidden" name="model" t-att-value="widget.dataset.model"/>
+                <input type="hidden" name="session_id" t-att-value="widget.session.session_id" t-if="widget.session.override_session"/>
+                <button accesskey="u" class="btn btn-default btn-sm o_form_button_upload" type="button">
+                    上传产品图片<span class="badge"></span>
+                </button>
+                <input type="file" multiple="true" class="o_form_file_upload_input"/>
+            </form>
+        </t>
+    </t>
+</templates>

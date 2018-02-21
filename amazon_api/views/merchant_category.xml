@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="merchant_category_tree" model="ir.ui.view">
+			<field name="name">merchant_category_tree</field>
+			<field name="model">merchant.category</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="display_name"/>
+                    <field name="rate"/>
+				</tree>
+			</field>
+		</record>
+
+        <record id="merchant_category_form" model="ir.ui.view">
+			<field name="name">merchant_category_form</field>
+			<field name="model">merchant.category</field>
+			<field name="arch" type="xml">
+				<form>
+					<sheet>
+						<group>
+							<group>
+								<field name="name"/>
+                                <field name="id" invisible="1"/>
+                                <field name="parent_id" options="{'no_create':True}"
+                                       context="{'categ_id_ljp':id}"/>
+							</group>
+                            <group>
+								<field name="rate"/>
+							</group>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+        <record id="merchant_category_act" model="ir.actions.server">
+			<field name="name">产品内部分类</field>
+			<field name="model_id" ref="amazon_api.model_merchant_category"/>
+			<field name="code">
+    			action = model.return_act_view()
+            </field>
+		</record>
+
+        <menuitem id="merchant_category_menu" name="产品内部分类" parent="b2b_platform.product_root" sequence="1"
+                  action="merchant_category_act"/>
+	</data>
+</odoo>		

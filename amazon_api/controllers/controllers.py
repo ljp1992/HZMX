@@ -1,20 +1,47 @@
 # -*- coding: utf-8 -*-
+
+import base64, uuid
+import logging
+import json
+
 from odoo import http
+from odoo.http import request
+from odoo import _
+import oss2
+from odoo.exceptions import UserError
 
-# class AmazonApi(http.Controller):
-#     @http.route('/amazon_api/amazon_api/', auth='public')
-#     def index(self, **kw):
-#         return "Hello, world"
+from odoo.addons.document_multi_upload.controllers.main import Binary
 
-#     @http.route('/amazon_api/amazon_api/objects/', auth='public')
-#     def list(self, **kw):
-#         return http.request.render('amazon_api.listing', {
-#             'root': '/amazon_api/amazon_api',
-#             'objects': http.request.env['amazon_api.amazon_api'].search([]),
-#         })
+class BinaryChild(Binary):
 
-#     @http.route('/amazon_api/amazon_api/objects/<model("amazon_api.amazon_api"):obj>/', auth='public')
-#     def object(self, obj, **kw):
-#         return http.request.render('amazon_api.object', {
-#             'object': obj
-#         })
+    @http.route('/web/binary/upload_formdata/', type='http', auth='user')
+    def upload_formdata(self, model, id, ufile, last_file):
+        template_obj = request.env['product.template']
+        id = int(id)
+        args = {}
+        filename = ufile.filename
+        template = template_obj.search([('id', '=', id)])
+        if not template:
+            raise UserError(u'template is null!')
+        raw_data = ufile.read()
+        name = str(uuid.uuid1()) + filename
+        image_url = 'http://imghub360.mxnet.cn/item/' + name
+        try:
+            auth = oss2.Auth('LTAIy1XF2bUUWM6N', 'GqomKcGskXOIQdbHVVHmMiIrqjjavp')
+            bucket = oss2.Bucket(auth, 'http://oss-cn-hangzhou-internal.aliyuncs.com', 'image-hub360-b2b',
+                                 connect_timeout=3)
+            bucket.put_object('item/' + name, raw_data)
+        except Exception, e:
+            return request.make_response(json.dumps({'error': u'连接超时！'}), [('Content-Type', 'application/json')])
+        main_image = template.images.filtered(lambda r: r.tmpl_main == True)
+        if main_image:
+            tmpl_main = False
+        else:
+            tmpl_main = True
+        val = {
+            'name': filename,
+            'url': image_url,
+            'tmpl_main': tmpl_main,
+        }
+        template.images = [(0, 0, val)]
+        return request.make_response(json.dumps(args), [('Content-Type', 'application/json')])
