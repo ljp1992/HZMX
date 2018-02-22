@@ -377,7 +377,7 @@ class ProductTemplate(models.Model):
                     <Inventory>
                         <SKU>%s</SKU>
                         <Quantity>%s</Quantity>
-                        <Fulfillmentlatency>%d</Fulfillmentlatency>
+                        <FulfillmentLatency>%d</FulfillmentLatency>
                     </Inventory>
                 </Message>""" % (message_id, pro.sku, str(inventory), template.handle_days)
             head = """<?xml version="1.0"?>
