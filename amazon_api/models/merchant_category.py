@@ -7,12 +7,7 @@ class MerchantCategory(models.Model):
     _name = "merchant.category"
 
     name = fields.Char(inverse='_set_display_name', required=True, string=u'分类名称')
-    display_name = fields.Char(string=u'分类名称')
-
-    # name = fields.Char(inverse='_set_display_name', required=True, string=u'分类名称')
-    # name = fields.Char(inverse='', required=True, string=u'分类名称')
-    # display_name = fields.Char(compute='_get_display_name', store=True, string=u'分类名称')
-    # display_name = fields.Char(string=u'分类名称')
+    display_name = fields.Char(store=True, string=u'分类名称')
 
     rate = fields.Float(string=u'上浮率(%)')
 

@@ -17,6 +17,7 @@
 			<field name="model">product.product</field>
 			<field name="arch" type="xml">
 				<form>
+					<field name="state" invisible="1"/>
 					<sheet>
 						<field name="main_img_url" widget="form_image" class="oe_avatar"/>
                         <div class="oe_title">
@@ -38,7 +39,17 @@
                         </group>
 						<group>
                             <group>
-								<field name="supplier_price"/>
+								<field name="supplier_price" attrs="{'invisible':[('state', 'not in',
+									['platform_unpublished'])]}"/>
+								<field name="platform_price" attrs="{'invisible':[('state', 'not in',
+									['platform_unpublished', 'platform_published'])]}"/>
+								<field name="seller_price" attrs="{'invisible':[('state', '!=', 'seller')]}"/>
+								<field name="shop_price_cny" attrs="{'invisible':[('state', '!=', 'shop')]}"/>
+								<label for="shop_price" attrs="{'invisible':[('state', '!=', 'shop')]}"/>
+									<div class="o_row" attrs="{'invisible':[('state', '!=', 'shop')]}">
+										<field name="shop_price"/>
+										<field name="shop_currency_symbol" nolabel="1" readonly="True"/>
+									</div>
                             </group>
                         </group>
 						<notebook>

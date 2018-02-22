@@ -17,8 +17,16 @@
 			<field name="arch" type="xml">
 				<form>
                     <field name="currency_id" invisible="1"/>
+                    <field name="state" invisible="1"/>
+                    <field name="show_merchant_include_button" invisible="1"/>
+                    <field name="hide_supplier_price" invisible="1"/>
 					<header>
-                        <button name="publish_product" type="object" string="发布" class="oe_highlight"/>
+                        <button name="publish_platform" type="object" string="发布到平台" class="oe_highlight"
+                                attrs="{'invisible':[('state', '!=', 'platform_unpublished')]}"/>
+                        <button name="merchant_include" type="object" string="收录" class="oe_highlight"
+                                attrs="{'invisible':[('show_merchant_include_button', '=', False)]}"/>
+                        <button name="shop_include" type="object" string="收录到店铺" class="oe_highlight"
+                            attrs="{'invisible':[('state', '!=', 'seller')]}"/>
 					</header>
 					<sheet>
                         <div class="oe_button_box" name="button_box">
@@ -35,11 +43,23 @@
 							<page string="基础">
 								<group>
                                     <group>
-                                        <field name="categ_id" options="{'no_create':True}"/>
+                                        <field name="categ_id" options="{'no_create':True}" string="平台分类"/>
                                         <field name="merchant_categ_id" options="{'no_create':True}"/>
                                     </group>
                                     <group>
-                                        <field name="supplier_price"/>
+                                        <field name="supplier_price"
+                                               attrs="{'invisible':[('hide_supplier_price', '=', True)]}"/>
+                                        <field name="platform_price" attrs="{'invisible':[('state', 'not in',
+                                            ['platform_unpublished', 'platform_published'])]}"/>
+                                        <field name="seller_price"
+                                               attrs="{'invisible':[('state', '!=', 'seller')]}"/>
+                                        <field name="shop_price_cny"
+                                               attrs="{'invisible':[('state', '!=', 'shop')]}"/>
+                                        <label for="shop_price" attrs="{'invisible':[('state', '!=', 'shop')]}"/>
+                                            <div class="o_row" attrs="{'invisible':[('state', '!=', 'shop')]}">
+                                                <field name="shop_price"/>
+                                                <field name="shop_currency_symbol" nolabel="1" readonly="True"/>
+                                            </div>
                                     </group>
                                 </group>
                                 <group>
@@ -61,7 +81,8 @@
                                     <tree editable="bottom">
                                         <field name="attribute_id" options="{'no_create':True}"/>
                                         <field name="value_ids" widget="many2many_tags"
-                                               domain="[('attribute_id', '=', attribute_id)]"/>
+                                               context="{'default_attribute_id': attribute_id}"
+                                               domain="[('attribute_id', '=', attribute_id)]" />
                                     </tree>
                                 </field>
 							</page>
@@ -95,7 +116,7 @@
                                     </tree>
                                 </field>
 							</page>
-                            <page string="店铺参数">
+                            <page string="店铺参数" attrs="{'invisible':[('state', '!=', 'shop')]}">
                                 <group>
                                     <group>
                                         <field name="sku"/>
@@ -106,6 +127,11 @@
                                         <field name="manufacturer" readonly="1"/>
                                     </group>
                                 </group>
+                                <!--<group>-->
+                                    <!--<field name="keywords"/>-->
+                                    <!--<field name="important_description"/>-->
+								    <!--<field name="key_description"/>-->
+                                <!--</group>-->
 							</page>
                             <page string="运费">
                                 <group>
@@ -123,20 +149,14 @@
 				</form>
 			</field>
 		</record>
-
-        <!--<record id="product_template_act" model="ir.actions.server">-->
-			<!--<field name="name">产品</field>-->
-			<!--<field name="model_id" ref="amazon_api.model_product_template"/>-->
-			<!--<field name="code">-->
-    			<!--action = model.unpublished_product_view()-->
-            <!--</field>-->
-		<!--</record>-->
         
         <record id="unpublished_template_act" model="ir.actions.act_window">
             <field name="name">未发布产品</field>
             <field name="res_model">product.template</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
+            <field name="domain">[('state', '=', 'platform_unpublished')]</field>
+            <field name="context">{'view_mine': True}</field>
             <!--<field name="search_view_id" ref="product_template_search"/>-->
         </record>
 
@@ -162,6 +182,8 @@
             <field name="res_model">product.template</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
+            <field name="domain">[('state', '=', 'platform_published')]</field>
+            <field name="context">{'view_mine': True}</field>
             <!--<field name="search_view_id" ref="product_template_search"/>-->
         </record>
 
@@ -187,6 +209,8 @@
             <field name="res_model">product.template</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
+            <field name="domain">[('state', '=', 'seller')]</field>
+            <field name="context">{'view_mine': True}</field>
             <!--<field name="search_view_id" ref="product_template_search"/>-->
         </record>
 
@@ -207,36 +231,40 @@
         <menuitem id="merchant_product_menu" name="我的产品库" parent="b2b_platform.my_product_menu" sequence="1"
                   action="merchant_template_act"/>
 
-        <record id="shop_template_act" model="ir.actions.act_window">
+        <record id="shop_tmpl_act" model="ir.actions.act_window">
             <field name="name">店铺中的产品列表</field>
             <field name="res_model">product.template</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
+            <field name="domain">[('state', '=', 'shop')]</field>
+            <field name="context">{'view_my_shop_tmpl': True}</field>
             <!--<field name="search_view_id" ref="product_template_search"/>-->
         </record>
 
-        <record id="shop_template_act_tree" model="ir.actions.act_window.view">
+        <record id="shop_tmpl_act_tree" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="product_template_tree"/>
-            <field name="act_window_id" ref="shop_template_act"/>
+            <field name="act_window_id" ref="shop_tmpl_act"/>
         </record>
 
-        <record id="shop_template_act_form" model="ir.actions.act_window.view">
+        <record id="shop_tmpl_act_form" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
             <field name="view_id" ref="product_template_form"/>
-            <field name="act_window_id" ref="shop_template_act"/>
+            <field name="act_window_id" ref="shop_tmpl_act"/>
         </record>
 
         <menuitem id="shop_product_menu" name="店铺中的产品列表" parent="b2b_platform.my_product_menu" sequence="2"
-                  action="shop_template_act"/>
+                  action="shop_tmpl_act"/>
 
         <record id="update_template_act" model="ir.actions.act_window">
             <field name="name">产品变更</field>
             <field name="res_model">product.template</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
+            <field name="domain">[('state', '=', 'shop')]</field>
+            <field name="context">{'view_my_shop_tmpl': True}</field>
             <!--<field name="search_view_id" ref="product_template_search"/>-->
         </record>
 
@@ -262,6 +290,7 @@
             <field name="res_model">product.template</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
+            <field name="domain">[('state', '=', 'platform_published')]</field>
             <!--<field name="search_view_id" ref="product_template_search"/>-->
         </record>
 
@@ -280,6 +309,62 @@
         </record>
 
         <menuitem id="platform_product_menu" parent="b2b_platform.product_root" name="平台产品库"
-                  action="platform_template_act" sequence="4"/>
+                  action="platform_template_act" sequence="2"/>
+
+        <record id="upload_variant_server" model="ir.actions.server">
+            <field name="name">上传变体</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="code">
+                model.upload_variant()
+            </field>
+        </record>
+        <record id="upload_variant" model="ir.values">
+            <field name="key2">client_action_multi</field>
+            <field name="model">product.template</field>
+            <field name="name">上传变体</field>
+            <field name="value" eval="'ir.actions.server,%d' % upload_variant_server"/>
+        </record>
+        
+        <record id="upload_image_server" model="ir.actions.server">
+            <field name="name">上传图片</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="code">
+                model.upload_image()
+            </field>
+        </record>
+        <record id="upload_image" model="ir.values">
+            <field name="key2">client_action_multi</field>
+            <field name="model">product.template</field>
+            <field name="name">上传图片</field>
+            <field name="value" eval="'ir.actions.server,%d' % upload_image_server"/>
+        </record>
+        
+        <record id="upload_price_server" model="ir.actions.server">
+            <field name="name">上传价格</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="code">
+                model.upload_price()
+            </field>
+        </record>
+        <record id="upload_price" model="ir.values">
+            <field name="key2">client_action_multi</field>
+            <field name="model">product.template</field>
+            <field name="name">上传价格</field>
+            <field name="value" eval="'ir.actions.server,%d' % upload_price_server"/>
+        </record>
+        
+        <record id="upload_stock_server" model="ir.actions.server">
+            <field name="name">上传库存</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="code">
+                model.upload_stock()
+            </field>
+        </record>
+        <record id="upload_stock" model="ir.values">
+            <field name="key2">client_action_multi</field>
+            <field name="model">product.template</field>
+            <field name="name">上传库存</field>
+            <field name="value" eval="'ir.actions.server,%d' % upload_stock_server"/>
+        </record>
 	</data>
 </odoo>

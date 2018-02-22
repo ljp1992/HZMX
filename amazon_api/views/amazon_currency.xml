@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+        <record id="amazon_currency_tree" model="ir.ui.view">
+			<field name="name">amazon_currency_tree</field>
+			<field name="model">amazon.currency</field>
+			<field name="arch" type="xml">
+				<tree editable="top">
+					<field name="name"/>
+                    <field name="symbol"/>
+                    <field name="rate"/>
+				</tree>
+			</field>
+		</record>
+
+        <record id="amazon_currency_act" model="ir.actions.act_window">
+            <field name="name">汇率管理</field>
+            <field name="res_model">amazon.currency</field>
+            <field name="view_mode">tree</field>
+            <field name="view_type">form</field>
+        </record>
+
+        <record id="amazon_currency_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="amazon_currency_tree"/>
+            <field name="act_window_id" ref="amazon_currency_act"/>
+        </record>
+
+        <menuitem id="amazon_currency_menu" name="汇率管理" parent="b2b_platform.base_data_menu"
+                  sequence="5" action="amazon_currency_act"/>
+	</data>
+</odoo>

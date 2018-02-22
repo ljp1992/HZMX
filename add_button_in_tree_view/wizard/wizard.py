@@ -16,20 +16,27 @@ class ImportWizard(models.TransientModel):
         if self.data:
             excel_obj = xlrd.open_workbook(file_contents=base64.decodestring(self.data))
             sheets = excel_obj.sheets()
-            result_obj = self.env['b2b.upc.list']
+            upc_obj = self.env['upc.code']
+            product_obj = self.env['product.product']
             for sh in sheets:
-                for row in range(1, sh.nrows):
+                for row in range(0, sh.nrows):
                     code = sh.cell(row, 0).value
+                    code = code.replace(' ', '')
                     if type(code) is not unicode:
                         raise UserError(u'%s 编码必须为文本类型，不能为数字格式' % code)
-                    code = result_obj.create({'name':code})
-                    code.assign_upc_codes()
-        return {'name': u'UPC码',
-                'type': 'ir.actions.act_window',
-                'view_type': 'form',
-                'view_mode': 'tree',
-                'res_model': 'b2b.upc.list',
-                'context': {'create': False},
-                }
+                    result = upc_obj.sudo().search([('name', '=', code)])
+                    if result:
+                        continue
+                    product = product_obj.sudo().search([('upc', '=', code)])
+                    if product:
+                        continue
+                    upc_obj.create({'name': code})
+        return {
+            'name': u'UPC编码',
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'tree',
+            'res_model': 'upc.code',
+        }
 
 

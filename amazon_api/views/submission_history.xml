@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="submission_history_tree" model="ir.ui.view">
+			<field name="name">submission_history_tree</field>
+			<field name="model">submission.history</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="feed_id"/>
+                    <field name="feed_time"/>
+                    <field name="return_time"/>
+				</tree>
+			</field>
+		</record>
+
+        <record id="submission_history_form" model="ir.ui.view">
+			<field name="name">submission_history_form</field>
+			<field name="model">submission.history</field>
+			<field name="arch" type="xml">
+				<form>
+                    <header>
+                        <button name="get_result_xml" type="object" string="获取结果" class="oe_highlight"/>
+					</header>
+					<!--<sheet>-->
+						<group>
+							<group>
+								<field name="feed_id"/>
+								<field name="feed_time"/>
+							</group>
+                            <group>
+                                <field name="shop_id"/>
+                                <field name="return_time"/>
+							</group>
+						</group>
+                        <group string="提交数据">
+                            <field name="feed_xml" nolabel="1"/>
+                        </group>
+                        <group string="返回结果">
+                            <field name="result_xml" nolabel="1"/>
+                        </group>
+					<!--</sheet>-->
+				</form>
+			</field>
+		</record>
+
+        <record id="submission_history_act" model="ir.actions.act_window">
+            <field name="name">上传日志</field>
+            <field name="res_model">submission.history</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_type">form</field>
+        </record>
+
+        <menuitem id="submission_history_menu" name="上传日志" parent="b2b_platform.log_menu" sequence="1"
+                  action="submission_history_act"/>
+	</data>
+</odoo>		

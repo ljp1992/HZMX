@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="sku_seq" model="ir.sequence">
+            <field name="name">sku_seq</field>
+            <field name="code">sku_seq</field>
+            <field name="prefix">%(year)s%(month)s%(day)s</field>
+            <field name="padding">4</field>
+            <field name="next_sku">180124AAAA</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

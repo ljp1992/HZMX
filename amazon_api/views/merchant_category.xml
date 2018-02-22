@@ -42,7 +42,7 @@
             </field>
 		</record>
 
-        <menuitem id="merchant_category_menu" name="产品内部分类" parent="b2b_platform.product_root" sequence="1"
+        <menuitem id="merchant_category_menu" name="产品内部分类" parent="b2b_platform.base_data_menu" sequence="2"
                   action="merchant_category_act"/>
 	</data>
 </odoo>		

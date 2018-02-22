@@ -1,7 +1,7 @@
 odoo.define('add_button_in_tree_view.add_tree_view_button', function (require) {
     "use strict";
 
-    var show_button_model = ['b2b.upc.list'];//哪些模型显示导入按钮
+    var show_button_model = ['upc.code'];//哪些模型显示导入按钮
     var ListView = require('web.ListView');
 
     ListView.include({

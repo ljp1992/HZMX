@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="product_category_tree" model="ir.ui.view">
+			<field name="name">product_category_tree</field>
+			<field name="model">product.category</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="display_name"/>
+                    <field name="rate"/>
+				</tree>
+			</field>
+		</record>
+
+        <record id="product_category_form" model="ir.ui.view">
+			<field name="name">product_category_form</field>
+			<field name="model">product.category</field>
+			<field name="arch" type="xml">
+				<form>
+					<sheet>
+						<group>
+							<group>
+								<field name="name"/>
+                                <field name="parent_id" options="{'no_create':True}"/>
+							</group>
+                            <group>
+								<field name="rate"/>
+							</group>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+        <record id="product_category_act" model="ir.actions.act_window">
+            <field name="name">平台分类</field>
+            <field name="res_model">product.category</field>
+            <field name="view_mode">tree</field>
+            <field name="view_type">form</field>
+            <!--<field name="search_view_id" ref="product_category_search"/>-->
+        </record>
+
+        <record id="product_category_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="product_category_tree"/>
+            <field name="act_window_id" ref="product_category_act"/>
+        </record>
+        
+        <record id="product_category_act_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="product_category_form"/>
+            <field name="act_window_id" ref="product_category_act"/>
+        </record>
+
+        <menuitem id="product_category_menu" name="平台分类" parent="b2b_platform.base_data_menu" sequence="1"
+                  action="product_category_act"/>
+	</data>
+</odoo>		

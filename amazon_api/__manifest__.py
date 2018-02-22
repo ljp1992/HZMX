@@ -17,8 +17,10 @@
     'data': [
         'security/ir.model.access.csv',
         'data/ir_cron.xml',
+        'data/ir_sequence.xml',
         'views/amazon_seller.xml',
         'views/amazon_shop.xml',
+        'views/product_category.xml',
         'views/merchant_category.xml',
         'views/product_template.xml',
         'views/product_product.xml',
@@ -27,6 +29,11 @@
         'views/product_description.xml',
         'views/product_brand.xml',
         'views/freight_template.xml',
+        'views/shop_template.xml',
+        'views/shop_template_wizard.xml',
+        'views/amazon_currency.xml',
+        'views/upc_code.xml',
+        'views/submission_history.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

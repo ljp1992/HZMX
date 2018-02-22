@@ -272,18 +272,18 @@ class Feeds( MWS ):
         md = calc_md5( feed )
         feed_result = self.make_request( data, method="POST", body=feed,
                                  extra_headers={'Content-MD5': md, 'Content-Type': content_type} )
-        result = feed_result.parsed
-        last_feed_submission_id = result.get( 'FeedSubmissionInfo', {} ).get( 'FeedSubmissionId', {} ).get( 'value', False )
-        if hasattr(oe_request,'env'):
-            uid,pool =oe_request.uid, oe_request.env    
-            vals = {
-                'message':feed, 'feed_result_id':last_feed_submission_id,
-                'feed_submit_date':time.strftime( "%Y-%m-%d %H:%M:%S" ),
-                'instance_id':instance_id, 'user_id':pool.uid,
-                'model_name': model_name,
-                'record_id': record_id,
-            }
-            pool['feed.submission.history'].create(vals)
+        # result = feed_result.parsed
+        # last_feed_submission_id = result.get( 'FeedSubmissionInfo', {} ).get( 'FeedSubmissionId', {} ).get( 'value', False )
+        # if hasattr(oe_request,'env'):
+        #     uid,pool =oe_request.uid, oe_request.env
+        #     vals = {
+        #         'message':feed, 'feed_result_id':last_feed_submission_id,
+        #         'feed_submit_date':time.strftime( "%Y-%m-%d %H:%M:%S" ),
+        #         'instance_id':instance_id, 'user_id':pool.uid,
+        #         'model_name': model_name,
+        #         'record_id': record_id,
+        #     }
+        #     pool['feed.submission.history'].create(vals)
         return feed_result
 
     def get_feed_submission_list( self, feedids=None, max_count=None, feedtypes=None,

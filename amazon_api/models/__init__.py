@@ -17,3 +17,10 @@ from . import product_description
 from . import product_brand
 from . import freight_line
 from . import freight_template
+from . import product_category
+from . import shop_template
+from . import amazon_browse_node
+from . import amazon_category
+from . import ir_sequence
+from . import upc_code
+from . import submission_history

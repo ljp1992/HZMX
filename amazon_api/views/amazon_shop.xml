@@ -33,6 +33,7 @@
 								<field name="seller_id" options="{'no_create': True}"/>
 								<field name="marketplace_id" options="{'no_create': True}"
 									   context="{'seller_id_ljp': seller_id}"/>
+								<field name="rate"/>
 							</group>
 							<group>
 								<field name="operator_id" required="1" options="{'no_create': True}"/>

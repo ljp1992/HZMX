@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+        <record id="upc_tree" model="ir.ui.view">
+			<field name="name">upc_tree</field>
+			<field name="model">upc.code</field>
+			<field name="arch" type="xml">
+				<tree create="0">
+					<field name="name"/>
+                    <field name="used"/>
+				</tree>
+			</field>
+		</record>
+
+        <record id="upc_act" model="ir.actions.act_window">
+            <field name="name">UPC编码</field>
+            <field name="res_model">upc.code</field>
+            <field name="view_mode">tree</field>
+            <field name="view_type">form</field>
+        </record>
+
+        <menuitem id="upc_menu" name="UPC编码" parent="b2b_platform.account_authorized_menu"
+                  sequence="5" action="upc_act"/>
+	</data>
+</odoo>

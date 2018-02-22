@@ -9,10 +9,13 @@ class AmazonShop(models.Model):
     name = fields.Char(string=u'名称', required=True)
     currency_symbol = fields.Char(related='currency_id.symbol', string=u'货币', store=False, readonly=True)
 
+    rate = fields.Float(string=u'上浮率(%)')
+
     seller_id = fields.Many2one('amazon.seller', string=u'卖家', required=True)
     marketplace_id = fields.Many2one('amazon.marketplace', string=u'市场', required=True)
     currency_id = fields.Many2one('amazon.currency', related='marketplace_id.currency_id', string=u'货币', store=False,
                                   readonly=1)
+    country_id = fields.Many2one('amazon.country', related='marketplace_id.country_id', string=u'国家')
     lang_id = fields.Many2one('amazon.lang', related='marketplace_id.lang_id', string=u'语言', store=False, readonly=1)
     operator_id = fields.Many2one('res.users', default=lambda self: self.env.user,
                                   domain=lambda self: ['|',('id', '=', self.env.user.id),

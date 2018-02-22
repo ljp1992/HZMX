@@ -19,6 +19,33 @@
 				</form>
 			</field>
 		</record>
+		
+        <record id="product_brand_tree" model="ir.ui.view">
+			<field name="name">product_brand_tree</field>
+			<field name="model">product.brand</field>
+			<field name="arch" type="xml">
+				<tree editable="top">
+					<field name="name"/>
+                    <field name="manufacturer"/>
+				</tree>
+			</field>
+		</record>
 
+        <record id="product_brand_act" model="ir.actions.act_window">
+            <field name="name">品牌</field>
+            <field name="res_model">product.brand</field>
+            <field name="view_mode">tree</field>
+            <field name="view_type">form</field>
+        </record>
+
+        <record id="product_brand_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="product_brand_tree"/>
+            <field name="act_window_id" ref="product_brand_act"/>
+        </record>
+
+		<menuitem id="product_brand_menu" name="品牌" parent="b2b_platform.base_data_menu"
+                  sequence="6" action="product_brand_act"/>
 	</data>
 </odoo>
