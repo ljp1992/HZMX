@@ -31,6 +31,8 @@ class ProductTemplate(models.Model):
     # my_template = fields.Boolean(compute='', search='_my_template', string=u'产品是否为用户所拥有')
     # show_shop_include_button = fields.Boolean(compute='_show_shop_include_button', string='显示店铺收录按钮')
 
+    handle_days = fields.Integer(string=u'处理天数')
+
     supplier_price = fields.Monetary(inverse='_set_template_platform_price', string=u'供应商供货价')
     platform_price = fields.Monetary(inverse='_set_seller_price', string=u'平台价格')
     seller_price = fields.Monetary(inverse='_set_shop_price_cny', string=u'经销商价格')
@@ -242,7 +244,56 @@ class ProductTemplate(models.Model):
 
     @api.multi
     def upload_price(self):
-        return
+        context = self.env.context
+        templates = self.env['product.template'].browse(context.get('active_ids'))
+        for template in templates:
+            shop = template.shop_id
+            seller = shop.seller_id
+            currency_code = template.shop_currency.name
+            rate = template.shop_currency.rate
+            freight = 0
+            freight_lines = template.freight_lines.filtered(lambda r: r.country_id == shop.country_id)
+            if freight_lines:
+                freight = freight_lines[0].freight * rate
+            message = ''
+            message_id = 0
+            for pro in template.product_variant_ids:
+                message_id += 1
+                price = round(pro.shop_price + freight, 2)
+                message += """<Message>
+                <MessageID>%d</MessageID>
+                <OperationType>Update</OperationType>
+                <Price>
+                    <SKU>%s</SKU>
+                    <StandardPrice currency="%s">%s</StandardPrice>
+                </Price></Message>""" % (message_id, pro.sku, currency_code, str(price))
+            head = """<?xml version="1.0"?>
+                    <AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
+                    <Header>
+                        <DocumentVersion>1.01</DocumentVersion>
+                        <MerchantIdentifier>%s</MerchantIdentifier>
+                    </Header>
+                    <MessageType>Price</MessageType>
+                    <PurgeAndReplace>false</PurgeAndReplace>
+                    %s
+                    </AmazonEnvelope>""" % (seller.merchant_id_num, message)
+            print head
+            mws_obj = Feeds(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
+                            account_id=str(seller.merchant_id_num), region=shop.country_id.code, proxies={})
+            try:
+                feed_result = mws_obj.submit_feed(head, '_POST_PRODUCT_PRICING_DATA_',
+                                                  marketplaceids=[shop.marketplace_id.marketplace_id])
+            except Exception, e:
+                raise UserError(str(e))
+            submission_id = feed_result.parsed.get('FeedSubmissionInfo', {}).get('FeedSubmissionId', {}).get('value','')
+            self.env['submission.history'].create({
+                'model': 'product.template',
+                'record_id': template.id,
+                'feed_id': submission_id,
+                'feed_time': datetime.datetime.now(),
+                'feed_xml': head,
+                'shop_id': shop.id,
+            })
 
     @api.multi
     def upload_image(self):
@@ -290,6 +341,7 @@ class ProductTemplate(models.Model):
                 <PurgeAndReplace>false</PurgeAndReplace>
                 %s
                 </AmazonEnvelope>""" % (seller.merchant_id_num, message)
+            print head
             mws_obj = Feeds(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
                             account_id=str(seller.merchant_id_num), region=shop.country_id.code, proxies={})
             try:
@@ -309,7 +361,52 @@ class ProductTemplate(models.Model):
 
     @api.multi
     def upload_stock(self):
-        return
+        context = self.env.context
+        templates = self.env['product.template'].browse(context.get('active_ids'))
+        for template in templates:
+            shop = template.shop_id
+            seller = shop.seller_id
+            inventory = 10
+            message = ''
+            message_id = 0
+            for pro in template.product_variant_ids:
+                message_id += 1
+                message += """<Message>
+                    <MessageID>%d</MessageID>
+                    <OperationType>Update</OperationType>
+                    <Inventory>
+                        <SKU>%s</SKU>
+                        <Quantity>%s</Quantity>
+                        <Fulfillmentlatency>%d</Fulfillmentlatency>
+                    </Inventory>
+                </Message>""" % (message_id, pro.sku, str(inventory), template.handle_days)
+            head = """<?xml version="1.0"?>
+                        <AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
+                        <Header>
+                            <DocumentVersion>1.01</DocumentVersion>
+                            <MerchantIdentifier>%s</MerchantIdentifier>
+                        </Header>
+                        <MessageType>Inventory</MessageType>
+                        <PurgeAndReplace>false</PurgeAndReplace>
+                        %s
+                        </AmazonEnvelope>""" % (seller.merchant_id_num, message)
+            print head
+            mws_obj = Feeds(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
+                            account_id=str(seller.merchant_id_num), region=shop.country_id.code, proxies={})
+            try:
+                feed_result = mws_obj.submit_feed(head, '_POST_INVENTORY_AVAILABILITY_DATA_',
+                                                  marketplaceids=[shop.marketplace_id.marketplace_id])
+            except Exception, e:
+                raise UserError(str(e))
+            submission_id = feed_result.parsed.get('FeedSubmissionInfo', {}).get('FeedSubmissionId', {}).get('value','')
+            self.env['submission.history'].create({
+                'model': 'product.template',
+                'record_id': template.id,
+                'feed_id': submission_id,
+                'feed_time': datetime.datetime.now(),
+                'feed_xml': head,
+                'shop_id': shop.id,
+            })
 
     @api.depends('shop_price_cny')
     def _compute_shop_price(self):

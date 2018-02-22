@@ -121,6 +121,7 @@
                                     <group>
                                         <field name="sku"/>
                                         <field name="upc"/>
+                                        <field name="handle_days"/>
                                     </group>
                                     <group>
                                         <field name="brand_id"/>
