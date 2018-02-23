@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError
-from odoo.addons.amazon_api.amazon_api.mws import Feeds
+from odoo.addons.amazon_api.amazon_api.mws import Feeds,DictWrapper
 import datetime
 
 class SubmissionHistory(models.Model):
@@ -23,6 +23,18 @@ class SubmissionHistory(models.Model):
 
     shop_id = fields.Many2one('amazon.shop')
 
+    state = fields.Selection([
+        ('uploading', u'正在上传'),
+        ('success', u'上传成功'),
+        ('fail', u'上传失败')], default='uploading', string=u'上传状态')
+    type = fields.Selection([
+        ('product_update', u'产品'),
+        ('relation_update', u'关系'),
+        ('image_update', u'图片'),
+        ('price_update', u'价格'),
+        ('stock_update', u'库存'),], string=u'上传信息')
+
+
     @api.multi
     def get_result_xml(self):
         self.ensure_one()
@@ -39,5 +51,31 @@ class SubmissionHistory(models.Model):
             'result_xml': result,
             'return_time': datetime.datetime.now(),
         })
+        data = DictWrapper(result, '').parsed
+        print data
+        error_info = data.get('Message', {}).get('ProcessingReport', {}).get('ProcessingSummary', {})\
+            .get('MessagesWithError', {}).get('value', '')
+        if error_info == '0':
+            self.state = 'success'
+            self.env[self.model].browse(self.record_id).write({
+                self.type: 'done'
+            })
+        else:
+            self.state = 'fail'
+            self.env[self.model].browse(self.record_id).write({
+                self.type: 'failed'
+            })
+
+    @api.model
+    def search(self, args, offset=0, limit=None, order=None, count=False):
+        user = self.env.user
+        shop_obj = self.env['amazon.shop']
+        if user.user_type == 'operator':
+            shops = shop_obj.search([('operator_id', '=', user.id)])
+            args += [('shop_id', 'in', shops.ids)]
+        elif user.user_type == 'merchant':
+            shops = shop_obj.search([('merchant_id', '=', user.id)])
+            args += [('shop_id', 'in', shops.ids)]
+        return super(SubmissionHistory, self).search(args, offset, limit, order, count=count)
 
 

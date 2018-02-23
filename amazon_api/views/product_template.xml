@@ -259,20 +259,69 @@
         <menuitem id="shop_product_menu" name="店铺中的产品列表" parent="b2b_platform.my_product_menu" sequence="2"
                   action="shop_tmpl_act"/>
 
+        <record id="template_upload_tree" model="ir.ui.view">
+			<field name="name">template_upload_tree</field>
+			<field name="model">product.template</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="name"/>
+					<field name="product_update"/>
+                    <field name="relation_update"/>
+                    <field name="image_update"/>
+                    <field name="price_update"/>
+                    <field name="stock_update"/>
+				</tree>
+			</field>
+		</record>
+
+        <record id="template_upload_search" model="ir.ui.view">
+			<field name="name">template_upload_search</field>
+			<field name="model">product.template</field>
+			<field name="arch" type="xml">
+				<search string="">
+					<field name="name"/>
+					<filter string="待更新" name="wait_upload" domain="['|', '|', '|', '|',
+					    ('product_update', '=', 'pending'),
+					    ('relation_update', '=', 'pending'),
+					    ('image_update', '=', 'pending'),
+					    ('price_update', '=', 'pending'),
+					    ('stock_update', '=', 'pending')]"/>
+					<filter string="正在更新" domain="['|', '|', '|', '|',
+					    ('product_update', '=', 'updating'),
+					    ('relation_update', '=', 'updating'),
+					    ('image_update', '=', 'updating'),
+					    ('price_update', '=', 'updating'),
+					    ('stock_update', '=', 'updating')]"/>
+                    <filter string="更新成功" domain="['|', '|', '|', '|',
+					    ('product_update', '=', 'done'),
+					    ('relation_update', '=', 'done'),
+					    ('image_update', '=', 'done'),
+					    ('price_update', '=', 'done'),
+					    ('stock_update', '=', 'done')]"/>
+					<filter string="更新失败" domain="['|', '|', '|', '|',
+					    ('product_update', '=', 'failed'),
+					    ('relation_update', '=', 'failed'),
+					    ('image_update', '=', 'failed'),
+					    ('price_update', '=', 'failed'),
+					    ('stock_update', '=', 'failed')]"/>
+				</search>
+			</field>
+		</record>
+
         <record id="update_template_act" model="ir.actions.act_window">
             <field name="name">产品变更</field>
             <field name="res_model">product.template</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
             <field name="domain">[('state', '=', 'shop')]</field>
-            <field name="context">{'view_my_shop_tmpl': True}</field>
-            <!--<field name="search_view_id" ref="product_template_search"/>-->
+            <field name="context">{'view_my_shop_tmpl': True, 'search_default_wait_upload': True}</field>
+            <field name="search_view_id" ref="template_upload_search"/>
         </record>
 
         <record id="update_template_act_tree" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
-            <field name="view_id" ref="product_template_tree"/>
+            <field name="view_id" ref="template_upload_tree"/>
             <field name="act_window_id" ref="update_template_act"/>
         </record>
 

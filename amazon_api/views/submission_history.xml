@@ -5,10 +5,12 @@
 			<field name="name">submission_history_tree</field>
 			<field name="model">submission.history</field>
 			<field name="arch" type="xml">
-				<tree>
+				<tree colors="blue:state=='uploading';red:state=='fail';black:state=='success'">
 					<field name="feed_id"/>
                     <field name="feed_time"/>
                     <field name="return_time"/>
+					<field name="type"/>
+					<field name="state"/>
 				</tree>
 			</field>
 		</record>
@@ -18,8 +20,10 @@
 			<field name="model">submission.history</field>
 			<field name="arch" type="xml">
 				<form>
+					<field name="state" invisible="1"/>
                     <header>
                         <button name="get_result_xml" type="object" string="获取结果" class="oe_highlight"/>
+						<field name="state" widget="statusbar" statusbar_visible="uploading,success"/>
 					</header>
 					<!--<sheet>-->
 						<group>
@@ -40,6 +44,21 @@
                         </group>
 					<!--</sheet>-->
 				</form>
+			</field>
+		</record>
+		<record id="submission_history_search" model="ir.ui.view">
+			<field name="name">submission_history_search</field>
+			<field name="model">submission.history</field>
+			<field name="arch" type="xml">
+				<search string="">
+					<field name="feed_id"/>
+					<filter string="正在上传" name="uploading" domain="[('state','=','uploading')]"/>
+					<filter string="上传成功" domain="[('state','=','success')]"/>
+					<filter string="上传失败" domain="[('state','=','fail')]"/>
+					<group expand="1" string="分组">
+						<filter string="上传信息" context="{'group_by':'type'}"/>
+					</group>
+				</search>
 			</field>
 		</record>
 

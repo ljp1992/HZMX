@@ -37,7 +37,7 @@ class ProductTemplate(models.Model):
     platform_price = fields.Monetary(inverse='_set_seller_price', string=u'平台价格')
     seller_price = fields.Monetary(inverse='_set_shop_price_cny', string=u'经销商价格')
     shop_price_cny = fields.Monetary(string=u'店铺价格')
-    shop_price = fields.Float(compute='_compute_shop_price', store=True, readonly=False, string=u'店铺价格')
+    shop_price = fields.Float(compute='_compute_shop_price', inverse='_set_tmpl_state', store=True, readonly=False, string=u'店铺价格')
     declare_price = fields.Monetary(string=u'申报单价')
     pack_weight = fields.Float(string=u'包装重量')
 
@@ -70,6 +70,46 @@ class ProductTemplate(models.Model):
         ('platform_published', u'平台已发布'),
         ('seller', u'经销商产品'),
         ('shop', u'店铺产品'),], default='platform_unpublished', index=True, string=u'状态')
+    product_update = fields.Selection([
+        ('pending', u'待更新'),
+        ('updating', u'更新中'),
+        ('done', u'完成'),
+        ('failed', u'失败'),
+        ('to_delete', u'待删除'),
+        ('deleted', u'已删除')], default='pending', string=u'产品状态')
+    relation_update = fields.Selection([
+        ('pending', u'待更新'),
+        ('updating', u'更新中'),
+        ('done', u'完成'),
+        ('failed', u'失败'),
+        ('to_delete', u'待删除'),
+        ('deleted', u'已删除')], default='pending', string=u'关系状态')
+    image_update = fields.Selection([
+        ('pending', u'待更新'),
+        ('updating', u'更新中'),
+        ('done', u'完成'),
+        ('failed', u'失败'),
+        ('to_delete', u'待删除'),
+        ('deleted', u'已删除')], default='pending', string=u'图片状态')
+    price_update = fields.Selection([
+        ('pending', u'待更新'),
+        ('updating', u'更新中'),
+        ('done', u'完成'),
+        ('failed', u'失败'),
+        ('to_delete', u'待删除'),
+        ('deleted', u'已删除')], default='pending', string=u'价格状态')
+    stock_update = fields.Selection([
+        ('pending', u'待更新'),
+        ('updating', u'更新中'),
+        ('done', u'完成'),
+        ('failed', u'失败'),
+        ('to_delete', u'待删除'),
+        ('deleted', u'已删除')], default='pending', string=u'库存状态')
+
+    @api.multi
+    def _set_tmpl_state(self):
+        for tmpl in self:
+            tmpl.price_update = 'pending'
 
     @api.multi
     def upload_variant(self):
@@ -77,6 +117,10 @@ class ProductTemplate(models.Model):
         templates = self.env['product.template'].browse(context.get('active_ids'))
         for template in templates:
             template.upload_variant_message()
+            template.write({
+                'product_state': 'updating',
+                'relation_state': 'updating',
+            })
 
     @api.multi
     def upload_variant_message(self):
@@ -197,8 +241,8 @@ class ProductTemplate(models.Model):
             'feed_time': datetime.datetime.now(),
             'feed_xml': head,
             'shop_id': shop.id,
+            'type': 'product_update'
         })
-        print 'upload variant over'
         #upload relationship
         variant = ''
         for pro in self.product_variant_ids:
@@ -240,6 +284,7 @@ class ProductTemplate(models.Model):
             'feed_time': datetime.datetime.now(),
             'feed_xml': head,
             'shop_id': shop.id,
+            'type': 'relation_update'
         })
 
     @api.multi
@@ -293,6 +338,10 @@ class ProductTemplate(models.Model):
                 'feed_time': datetime.datetime.now(),
                 'feed_xml': head,
                 'shop_id': shop.id,
+                'type': 'price_update'
+            })
+            template.write({
+                'price_state': 'updating',
             })
 
     @api.multi
@@ -357,6 +406,10 @@ class ProductTemplate(models.Model):
                 'feed_time': datetime.datetime.now(),
                 'feed_xml': head,
                 'shop_id': shop.id,
+                'type': 'image_update'
+            })
+            template.write({
+                'image_state': 'updating',
             })
 
     @api.multi
@@ -406,6 +459,10 @@ class ProductTemplate(models.Model):
                 'feed_time': datetime.datetime.now(),
                 'feed_xml': head,
                 'shop_id': shop.id,
+                'type': 'stock_update'
+            })
+            template.write({
+                'stock_state': 'updating',
             })
 
     @api.depends('shop_price_cny')
