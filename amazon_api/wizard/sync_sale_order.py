@@ -48,7 +48,7 @@ class SyncSaleOrder(models.TransientModel):
         self.ensure_one()
         shops = self.shop_ids
         partner_obj = self.env['res.partner']
-        # country_obj = self.env['res.country']
+        country_obj = self.env['amazon.country']
         # state_obj = self.env['res.country.state']
         currency_obj = self.env['amazon.currency']
         sale_order_obj = self.env['sale.order']
@@ -92,6 +92,38 @@ class SyncSaleOrder(models.TransientModel):
                 if delivery_mode not in ['MFN', 'FBA']:
                     delivery_mode = ''
                 e_order_amount = float(order.get('OrderTotal', {}).get('Amount', {}).get('value', 0))
+
+                # ShippingAddress = order.get('ShippingAddress', {})
+                # receiver = ShippingAddress.get('Name', {}).get('value', '')
+                # partner_shipping_id = partner_obj.search([('name', '=', receiver)])
+                # if not partner_shipping_id:
+                #     country_code = ShippingAddress.get('CountryCode', {}).get('value', '')
+                #     country = country_obj.search([('code', '=', country_code)])
+                #     if not country:
+                #         country = country_obj.create({'name': country_code, 'code': country_code})
+                #     state_code = ShippingAddress.get('StateOrRegion', {}).get('value', '')
+                #     state = state_obj.search([('code', '=', state_code)])
+                #     if not state:
+                #         state = state_obj.create({'name': state_code, 'code': state_code, 'country_id': country.id})
+                #     city = ShippingAddress.get('City', {}).get('value', '')
+                #     phone = ShippingAddress.get('Phone', {}).get('value', '')
+                #     street = ShippingAddress.get('AddressLine1', {}).get('value', '')
+                #     zip = ShippingAddress.get('PostalCode', {}).get('value', '')
+                #     email = order.get('BuyerEmail', {}).get('value', '')
+                #     AddressType = ShippingAddress.get('AddressType', {}).get('value', '')
+                #     partner_shipping_val = {
+                #         'name': receiver,
+                #         'company_type': 'person',
+                #         'parent_id': False,
+                #         'country_id': country.id,
+                #         'state_id': state.id,
+                #         'city': city,
+                #         'phone': phone,
+                #         'street': street,
+                #         'zip': zip,
+                #         'email': email,
+                #     }
+
                 order_val = {
                     'platform': 'amazon',
                     'shop_id': shop.id,
@@ -114,7 +146,6 @@ class SyncSaleOrder(models.TransientModel):
                 for order_item in OrderItem:
                     sku = order_item.get('SellerSKU', {}).get('value', '')
                     shop_product = product_obj.search([('sku', '=', sku)], limit=1)
-                    print sku,shop_product
                     if not shop_product:
                         log_lines.append((0, False, {
                             'order_num': e_order,

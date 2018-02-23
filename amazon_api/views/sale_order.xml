@@ -53,13 +53,13 @@
                                         <field name="shop_product_id"/>
                                         <field name="e_currency_id"/>
                                         <field name="e_price_unit"/>
-                                        <field name="e_freight"/>
+                                        <field name="e_freight" sum="1"/>
                                         <field name="by_platform"/>
                                         <field name="product_id"/>
                                         <field name="price_unit"/>
                                         <field name="product_uom"/>
                                         <field name="product_uom_qty"/>
-                                        <field name="price_subtotal"/>
+                                        <field name="price_subtotal" sum="1"/>
                                     </tree>
                                 </field>
 							</page>
