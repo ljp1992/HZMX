@@ -77,6 +77,14 @@
                                 </group>
 							</page>
                             <page string="变体">
+                                <group attrs="{'invisible': [('state', '!=', 'shop')]}">
+                                    <group>
+                                        <field name="amazon_categ_id" options="{'no_create': True}"/>
+                                    </group>
+                                    <group>
+                                        <field name="browse_node_id" options="{'no_create': True}"/>
+                                    </group>
+                                </group>
                                 <field name="attribute_line_ids">
                                     <tree editable="bottom">
                                         <field name="attribute_id" options="{'no_create':True}"/>

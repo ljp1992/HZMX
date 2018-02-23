@@ -1,25 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, modules
 from odoo.exceptions import UserError
-
-active_attr =  [
-    {'amazon_attr': 'Color', 'odoo_attr': u'颜色'},
-    {'amazon_attr': 'Size', 'odoo_attr': u'尺寸'},
-    {'amazon_attr': 'Capacity', 'odoo_attr': u'容量'},
-    {'amazon_attr': 'Design', 'odoo_attr': u'设计'},
-    {'amazon_attr': 'Edition', 'odoo_attr': u'版本'},
-    {'amazon_attr': 'Flavor', 'odoo_attr': u'口味'},
-    {'amazon_attr': 'Material', 'odoo_attr': u'材料'},
-    {'amazon_attr': 'Pattern', 'odoo_attr': u'图案'},
-    {'amazon_attr': 'Shape', 'odoo_attr': u'形状'},
-    {'amazon_attr': 'Scent', 'odoo_attr': u'气味'},
-    # {'amazon_attr': 'Shape', 'odoo_attr': u'样式'},
-    {'amazon_attr': 'UnitCount', 'odoo_attr': u'单位数'},
-    {'amazon_attr': 'Wattage', 'odoo_attr': u'瓦数'},
-    {'amazon_attr': 'Weight', 'odoo_attr': u'重量'},
-
-]
 
 class ProductAttribute(models.Model):
     _inherit = 'product.attribute'
@@ -27,21 +9,36 @@ class ProductAttribute(models.Model):
 
     english_name = fields.Char(string=u'英文名称')
 
-    @api.model
-    def create_product_attribute(self):
-        '''根据亚马逊属性及属性值，创建odoo属性及属性值'''
-        odoo_attr_obj = self.env['product.attribute']
-        for attr in active_attr:
-            odoo_attr_name = attr['odoo_attr']
-            amazon_attr_name = attr['amazon_attr']
-            odoo_attr = odoo_attr_obj.search([
-                ('name', '=', odoo_attr_name),
-                ('english_name', '=', amazon_attr_name),
-            ], limit=1)
-            if not odoo_attr:
-                odoo_attr_obj.create({
-                    'name': odoo_attr_name,
-                    'english_name': amazon_attr_name,
-                })
+    amazon_categ_ids = fields.Many2many('amazon.category', 'attribute_amazon_categ_rel', 'attr_id', 'categ_id',
+                                        string=u'亚马逊模板')
 
+    @api.model
+    def create_attribute_and_categs(self):
+        '''创建属性和亚马逊模板'''
+        attr_obj = self.env['product.attribute']
+        categ_obj = self.env['amazon.category']
+        path = modules.get_module_resource('amazon_api', 'data', 'attr_categ_data.txt')
+        with open(path, 'r') as f:
+            content = f.read()
+        data = eval(content)
+        for val in data:
+            attr = attr_obj.search([('name', '=', val.get('name')), ('english_name', '=', val.get('amazon_name'))])
+            if not attr:
+                attr = attr_obj.create({'name': val.get('name'), 'english_name': val.get('amazon_name')})
+            categ_ids = []
+            for categ_val in val.get('categs'):
+                if categ_val.get('parent_id'):
+                    parent_categ = categ_obj.search([('name', '=', categ_val.get('parent_id'))])
+                    if not parent_categ:
+                        parent_categ = categ_obj.create({'name': categ_val.get('parent_id')})
+                    categ = categ_obj.search([('name', '=', categ_val.get('categ'))])
+                    if not categ:
+                        categ = categ_obj.create({'name': categ_val.get('categ'), 'parent_id': parent_categ.id})
+                    categ_ids.append(categ.id)
+                else:
+                    categ = categ_obj.search([('name', '=', categ_val.get('categ'))])
+                    if not categ:
+                        categ = categ_obj.create({'name': categ_val.get('categ')})
+                    categ_ids.append(categ.id)
+            attr.amazon_categ_ids = [(6, False, categ_ids)]
 

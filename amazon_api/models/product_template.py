@@ -41,6 +41,9 @@ class ProductTemplate(models.Model):
     declare_price = fields.Monetary(string=u'申报单价')
     pack_weight = fields.Float(string=u'包装重量')
 
+    amazon_categ_id = fields.Many2one('amazon.category', string=u'亚马逊模板')
+    variation_theme_id = fields.Many2one('variation.theme')
+    browse_node_id = fields.Many2one('amazon.browse.node', string=u'商品类别')
     categ_id = fields.Many2one('product.category', inverse='_set_platform_price', string=u'平台分类')
     platform_tmpl_id = fields.Many2one('product.template', string=u'平台产品')
     seller_tmpl_id = fields.Many2one('product.template', string=u'经销商产品')

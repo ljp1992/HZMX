@@ -10,12 +10,30 @@
             <field name="args" eval="False"/>
         </record>
 
-        <record id="create_product_attr" model="ir.cron">
-            <field name="name">创建产品属性</field>
+        <record id="create_attribute_categs" model="ir.cron">
+            <field name="name">创建产品属性和模板</field>
             <field name="user_id">1</field>
             <field name="active" eval="False"/>
             <field name="model">product.attribute</field>
-            <field name="function">create_product_attribute</field>
+            <field name="function">create_attribute_and_categs</field>
+            <field name="args" eval="False"/>
+        </record>
+
+        <record id="create_categs_theme" model="ir.cron">
+            <field name="name">创建variation theme</field>
+            <field name="user_id">1</field>
+            <field name="active" eval="False"/>
+            <field name="model">amazon.category</field>
+            <field name="function">create_categs_theme</field>
+            <field name="args" eval="False"/>
+        </record>
+
+        <record id="create_browse_node" model="ir.cron">
+            <field name="name">创建browse node</field>
+            <field name="user_id">1</field>
+            <field name="active" eval="False"/>
+            <field name="model">amazon.browse.node</field>
+            <field name="function">create_browse_node</field>
             <field name="args" eval="False"/>
         </record>
     </data>
