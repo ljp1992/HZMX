@@ -65,6 +65,10 @@ class ProductTemplate(models.Model):
     copy_platform_ids = fields.Many2many('copy.platform', 'product_copy_platform_rel', 'product_id', 'platform_id',
                                          string=u'侵权平台')
 
+    # type = fields.Selection([
+    #     ('consu', u'消耗品'),
+    #     ('service', u'服务'),
+    #     ('product', u'可库存产品'),], string='产品类型', default='product', required=True,)
     state = fields.Selection([
         ('platform_unpublished', u'平台未发布'),
         ('platform_published', u'平台已发布'),

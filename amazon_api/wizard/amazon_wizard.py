@@ -10,3 +10,4 @@ class AmazonWizard(models.TransientModel):
     # @api.multi
     # def create_shop(self):
     #     print self._context
+

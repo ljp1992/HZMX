@@ -24,6 +24,30 @@ class AmazonShop(models.Model):
                                   string=u'商户')
 
     @api.model
+    def name_search(self, name, args=None, operator='ilike', limit=100):
+        args = args or []
+        args += [('name', operator, name)]
+        user = self.env.user
+        if user.user_type == 'operator':
+            args += [('operator_id', '=', user.id)]
+        elif user.user_type == 'merchant':
+            args += [('merchant_id', '=', user.id)]
+        print args
+        # args = list(set(args))
+        result = self.search(args, limit=limit)
+        return result.name_get()
+
+    @api.model
+    def search(self, args, offset=0, limit=None, order=None, count=False):
+        user = self.env.user
+        if user.user_type == 'operator':
+            args += [('operator_id', '=', user.id)]
+        elif user.user_type == 'merchant':
+            args += [('merchant_id', '=', user.id)]
+        # args = list(set(args))
+        return super(AmazonShop, self).search(args, offset, limit, order, count=count)
+
+    @api.model
     def create(self, val):
         seller = super(AmazonShop, self).create(val)
         seller.check_shop()

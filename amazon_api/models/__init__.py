@@ -24,3 +24,6 @@ from . import amazon_category
 from . import ir_sequence
 from . import upc_code
 from . import submission_history
+from . import sale_order
+from . import sale_order_line
+from . import sync_sale_order_log

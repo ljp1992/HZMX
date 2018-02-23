@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+        <record id="sync_sale_order_form" model="ir.ui.view">
+			<field name="name">sync_sale_order_form</field>
+			<field name="model">sync.sale.order</field>
+			<field name="arch" type="xml">
+				<form>
+					<!--<sheet>-->
+                        <group>
+                            <field name="shop_ids" widget="many2many_tags" options="{'no_create':True}"/>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="start_date"/>
+                                <field name="end_date"/>
+                            </group>
+                        </group>
+                        <footer>
+                            <button name="download_sale_order" string="同步" type="object" class="oe_highlight"/>
+                            <button string="取消" class="oe_highlight" special="cancel"/>
+                        </footer>
+					<!--</sheet>-->
+				</form>
+			</field>
+		</record>
+
+        <record id="sync_sale_order_act" model="ir.actions.act_window">
+            <field name="name">同步销售订单</field>
+            <field name="res_model">sync.sale.order</field>
+            <field name="view_mode">form</field>
+            <field name="view_type">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <record id="sync_sale_order_act_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="sync_sale_order_form"/>
+            <field name="act_window_id" ref="sync_sale_order_act"/>
+        </record>
+
+        <menuitem id="sync_sale_order_menu" name="同步销售订单" parent="b2b_platform.ecommerce_menu_root"
+                  action="sync_sale_order_act" sequence="20"/>
+	</data>
+</odoo>

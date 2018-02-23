@@ -18,6 +18,9 @@ amazon_category_id,amazon_category,model_amazon_category,b2b_platform.b2b_shop_o
 ir_sequence_id,ir_sequence,model_ir_sequence,b2b_platform.b2b_shop_operator,1,1,1,1
 upc_code_id,upc_code,model_upc_code,b2b_platform.b2b_shop_operator,1,1,1,1
 submission_history_id,submission_history,model_submission_history,b2b_platform.b2b_shop_operator,1,1,1,1
+sync_sale_order_log_id,sync_sale_order_log,model_sync_sale_order_log,b2b_platform.b2b_shop_operator,1,1,1,1
+sync_sale_order_log_line_id,sync_sale_order_log_line,model_sync_sale_order_log_line,b2b_platform.b2b_shop_operator,1,1,1,1
+
 
 
 

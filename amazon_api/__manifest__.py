@@ -34,6 +34,9 @@
         'views/amazon_currency.xml',
         'views/upc_code.xml',
         'views/submission_history.xml',
+        'views/sale_order.xml',
+        'views/sync_sale_order.xml',
+        'views/sync_sale_order_log.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

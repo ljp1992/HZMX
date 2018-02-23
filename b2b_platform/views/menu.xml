@@ -8,6 +8,7 @@
 
         <menuitem id="ecommerce_menu_root" name="跨境电商" sequence="2" groups="b2b_platform.b2b_shop_operator"/>
             <menuitem id="account_authorized_menu" parent="ecommerce_menu_root" name="账户授权" sequence="1"/>
+            <menuitem id="sale_order_parent_menu" parent="ecommerce_menu_root" name="客户订单" sequence="2"/>
             <menuitem id="log_menu" parent="ecommerce_menu_root" name="日志" sequence="10"/>
 
         <menuitem id="platform_manage_root" name="系统" sequence="3" groups="b2b_platform.b2b_shop_operator"/>
