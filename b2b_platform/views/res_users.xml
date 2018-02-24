@@ -167,7 +167,7 @@
                   action="b2b_platform.res_users_act" groups="b2b_platform.b2b_manager"/>
 
 		<!--操作员-->
-		<record id="b2b_operator_tree" model="ir.ui.view">
+		<record id="operator_res_users_tree" model="ir.ui.view">
 			<field name="name">operator_tree</field>
 			<field name="model">res.users</field>
 			<field name="arch" type="xml">
@@ -180,7 +180,7 @@
 			</field>
 		</record>
 
-		<record id="b2b_operator_form" model="ir.ui.view">
+		<record id="operator_res_users_form" model="ir.ui.view">
 			<field name="name">operator_form</field>
 			<field name="model">res.users</field>
 			<field name="arch" type="xml">
@@ -203,7 +203,7 @@
 			</field>
 		</record>
 
-		<record id="b2b_operator_search" model="ir.ui.view">
+		<record id="operator_res_users_search" model="ir.ui.view">
 			<field name="name">operator_search</field>
 			<field name="model">res.users</field>
 			<field name="arch" type="xml">
@@ -216,15 +216,31 @@
 			</field>
 		</record>
 
-		<record id="b2b_operator_act" model="ir.actions.server">
+		<record id="operator_res_users_act" model="ir.actions.act_window">
 			<field name="name">店铺操作员</field>
-			<field name="model_id" ref="model_res_users"/>
-			<field name="code">
-    			action = model.return_operator_view()
-            </field>
+			<field name="res_model">res.users</field>
+            <field name="view_mode">tree,form</field>
+			<field name="view_type">form</field>
+			<field name="domain">[('user_type', '=', 'operator')]</field>
+			<field name="search_view_id" ref="operator_res_users_search"/>
+			<field name="context">{'search_default_waiting_audit': 1}</field>
 		</record>
 
+        <record id="operator_res_users_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="operator_res_users_tree"/>
+            <field name="act_window_id" ref="operator_res_users_act"/>
+        </record>
+
+        <record id="operator_res_users_act_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="operator_res_users_form"/>
+            <field name="act_window_id" ref="operator_res_users_act"/>
+        </record>
+
 		<menuitem id="b2b_operator_menu" name="店铺操作员" parent="acount_manage_parent" sequence="3"
-                  action="b2b_platform.b2b_operator_act" groups="b2b_platform.b2b_seller"/>
+                  action="b2b_platform.operator_res_users_act" groups="b2b_platform.b2b_seller,b2b_platform.b2b_manager"/>
 	</data>
 </odoo>		

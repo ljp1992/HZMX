@@ -1,6 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 	<data noupdate="0">
+        <!--res users-->
+        <record id="res_users_operator_rule" model="ir.rule">
+            <field name="name">res_users_operator_rule</field>
+            <field name="model_id" ref="b2b_platform.model_res_users"/>
+            <field name="domain_force">[('id', '=', user.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="res_users_merchant_rule" model="ir.rule">
+            <field name="name">res_users_merchant_rule</field>
+            <field name="model_id" ref="b2b_platform.model_res_users"/>
+            <field name="domain_force">['|', ('merchant_id', '=', user.id), ('id', '=', user.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="res_users_manager_rule" model="ir.rule">
+            <field name="name">res_users_manager_rule</field>
+            <field name="model_id" ref="b2b_platform.model_res_users"/>
+            <field name="domain_force"></field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!--卖家-->
         <record id="amazon_seller_operator_rule" model="ir.rule">
             <field name="name">amazon_seller_operator_rule</field>
             <field name="model_id" ref="amazon_api.model_amazon_seller"/>
@@ -11,7 +44,6 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
         </record>
-        
         <record id="amazon_seller_seller_rule" model="ir.rule">
             <field name="name">amazon_seller_seller_rule</field>
             <field name="model_id" ref="amazon_api.model_amazon_seller"/>
@@ -22,7 +54,6 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
-
         <record id="amazon_seller_management_rule" model="ir.rule">
             <field name="name">amazon_seller_management_rule</field>
             <field name="model_id" ref="amazon_api.model_amazon_seller"/>
@@ -33,7 +64,8 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
-        
+
+        <!--店铺-->
         <record id="amazon_shop_operator_rule" model="ir.rule">
             <field name="name">amazon_shop_operator_rule</field>
             <field name="model_id" ref="amazon_api.model_amazon_shop"/>
@@ -44,7 +76,6 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
         </record>
-        
         <record id="amazon_shop_shop_rule" model="ir.rule">
             <field name="name">amazon_shop_shop_rule</field>
             <field name="model_id" ref="amazon_api.model_amazon_shop"/>
@@ -55,7 +86,6 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
-
         <record id="amazon_shop_management_rule" model="ir.rule">
             <field name="name">amazon_shop_management_rule</field>
             <field name="model_id" ref="amazon_api.model_amazon_shop"/>
@@ -67,29 +97,420 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
-		<!--<record id="b2b_shop_operator" model="res.groups">-->
-            <!--<field name="name">b2b业务员</field>-->
-            <!--<field name="implied_ids" eval="[(6, 0, [-->
-                <!--ref('purchase.group_purchase_manager'),-->
-                <!--ref('sales_team.group_sale_salesman_all_leads'),-->
-                <!--ref('stock.group_stock_manager'),-->
-                <!--])]"/>-->
-        <!--</record>-->
+        <!--产品-->
+        <record id="product_template_operator_rule1" model="ir.rule">
+            <field name="name">product_template_operator_rule1</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="domain_force">[('state', '=', 'platform_unpublished'), ('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="product_template_operator_rule2" model="ir.rule">
+            <field name="name">product_template_operator_rule2</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="domain_force">[('state', '=', 'platform_published')]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="product_template_operator_rule3" model="ir.rule">
+            <field name="name">product_template_operator_rule3</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="domain_force">[('state', '=', 'seller'),('merchant_id', '=', user.merchant_id.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="product_template_operator_rule4" model="ir.rule">
+            <field name="name">product_template_operator_rule4</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="domain_force">[('state', '=', 'shop'), ('shop_id', 'in', user.shop_ids.ids)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        
+        <record id="product_template_merchant_rule1" model="ir.rule">
+            <field name="name">product_template_merchant_rule1</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="domain_force">[
+                '|',
+                ('create_uid', '=', user.id),
+                ('create_uid', 'in', user.operator_ids.ids),
+                ('state', '=', 'platform_unpublished')]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="product_template_merchant_rule2" model="ir.rule">
+            <field name="name">product_template_merchant_rule2</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="domain_force">[('state', '=', 'platform_published')]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="product_template_merchant_rule3" model="ir.rule">
+            <field name="name">product_template_merchant_rule3</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="domain_force">[('state', '=', 'seller'),('merchant_id', '=', user.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="product_template_merchant_rule4" model="ir.rule">
+            <field name="name">product_template_merchant_rule4</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="domain_force">[('state', '=', 'shop'), ('merchant_id', '=', user.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        
+        <record id="product_template_manager_rule1" model="ir.rule">
+            <field name="name">product_template_manager_rule1</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="domain_force">[]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="product_template_manager_rule2" model="ir.rule">
+            <field name="name">product_template_manager_rule2</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="domain_force">[]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="product_template_manager_rule3" model="ir.rule">
+            <field name="name">product_template_manager_rule3</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="domain_force">[]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="product_template_manager_rule4" model="ir.rule">
+            <field name="name">product_template_manager_rule4</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="domain_force">[]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
 
-        <!--<record id="b2b_seller" model="res.groups">-->
-            <!--<field name="name">b2b商户</field>-->
-            <!--<field name="implied_ids" eval="[-->
-                <!--(4, ref('b2b_platform.b2b_shop_operator')),-->
-                <!--(4, ref('base.group_erp_manager')),-->
-                <!--]"/>-->
-        <!--</record>-->
-
-        <!--<record id="b2b_manager" model="res.groups">-->
-            <!--<field name="name">b2b管理员</field>-->
-            <!--<field name="implied_ids" eval="[(6, 0, [-->
-                <!--ref('b2b_platform.b2b_seller'),-->
-                <!--])]"/>-->
-        <!--</record>-->
-        <!---->
+        <!--商户产品分类-->
+        <record id="merchant_category_operator_rule" model="ir.rule">
+            <field name="name">merchant_category_operator_rule</field>
+            <field name="model_id" ref="model_merchant_category"/>
+            <field name="domain_force">[('merchant_id', '=', user.merchant_id.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="merchant_category_merchant_rule" model="ir.rule">
+            <field name="name">merchant_category_merchant_rule</field>
+            <field name="model_id" ref="model_merchant_category"/>
+            <field name="domain_force">[('merchant_id', '=', user.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="merchant_category_manager_rule" model="ir.rule">
+            <field name="name">merchant_category_manager_rule</field>
+            <field name="model_id" ref="model_merchant_category"/>
+            <field name="domain_force"></field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        
+        <!--侵权平台-->
+        <record id="copy_platform_operator_rule" model="ir.rule">
+            <field name="name">copy_platform_operator_rule</field>
+            <field name="model_id" ref="model_copy_platform"/>
+            <field name="domain_force">[('merchant_id', '=', user.merchant_id.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="copy_platform_merchant_rule" model="ir.rule">
+            <field name="name">copy_platform_merchant_rule</field>
+            <field name="model_id" ref="model_copy_platform"/>
+            <field name="domain_force">[('merchant_id', '=', user.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="copy_platform_manager_rule" model="ir.rule">
+            <field name="name">copy_platform_manager_rule</field>
+            <field name="model_id" ref="model_copy_platform"/>
+            <field name="domain_force"></field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        
+        <!--品牌-->
+        <record id="product_brand_operator_rule" model="ir.rule">
+            <field name="name">product_brand_operator_rule</field>
+            <field name="model_id" ref="model_product_brand"/>
+            <field name="domain_force">[('merchant_id', '=', user.merchant_id.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="product_brand_merchant_rule" model="ir.rule">
+            <field name="name">product_brand_merchant_rule</field>
+            <field name="model_id" ref="model_product_brand"/>
+            <field name="domain_force">[('merchant_id', '=', user.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="product_brand_manager_rule" model="ir.rule">
+            <field name="name">product_brand_manager_rule</field>
+            <field name="model_id" ref="model_product_brand"/>
+            <field name="domain_force"></field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        
+        <!--运费模板-->
+        <record id="freight_template_operator_rule" model="ir.rule">
+            <field name="name">freight_template_operator_rule</field>
+            <field name="model_id" ref="model_freight_template"/>
+            <field name="domain_force">[('merchant_id', '=', user.merchant_id.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="freight_template_merchant_rule" model="ir.rule">
+            <field name="name">freight_template_merchant_rule</field>
+            <field name="model_id" ref="model_freight_template"/>
+            <field name="domain_force">[('merchant_id', '=', user.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="freight_template_manager_rule" model="ir.rule">
+            <field name="name">freight_template_manager_rule</field>
+            <field name="model_id" ref="model_freight_template"/>
+            <field name="domain_force"></field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        
+        <!--店铺刊登模板-->
+        <record id="shop_template_operator_rule" model="ir.rule">
+            <field name="name">shop_template_operator_rule</field>
+            <field name="model_id" ref="model_shop_template"/>
+            <field name="domain_force">[('merchant_id', '=', user.merchant_id.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="shop_template_merchant_rule" model="ir.rule">
+            <field name="name">shop_template_merchant_rule</field>
+            <field name="model_id" ref="model_shop_template"/>
+            <field name="domain_force">[('merchant_id', '=', user.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="shop_template_manager_rule" model="ir.rule">
+            <field name="name">shop_template_manager_rule</field>
+            <field name="model_id" ref="model_shop_template"/>
+            <field name="domain_force"></field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        
+        <!--UPC编码-->
+        <record id="upc_code_operator_rule" model="ir.rule">
+            <field name="name">upc_code_operator_rule</field>
+            <field name="model_id" ref="model_upc_code"/>
+            <field name="domain_force">[('merchant_id', '=', user.merchant_id.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="upc_code_merchant_rule" model="ir.rule">
+            <field name="name">upc_code_merchant_rule</field>
+            <field name="model_id" ref="model_upc_code"/>
+            <field name="domain_force">[('merchant_id', '=', user.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="upc_code_manager_rule" model="ir.rule">
+            <field name="name">upc_code_manager_rule</field>
+            <field name="model_id" ref="model_upc_code"/>
+            <field name="domain_force"></field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        
+        <!--上传日志-->
+        <record id="submission_history_operator_rule" model="ir.rule">
+            <field name="name">submission_history_operator_rule</field>
+            <field name="model_id" ref="model_submission_history"/>
+            <field name="domain_force">[('shop_id', 'in', user.shop_ids.ids)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="submission_history_merchant_rule" model="ir.rule">
+            <field name="name">submission_history_merchant_rule</field>
+            <field name="model_id" ref="model_submission_history"/>
+            <field name="domain_force">[('merchant_id', '=', user.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="submission_history_manager_rule" model="ir.rule">
+            <field name="name">submission_history_manager_rule</field>
+            <field name="model_id" ref="model_submission_history"/>
+            <field name="domain_force"></field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        
+        <!--销售订单-->
+        <record id="sale_order_operator_rule" model="ir.rule">
+            <field name="name">sale_order_operator_rule</field>
+            <field name="model_id" ref="model_sale_order"/>
+            <field name="domain_force">[('shop_id', 'in', user.shop_ids.ids)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="sale_order_merchant_rule" model="ir.rule">
+            <field name="name">sale_order_merchant_rule</field>
+            <field name="model_id" ref="model_sale_order"/>
+            <field name="domain_force">[('merchant_id', '=', user.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="sale_order_manager_rule" model="ir.rule">
+            <field name="name">sale_order_manager_rule</field>
+            <field name="model_id" ref="model_sale_order"/>
+            <field name="domain_force"></field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        
+        <!--下载销售订单日志-->
+        <record id="sync_sale_order_log_operator_rule" model="ir.rule">
+            <field name="name">sync_sale_order_log_operator_rule</field>
+            <field name="model_id" ref="model_sync_sale_order_log"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="sync_sale_order_log_merchant_rule" model="ir.rule">
+            <field name="name">sync_sale_order_log_merchant_rule</field>
+            <field name="model_id" ref="model_sync_sale_order_log"/>
+            <field name="domain_force">[('merchant_id', '=', user.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="sync_sale_order_log_manager_rule" model="ir.rule">
+            <field name="name">sync_sale_order_log_manager_rule</field>
+            <field name="model_id" ref="model_sync_sale_order_log"/>
+            <field name="domain_force"></field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
 	</data>
 </odoo>

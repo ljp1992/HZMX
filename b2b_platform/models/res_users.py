@@ -10,6 +10,8 @@ class ResUsers(models.Model):
 
     merchant_id = fields.Many2one('res.users', string=u'商户')
 
+    operator_ids = fields.One2many('res.users', 'merchant_id', string=u'操作员')
+
     user_type = fields.Selection([
         ('operator', u'操作员'),
         ('merchant', u'商户'),

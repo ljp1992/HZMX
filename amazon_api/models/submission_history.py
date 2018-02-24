@@ -22,6 +22,7 @@ class SubmissionHistory(models.Model):
     return_time = fields.Datetime(string=u'获得结果时间')
 
     shop_id = fields.Many2one('amazon.shop')
+    merchant_id = fields.Many2one('res.users', default=lambda self: self.env.user.merchant_id or self.env.user)
 
     state = fields.Selection([
         ('uploading', u'正在上传'),

@@ -12,7 +12,8 @@ class MerchantCategory(models.Model):
     rate = fields.Float(string=u'上浮率(%)')
 
     parent_id = fields.Many2one('merchant.category', string=u'上级分类')
-    merchant_id = fields.Many2one('res.users', string=u'商户')
+    merchant_id = fields.Many2one('res.users', default=lambda self: self.env.user.merchant_id or self.env.user,
+                                  string=u'商户')
 
     child_ids = fields.One2many('merchant.category', 'parent_id')
 

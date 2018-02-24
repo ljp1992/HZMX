@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 	<data>
-        <menuitem id="product_root" name="产品" sequence="1" groups="b2b_platform.b2b_shop_operator"/>
-            <menuitem id="product_register_menu" parent="product_root" name="产品登记" sequence="1"/>
-            <menuitem id="my_product_menu" parent="product_root" name="我的产品" sequence="3"/>
+        <menuitem id="product_root" name="产品" sequence="1"/>
+            <menuitem id="platform_tmpl_menu" parent="product_root" name="平台产品" sequence="1"/>
+            <menuitem id="merchant_tmpl_menu" parent="product_root" name="商户产品" sequence="2"/>
+            <menuitem id="shop_tmpl_menu" parent="product_root" name="店铺产品" sequence="3"/>
 
-
-        <menuitem id="ecommerce_menu_root" name="跨境电商" sequence="2" groups="b2b_platform.b2b_shop_operator"/>
+        <menuitem id="ecommerce_menu_root" name="跨境电商" sequence="2"/>
             <menuitem id="account_authorized_menu" parent="ecommerce_menu_root" name="账户授权" sequence="1"/>
             <menuitem id="sale_order_parent_menu" parent="ecommerce_menu_root" name="客户订单" sequence="2"/>
             <menuitem id="log_menu" parent="ecommerce_menu_root" name="日志" sequence="10"/>
 
-        <menuitem id="platform_manage_root" name="系统" sequence="3" groups="b2b_platform.b2b_shop_operator"/>
+        <menuitem id="platform_manage_root" name="系统" sequence="3"/>
             <menuitem id="acount_manage_parent" name="账号管理" parent="platform_manage_root" sequence="1"/>
             <menuitem id="base_data_menu" name="基础数据" parent="platform_manage_root" sequence="3"/>
 

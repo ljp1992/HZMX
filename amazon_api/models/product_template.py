@@ -538,20 +538,20 @@ class ProductTemplate(models.Model):
             else:
                 template.hide_supplier_price = True
 
-    @api.model
-    def search(self, args, offset=0, limit=None, order=None, count=False):
-        context = self._context or {}
-        if context.get('view_mine'):
-            merchant = self.env.user.merchant_id or self.env.user
-            args += [('merchant_id', '=', merchant.id)]
-        if context.get('view_my_shop_tmpl'):
-            user = self.env.user
-            if user.user_type == 'operator':
-                shops = self.env['amazon.shop'].search([('operator_id', '=', user.id)])
-                args += [('shop_id', 'in', shops.ids)]
-            elif user.user_type == 'merchant':
-                args += [('merchant_id', '=', user.id)]
-        return super(ProductTemplate, self).search(args, offset, limit, order, count=count)
+    # @api.model
+    # def search(self, args, offset=0, limit=None, order=None, count=False):
+    #     context = self._context or {}
+    #     if context.get('view_mine'):
+    #         merchant = self.env.user.merchant_id or self.env.user
+    #         args += [('merchant_id', '=', merchant.id)]
+    #     if context.get('view_my_shop_tmpl'):
+    #         user = self.env.user
+    #         if user.user_type == 'operator':
+    #             shops = self.env['amazon.shop'].search([('operator_id', '=', user.id)])
+    #             args += [('shop_id', 'in', shops.ids)]
+    #         elif user.user_type == 'merchant':
+    #             args += [('merchant_id', '=', user.id)]
+    #     return super(ProductTemplate, self).search(args, offset, limit, order, count=count)
 
     @api.multi
     def _set_shop_price_cny(self):

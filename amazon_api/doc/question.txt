@@ -10,6 +10,7 @@
 
 需求确认：
 。各个市场（国家）的货币、语言
+。店铺操作员可不可以发布产品
 
 seller info:
 AKIAICI2QBFVUDSSTXOA

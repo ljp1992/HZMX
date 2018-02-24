@@ -28,3 +28,5 @@ from . import sale_order
 from . import sale_order_line
 from . import sync_sale_order_log
 from . import variation_theme
+from . import res_users
+from . import ir_cron

@@ -1,39 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record id="maintain_amazon_marketplace" model="ir.cron">
-            <field name="name">亚马逊市场数据维护</field>
+        <record id="initial_data" model="ir.cron">
+            <field name="name">初始化数据</field>
             <field name="user_id">1</field>
             <field name="active" eval="False"/>
-            <field name="model">amazon.marketplace</field>
-            <field name="function">maintain_amazon_marketplace</field>
-            <field name="args" eval="False"/>
-        </record>
-
-        <record id="create_attribute_categs" model="ir.cron">
-            <field name="name">创建产品属性和模板</field>
-            <field name="user_id">1</field>
-            <field name="active" eval="False"/>
-            <field name="model">product.attribute</field>
-            <field name="function">create_attribute_and_categs</field>
-            <field name="args" eval="False"/>
-        </record>
-
-        <record id="create_categs_theme" model="ir.cron">
-            <field name="name">创建variation theme</field>
-            <field name="user_id">1</field>
-            <field name="active" eval="False"/>
-            <field name="model">amazon.category</field>
-            <field name="function">create_categs_theme</field>
-            <field name="args" eval="False"/>
-        </record>
-
-        <record id="create_browse_node" model="ir.cron">
-            <field name="name">创建browse node</field>
-            <field name="user_id">1</field>
-            <field name="active" eval="False"/>
-            <field name="model">amazon.browse.node</field>
-            <field name="function">create_browse_node</field>
+            <field name="model">ir.cron</field>
+            <field name="function">initial_data</field>
             <field name="args" eval="False"/>
         </record>
     </data>
