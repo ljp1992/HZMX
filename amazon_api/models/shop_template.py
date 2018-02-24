@@ -18,8 +18,8 @@ class ShopTemplate(models.Model):
     suffix_description = fields.Text(string=u'产品描述后缀')
 
     merchant_id = fields.Many2one('res.users', default=lambda self: self.env.user.merchant_id or self.env.user)
-    browse_node_id = fields.Many2one('amazon.browse.node', string=u'类别')
-    categ_id = fields.Many2one('amazon.category', string=u'模板')
+    browse_node_id = fields.Many2one('amazon.browse.node', string=u'商品类别')
+    categ_id = fields.Many2one('amazon.category', string=u'亚马逊模板')
     brand_id = fields.Many2one('product.brand', string=u'品牌')
 
 

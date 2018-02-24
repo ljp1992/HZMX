@@ -80,6 +80,7 @@
                                 <group attrs="{'invisible': [('state', '!=', 'shop')]}">
                                     <group>
                                         <field name="amazon_categ_id" options="{'no_create': True}"/>
+                                        <field name="variation_theme_id" groups="base.group_no_one"/>
                                     </group>
                                     <group>
                                         <field name="browse_node_id" options="{'no_create': True}"/>

@@ -30,13 +30,14 @@
         'views/product_brand.xml',
         'views/freight_template.xml',
         'views/shop_template.xml',
-        'views/shop_template_wizard.xml',
         'views/amazon_currency.xml',
         'views/upc_code.xml',
         'views/submission_history.xml',
         'views/sale_order.xml',
         'views/sync_sale_order.xml',
         'views/sync_sale_order_log.xml',
+
+        'wizard_views/shop_template_wizard.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

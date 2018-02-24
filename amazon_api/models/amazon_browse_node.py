@@ -17,7 +17,6 @@ class AmazonBrowseNode(models.Model):
     @api.model
     def create_browse_node(self):
         '''创建browse node'''
-        print 1111111
         node_obj = self.env['amazon.browse.node']
         path = modules.get_module_resource('amazon_api', 'data', 'browse_node_data.txt')
         with open(path, 'r') as f:

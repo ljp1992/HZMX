@@ -41,7 +41,7 @@ class ProductTemplate(models.Model):
     declare_price = fields.Monetary(string=u'申报单价')
     pack_weight = fields.Float(string=u'包装重量')
 
-    amazon_categ_id = fields.Many2one('amazon.category', string=u'亚马逊模板')
+    amazon_categ_id = fields.Many2one('amazon.category', inverse='_set_variation_theme_id', string=u'亚马逊模板')
     variation_theme_id = fields.Many2one('variation.theme')
     browse_node_id = fields.Many2one('amazon.browse.node', string=u'商品类别')
     categ_id = fields.Many2one('product.category', inverse='_set_platform_price', string=u'平台分类')
@@ -114,6 +114,16 @@ class ProductTemplate(models.Model):
         ('deleted', u'已删除')], default='pending', string=u'库存状态')
 
     @api.multi
+    def _set_variation_theme_id(self):
+        theme_obj = self.env['variation.theme']
+        for tmpl in self:
+            theme_ids = theme_obj.search([('categ_id', '=', tmpl.amazon_categ_id.id)]).ids
+            if tmpl.amazon_categ_id.parent_id:
+                theme_ids += theme_obj.search([('categ_id', '=', tmpl.amazon_categ_id.parent_id.id)]).ids
+            if theme_ids:
+                tmpl.variation_theme_id = theme_ids[0]
+
+    @api.multi
     def _set_tmpl_state(self):
         for tmpl in self:
             tmpl.price_update = 'pending'
@@ -130,6 +140,76 @@ class ProductTemplate(models.Model):
             })
 
     @api.multi
+    def get_parent_product_data(self):
+        '''母产品prodcut data'''
+        categ = self.amazon_categ_id
+        parent_categ = categ.parent_id
+        theme = self.variation_theme_id
+        if parent_categ:
+            product_data = """
+                <ProductData>
+                    <%s>
+                        <ProductType>
+                            <%s>
+                                <VariationData>
+                                    <Parentage>parent</Parentage>
+                                    <VariationTheme>%s</VariationTheme>
+                                </VariationData>
+                            </%s>
+                        </ProductType>
+                    </%s>
+                </ProductData> """ % (parent_categ.name, categ.name, theme.name, categ.name, parent_categ.name)
+        else:
+            product_data = """
+                <ProductData>
+                    <%s>
+                        <ProductType>
+                                <VariationData>
+                                    <Parentage>parent</Parentage>
+                                    <VariationTheme>%s</VariationTheme>
+                                </VariationData>
+                        </ProductType>
+                    </%s>
+                </ProductData> """ % (categ.name, theme.name, categ.name)
+        return product_data
+
+    @api.multi
+    def get_child_product_data(self, attr):
+        '''母产品prodcut data'''
+        categ = self.amazon_categ_id
+        parent_categ = categ.parent_id
+        theme = self.variation_theme_id
+        if parent_categ:
+            product_data = """
+                    <ProductData>
+                        <%s>
+                            <ProductType>
+                                <%s>
+                                    <VariationData>
+                                        <Parentage>child</Parentage>
+                                        <VariationTheme>%s</VariationTheme>
+                                    </VariationData>
+                                    %s
+                                </%s>
+                            </ProductType>
+                        </%s>
+                    </ProductData> """ % (parent_categ.name, categ.name, theme.name, attr, categ.name, parent_categ.name)
+        else:
+            product_data = """
+                    <ProductData>
+                        <%s>
+                            <ProductType>
+                                    <VariationData>
+                                        <Parentage>parent</Parentage>
+                                        <VariationTheme>%s</VariationTheme>
+                                    </VariationData>
+                                    %s
+                            </ProductType>
+                        </%s>
+                    </ProductData> """ % (categ.name, theme.name, attr, categ.name)
+        return product_data
+
+    @api.multi
     def upload_variant_message(self):
         shop = self.shop_id
         seller = shop.seller_id
@@ -139,23 +219,8 @@ class ProductTemplate(models.Model):
             title = description.title
         else:
             raise UserError(u'not found description!')
-        parent_categ = 'CE'
-        child_categ = 'ConsumerElectronics'
-        variation_theme = 'Color'
         brand = self.brand_id.name
-        product_data = """
-            <ProductData>
-                <CE>
-                    <ProductType>
-                        <ConsumerElectronics>
-                            <VariationData>
-                                <Parentage>parent</Parentage>
-                                <VariationTheme>Color</VariationTheme>
-                            </VariationData>
-                        </ConsumerElectronics>
-                    </ProductType>
-                </CE>
-            </ProductData> """
+        product_data = self.get_parent_product_data()
         info = [{
             'message_id': 1,
             'sku': self.sku,
@@ -172,20 +237,7 @@ class ProductTemplate(models.Model):
                 if lang.name == 'English':
                     attr_value = attr_val.english
                 attr += "<%s>%s</%s>" % (name, attr_value, name)
-            product_data = """
-                <ProductData>
-                    <CE>
-                        <ProductType>
-                            <ConsumerElectronics>
-                                <VariationData>
-                                    <Parentage>child</Parentage>
-                                    <VariationTheme>Color</VariationTheme>
-                                </VariationData>
-                                %s
-                            </ConsumerElectronics>
-                        </ProductType>
-                    </CE>
-                </ProductData> """ % (attr)
+            product_data = self.get_child_product_data(attr)
             info.append({
                 'message_id': message_id,
                 'sku': pro.sku,
@@ -727,11 +779,28 @@ class ProductTemplate(models.Model):
         self.ensure_one()
         self.state = 'platform_published'
 
+    @api.multi
+    def check_data(self, val):
+        '''检查亚马逊模板是否合法'''
+        if val.has_key('amazon_categ_id') or val.has_key('browse_node_id') or val.has_key('attribute_line_ids'):
+            for tmpl in self:
+                amazon_categ = tmpl.amazon_categ_id
+                if amazon_categ.child_ids:
+                    raise UserError(u'产品%s的亚马逊模板有子模板，请选择子模板' % (tmpl.name))
+                attr_ids = amazon_categ.attribute_ids.ids
+                if amazon_categ.parent_id:
+                    attr_ids += amazon_categ.parent_id.attribute_ids.ids
+                print attr_ids
+                for line in tmpl.attribute_line_ids:
+                    if line.attribute_id.id not in attr_ids:
+                        raise UserError(u'产品%s属性与亚马逊模板冲突！' % (tmpl.name))
+
     @api.model
     def create(self, val):
         result = super(models.Model, self).create(val)
         if not self.env.context.get('not_create_variant') and val.has_key('attribute_line_ids'):
             result.create_variant()
+        result.check_data(val)
         return result
 
     @api.multi
@@ -739,6 +808,7 @@ class ProductTemplate(models.Model):
         result = super(models.Model, self).write(val)
         if not self.env.context.get('not_create_variant') and val.has_key('attribute_line_ids'):
             self.create_variant()
+        self.check_data(val)
         return result
 
     @api.multi
