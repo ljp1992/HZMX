@@ -25,7 +25,7 @@ product_category_operator_id,product_category,model_product_category,b2b_platfor
 
 
 amazon_country_merchant_id,amazon_country,model_amazon_country,b2b_platform.b2b_seller,1,1,1,1
-amazon_currency_merchant_id,amazon_currency,model_amazon_currency,b2b_platform.b2b_seller,1,1,1,1
+amazon_currency_merchant_id,amazon_currency,model_amazon_currency,b2b_platform.b2b_seller,1,0,0,0
 amazon_lang_merchant_id,amazon_lang,model_amazon_lang,b2b_platform.b2b_seller,1,1,1,1
 amazon_seller_merchant_id,amazon_seller,model_amazon_seller,b2b_platform.b2b_seller,1,1,1,1
 amazon_shop_merchant_id,amazon_shop,model_amazon_shop,b2b_platform.b2b_seller,1,1,1,1
@@ -73,7 +73,7 @@ submission_history_management_id,submission_history,model_submission_history,b2b
 sync_sale_order_log_management_id,sync_sale_order_log,model_sync_sale_order_log,b2b_platform.b2b_manager,1,1,1,1
 sync_sale_order_log_line_management_id,sync_sale_order_log_line,model_sync_sale_order_log_line,b2b_platform.b2b_manager,1,1,1,1
 variation_theme_management_id,variation_theme,model_variation_theme,b2b_platform.b2b_manager,1,1,1,1
-product_category_operator_id,product_category,model_product_category,b2b_platform.b2b_manager,1,0,0,0
+product_category_operator_id,product_category,model_product_category,b2b_platform.b2b_manager,1,1,1,1
 
 
 
