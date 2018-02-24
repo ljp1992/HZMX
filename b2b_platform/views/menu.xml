@@ -28,5 +28,17 @@
         <record model="ir.ui.menu" id="account.menu_finance">
             <field name="groups_id" eval="[(6,0,[ref('base.group_no_one')])]"/>
         </record>
+        <!--隐藏设置菜单-->
+        <record model="ir.ui.menu" id="base.menu_administration">
+            <field name="groups_id" eval="[(6,0,[ref('base.group_no_one')])]"/>
+        </record>
+        <!--隐藏网站管理菜单-->
+        <record model="ir.ui.menu" id="website.menu_website_configuration">
+            <field name="groups_id" eval="[(6,0,[ref('base.group_no_one')])]"/>
+        </record>
+        <!--隐藏网站菜单-->
+        <record model="ir.ui.menu" id="website.menu_website">
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_no_one')])]"/>
+        </record>
 	</data>
 </odoo>
