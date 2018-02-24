@@ -23,29 +23,29 @@ class AmazonShop(models.Model):
     merchant_id = fields.Many2one('res.users', default=lambda self: self.env.user.merchant_id or self.env.user,
                                   string=u'商户')
 
-    @api.model
-    def name_search(self, name, args=None, operator='ilike', limit=100):
-        args = args or []
-        args += [('name', operator, name)]
-        user = self.env.user
-        if user.user_type == 'operator':
-            args += [('operator_id', '=', user.id)]
-        elif user.user_type == 'merchant':
-            args += [('merchant_id', '=', user.id)]
-        print args
-        # args = list(set(args))
-        result = self.search(args, limit=limit)
-        return result.name_get()
+    # @api.model
+    # def name_search(self, name, args=None, operator='ilike', limit=100):
+    #     args = args or []
+    #     args += [('name', operator, name)]
+    #     user = self.env.user
+    #     if user.user_type == 'operator':
+    #         args += [('operator_id', '=', user.id)]
+    #     elif user.user_type == 'merchant':
+    #         args += [('merchant_id', '=', user.id)]
+    #     print args
+    #     # args = list(set(args))
+    #     result = self.search(args, limit=limit)
+    #     return result.name_get()
 
-    @api.model
-    def search(self, args, offset=0, limit=None, order=None, count=False):
-        user = self.env.user
-        if user.user_type == 'operator':
-            args += [('operator_id', '=', user.id)]
-        elif user.user_type == 'merchant':
-            args += [('merchant_id', '=', user.id)]
-        # args = list(set(args))
-        return super(AmazonShop, self).search(args, offset, limit, order, count=count)
+    # @api.model
+    # def search(self, args, offset=0, limit=None, order=None, count=False):
+    #     user = self.env.user
+    #     if user.user_type == 'operator':
+    #         args += [('operator_id', '=', user.id)]
+    #     elif user.user_type == 'merchant':
+    #         args += [('merchant_id', '=', user.id)]
+    #     # args = list(set(args))
+    #     return super(AmazonShop, self).search(args, offset, limit, order, count=count)
 
     @api.model
     def create(self, val):
@@ -72,22 +72,22 @@ class AmazonShop(models.Model):
             if len(results) > 1:
                 raise UserError(u'系统中已存在该卖家该市场的店铺！')
 
-    @api.model
-    def return_act_view(self):
-        domain = []
-        user = self.env.user
-        if user.user_type == 'operator':
-            domain = [('operator_id', '=', user.id)]
-        elif user.user_type == 'merchant':
-            domain = [('merchant_id', '=', user.id)]
-        return {
-            'type': 'ir.actions.act_window',
-            'name': u'店铺',
-            'view_mode': 'tree,form',
-            'view_type': 'form',
-            'views': [(self.env.ref('amazon_api.amazon_shop_tree').id, 'tree'),
-                      (self.env.ref('amazon_api.amazon_shop_form').id, 'form')],
-            'res_model': 'amazon.shop',
-            'domain': domain,
-            'target': 'current',
-        }
+    # @api.model
+    # def return_act_view(self):
+    #     domain = []
+    #     user = self.env.user
+    #     if user.user_type == 'operator':
+    #         domain = [('operator_id', '=', user.id)]
+    #     elif user.user_type == 'merchant':
+    #         domain = [('merchant_id', '=', user.id)]
+    #     return {
+    #         'type': 'ir.actions.act_window',
+    #         'name': u'店铺',
+    #         'view_mode': 'tree,form',
+    #         'view_type': 'form',
+    #         'views': [(self.env.ref('amazon_api.amazon_shop_tree').id, 'tree'),
+    #                   (self.env.ref('amazon_api.amazon_shop_form').id, 'form')],
+    #         'res_model': 'amazon.shop',
+    #         'domain': domain,
+    #         'target': 'current',
+    #     }

@@ -76,33 +76,33 @@ class AmazonSeller(models.Model):
                         marketplace_ids.append(marketplace.id)
             seller.marketplace_ids = [(6, False, marketplace_ids)]
 
-    @api.model
-    def return_act_view(self):
-        domain = []
-        user = self.env.user
-        if user.user_type == 'merchant':
-            domain = [('merchant_id', '=', user.id)]
-        return {
-            'type': 'ir.actions.act_window',
-            'name': u'卖家',
-            'view_mode': 'tree,form',
-            'view_type': 'form',
-            'views': [(self.env.ref('amazon_api.amazon_seller_tree').id, 'tree'),
-                      (self.env.ref('amazon_api.amazon_seller_form').id, 'form')],
-            'res_model': 'amazon.seller',
-            'domain': domain,
-            'target': 'current',
-        }
+    # @api.model
+    # def return_act_view(self):
+    #     domain = []
+    #     user = self.env.user
+    #     if user.user_type == 'merchant':
+    #         domain = [('merchant_id', '=', user.id)]
+    #     return {
+    #         'type': 'ir.actions.act_window',
+    #         'name': u'卖家',
+    #         'view_mode': 'tree,form',
+    #         'view_type': 'form',
+    #         'views': [(self.env.ref('amazon_api.amazon_seller_tree').id, 'tree'),
+    #                   (self.env.ref('amazon_api.amazon_seller_form').id, 'form')],
+    #         'res_model': 'amazon.seller',
+    #         'domain': domain,
+    #         'target': 'current',
+    #     }
 
-    @api.model
-    def name_search(self, name, args=None, operator='ilike', limit=100):
-        args = args or []
-        if name:
-            args += ('name', operator, name)
-        user = self.env.user
-        if user.user_type == 'operator':
-            args.append(('merchant_id', '=', user.merchant_id.id))
-        elif user.user_type == 'merchant':
-            args.append(('merchant_id', '=', user.id))
-        result = self.search(args, limit=limit)
-        return result.name_get()
+    # @api.model
+    # def name_search(self, name, args=None, operator='ilike', limit=100):
+    #     args = args or []
+    #     if name:
+    #         args += ('name', operator, name)
+    #     user = self.env.user
+    #     if user.user_type == 'operator':w
+    #         args.append(('merchant_id', '=', user.merchant_id.id))
+    #     elif user.user_type == 'merchant':
+    #         args.append(('merchant_id', '=', user.id))
+    #     result = self.search(args, limit=limit)
+    #     return result.name_get()

@@ -6,7 +6,8 @@
 			<field name="model">amazon.seller</field>
 			<field name="arch" type="xml">
 				<tree>
-					<field name="name" />
+					<field name="name"/>
+					<field name="merchant_id" groups="base.group_no_one"/>
 				</tree>
 			</field>
 		</record>
@@ -57,14 +58,35 @@
 				</form>
 			</field>
 		</record>
+		
+		<record id="amazon_seller_act" model="ir.actions.act_window">
+            <field name="name">卖家</field>
+            <field name="res_model">amazon.seller</field>
+            <field name="view_mode">tree</field>
+            <field name="view_type">form</field>
+        </record>
 
-        <record id="amazon_seller_act" model="ir.actions.server">
-			<field name="name">卖家</field>
-			<field name="model_id" ref="amazon_api.model_amazon_seller"/>
-			<field name="code">
-    			action = model.return_act_view()
-            </field>
-		</record>
+        <record id="amazon_seller_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="amazon_seller_tree"/>
+            <field name="act_window_id" ref="amazon_seller_act"/>
+        </record>
+
+        <record id="amazon_seller_act_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="amazon_seller_form"/>
+            <field name="act_window_id" ref="amazon_seller_act"/>
+        </record>
+
+        <!--<record id="amazon_seller_act" model="ir.actions.server">-->
+			<!--<field name="name">卖家</field>-->
+			<!--<field name="model_id" ref="amazon_api.model_amazon_seller"/>-->
+			<!--<field name="code">-->
+    			<!--action = model.return_act_view()-->
+            <!--</field>-->
+		<!--</record>-->
 		
         <menuitem id="amazon_seller_menu" name="卖家" parent="b2b_platform.account_authorized_menu" sequence="1"
                   action="amazon_seller_act" groups="b2b_platform.b2b_seller"/>

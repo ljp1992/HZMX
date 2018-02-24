@@ -7,7 +7,9 @@
 			<field name="arch" type="xml">
 				<tree>
 					<field name="name"/>
+					<field name="operator_id"/>
                     <field name="seller_id"/>
+					<field name="merchant_id" groups="base.group_no_one"/>
 					<field name="marketplace_id"/>
 					<field name="currency_symbol"/>
 					<field name="lang_id"/>
@@ -46,13 +48,26 @@
 			</field>
 		</record>
 
-		<record id="amazon_shop_act" model="ir.actions.server">
-			<field name="name">店铺</field>
-			<field name="model_id" ref="amazon_api.model_amazon_shop"/>
-			<field name="code">
-    			action = model.return_act_view()
-            </field>
-		</record>
+		<record id="amazon_shop_act" model="ir.actions.act_window">
+            <field name="name">店铺</field>
+            <field name="res_model">amazon.shop</field>
+            <field name="view_mode">tree</field>
+            <field name="view_type">form</field>
+        </record>
+
+        <record id="amazon_shop_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="amazon_shop_tree"/>
+            <field name="act_window_id" ref="amazon_shop_act"/>
+        </record>
+
+        <record id="amazon_shop_act_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="amazon_shop_form"/>
+            <field name="act_window_id" ref="amazon_shop_act"/>
+        </record>
 
         <menuitem id="amazon_shop_menu" name="店铺" parent="b2b_platform.account_authorized_menu" sequence="2"
                   action="amazon_shop_act"/>

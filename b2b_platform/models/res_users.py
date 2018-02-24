@@ -6,9 +6,9 @@ from odoo.exceptions import UserError
 class ResUsers(models.Model):
     _inherit = 'res.users'
 
-    merchant_id = fields.Many2one('res.users', string=u'商户')
-
     introduction = fields.Text(u'简介')
+
+    merchant_id = fields.Many2one('res.users', string=u'商户')
 
     user_type = fields.Selection([
         ('operator', u'操作员'),
