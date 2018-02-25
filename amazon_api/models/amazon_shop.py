@@ -17,11 +17,18 @@ class AmazonShop(models.Model):
                                   readonly=1)
     country_id = fields.Many2one('amazon.country', related='marketplace_id.country_id', string=u'国家')
     lang_id = fields.Many2one('amazon.lang', related='marketplace_id.lang_id', string=u'语言', store=False, readonly=1)
-    operator_id = fields.Many2one('res.users', default=lambda self: self.env.user,
-                                  domain=lambda self: ['|',('id', '=', self.env.user.id),
-                                                       ('merchant_id', '=', self.env.user.id)], string=u'操作员')
+    operator_id = fields.Many2one('res.users', default=lambda self: self.env.user, inverse='_set_operator_tmpl_rule',
+                                  string=u'操作员')
     merchant_id = fields.Many2one('res.users', default=lambda self: self.env.user.merchant_id or self.env.user,
                                   string=u'商户')
+
+    @api.multi
+    def _set_operator_tmpl_rule(self):
+        '''odoo 记录规则bug 当定义了one2many字段放在记录规则里面出问题，需要执行rule write方法，one2many的值才会更新 '''
+        self.env.ref('amazon_api.product_template_operator_rule4').name = 'product_template_operator_rule4'
+        self.env.ref('amazon_api.product_template_merchant_rule1').name = 'product_template_merchant_rule1'
+        self.env.ref('amazon_api.submission_history_operator_rule').name = 'submission_history_operator_rule'
+        self.env.ref('amazon_api.sale_order_operator_rule').name = 'sale_order_operator_rule'
 
     # @api.model
     # def name_search(self, name, args=None, operator='ilike', limit=100):

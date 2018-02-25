@@ -82,6 +82,6 @@
         </record>
 
         <menuitem id="product_attribute_value_menu" name="属性值" parent="b2b_platform.base_data_menu" sequence="5"
-                  action="amazon_api.product_attribute_value_act" groups="b2b_platform.b2b_shop_operator"/>
+                  action="amazon_api.product_attribute_value_act" groups="b2b_platform.b2b_manager"/>
 	</data>
 </odoo>

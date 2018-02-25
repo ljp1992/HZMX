@@ -158,13 +158,13 @@ class ShopTemplateWizard(models.TransientModel):
             # add upc
             upc_obj = self.env['upc.code']
             merchant = self.env.user.merchant_id or self.env.user
-            upc = upc_obj.sudo().search([('used', '=', False), ('merchant_id', '=', merchant.id)], limit=1)
+            upc = upc_obj.search([('used', '=', False), ('merchant_id', '=', merchant.id)], limit=1)
             if not upc:
                 raise UserError('upc is not enough!')
             new_template.upc = upc.name
             upc.used = True
             for pro in new_template.product_variant_ids:
-                upc = upc_obj.sudo().search([('used', '=', False), ('merchant_id', '=', merchant.id)], limit=1)
+                upc = upc_obj.search([('used', '=', False), ('merchant_id', '=', merchant.id)], limit=1)
                 if not upc:
                     raise UserError('upc is not enough!')
                 pro.upc = upc.name

@@ -20,6 +20,16 @@
                 ])]"/>
         </record>
 
+        <!--<record id="b2b_seller" model="res.groups">-->
+            <!--<field name="name">b2b商户</field>-->
+            <!--<field name="implied_ids" eval="[(6, 0, [-->
+                <!--ref('purchase.group_purchase_manager'),-->
+                <!--ref('sales_team.group_sale_salesman'),-->
+                <!--ref('stock.group_stock_manager'),-->
+                <!--ref('base.group_erp_manager'),-->
+                <!--])]"/>-->
+        <!--</record>-->
+
         <record id="b2b_manager" model="res.groups">
             <field name="name">b2b管理员</field>
             <field name="implied_ids" eval="[(6, 0, [

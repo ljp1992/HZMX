@@ -55,6 +55,6 @@
         </record>
 
         <menuitem id="product_category_menu" name="平台产品分类" parent="b2b_platform.base_data_menu" sequence="1"
-                  action="product_category_act"/>
+                  action="product_category_act" groups="b2b_platform.b2b_manager"/>
 	</data>
 </odoo>		

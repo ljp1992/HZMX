@@ -41,6 +41,7 @@ class ProductTemplate(models.Model):
     declare_price = fields.Monetary(string=u'申报单价')
     pack_weight = fields.Float(string=u'包装重量')
 
+    publish_id = fields.Many2one('res.users', string=u'发布人')
     amazon_categ_id = fields.Many2one('amazon.category', inverse='_set_variation_theme_id', string=u'亚马逊模板')
     variation_theme_id = fields.Many2one('variation.theme')
     browse_node_id = fields.Many2one('amazon.browse.node', string=u'商品类别')
@@ -135,8 +136,8 @@ class ProductTemplate(models.Model):
         for template in templates:
             template.upload_variant_message()
             template.write({
-                'product_state': 'updating',
-                'relation_state': 'updating',
+                'product_update': 'updating',
+                'relation_update': 'updating',
             })
 
     @api.multi
@@ -335,7 +336,6 @@ class ProductTemplate(models.Model):
         except Exception, e:
             raise UserError(str(e))
         submission_id = feed_result.parsed.get('FeedSubmissionInfo', {}).get('FeedSubmissionId', {}).get('value', '')
-        print feed_result.parsed, submission_id
         self.env['submission.history'].create({
             'model': 'product.template',
             'record_id': self.id,
@@ -381,7 +381,6 @@ class ProductTemplate(models.Model):
                     <PurgeAndReplace>false</PurgeAndReplace>
                     %s
                     </AmazonEnvelope>""" % (seller.merchant_id_num, message)
-            print head
             mws_obj = Feeds(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
                             account_id=str(seller.merchant_id_num), region=shop.country_id.code, proxies={})
             try:
@@ -400,7 +399,7 @@ class ProductTemplate(models.Model):
                 'type': 'price_update'
             })
             template.write({
-                'price_state': 'updating',
+                'price_update': 'updating',
             })
 
     @api.multi
@@ -468,7 +467,7 @@ class ProductTemplate(models.Model):
                 'type': 'image_update'
             })
             template.write({
-                'image_state': 'updating',
+                'image_update': 'updating',
             })
 
     @api.multi
@@ -521,7 +520,7 @@ class ProductTemplate(models.Model):
                 'type': 'stock_update'
             })
             template.write({
-                'stock_state': 'updating',
+                'stock_update': 'updating',
             })
 
     @api.depends('shop_price_cny')
@@ -551,6 +550,11 @@ class ProductTemplate(models.Model):
     #             args += [('shop_id', 'in', shops.ids)]
     #         elif user.user_type == 'merchant':
     #             args += [('merchant_id', '=', user.id)]
+    #     return super(ProductTemplate, self).search(args, offset, limit, order, count=count)
+
+    # @api.model
+    # def search(self, args, offset=0, limit=None, order=None, count=False):
+    #     print args
     #     return super(ProductTemplate, self).search(args, offset, limit, order, count=count)
 
     @api.multi
@@ -778,22 +782,23 @@ class ProductTemplate(models.Model):
     def publish_platform(self):
         self.ensure_one()
         self.state = 'platform_published'
+        self.publish_id = self.env.user.id
 
     @api.multi
     def check_data(self, val):
         '''检查亚马逊模板是否合法'''
         if val.has_key('amazon_categ_id') or val.has_key('browse_node_id') or val.has_key('attribute_line_ids'):
             for tmpl in self:
-                amazon_categ = tmpl.amazon_categ_id
-                if amazon_categ.child_ids:
-                    raise UserError(u'产品%s的亚马逊模板有子模板，请选择子模板' % (tmpl.name))
-                attr_ids = amazon_categ.attribute_ids.ids
-                if amazon_categ.parent_id:
-                    attr_ids += amazon_categ.parent_id.attribute_ids.ids
-                print attr_ids
-                for line in tmpl.attribute_line_ids:
-                    if line.attribute_id.id not in attr_ids:
-                        raise UserError(u'产品%s属性与亚马逊模板冲突！' % (tmpl.name))
+                if tmpl.state == 'shop':
+                    amazon_categ = tmpl.amazon_categ_id
+                    if amazon_categ.child_ids:
+                        raise UserError(u'产品%s的亚马逊模板有子模板，请选择子模板' % (tmpl.name))
+                    attr_ids = amazon_categ.attribute_ids.ids
+                    if amazon_categ.parent_id:
+                        attr_ids += amazon_categ.parent_id.attribute_ids.ids
+                    for line in tmpl.attribute_line_ids:
+                        if line.attribute_id.id not in attr_ids:
+                            raise UserError(u'产品%s属性与亚马逊模板冲突！' % (tmpl.name))
 
     @api.model
     def create(self, val):

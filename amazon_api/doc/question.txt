@@ -1,16 +1,21 @@
+问题:
 。所有tree视图导入按钮隐藏
 。主站name宽度使用百分比控制
 。添加字段active，筛选出有效的国家、语言
 。list_marketplaces 报错！无法获取到亚马逊的所有市场信息。
 。市场数据用户可维护
 。man2many明细行添加button，点击button没有执行后台方法。
-。权限配置，以selection形式配置
 。删除user，同时删除partner
-
+。权限配置问题。sale_order的记录规则无效，可能是原生模块的记录规则的影响
 
 需求确认：
 。各个市场（国家）的货币、语言
 。店铺操作员可不可以发布产品
+。属性值是公用,还是一个商户一套
+
+待添加：
+。产品删除控制
+。product_id 去除父子关系
 
 seller info:
 AKIAICI2QBFVUDSSTXOA

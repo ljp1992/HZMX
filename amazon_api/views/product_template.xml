@@ -47,7 +47,8 @@
 								<group>
                                     <group>
                                         <field name="categ_id" options="{'no_create':True}" string="平台分类"/>
-                                        <field name="merchant_categ_id" options="{'no_create':True}"/>
+                                        <field name="merchant_categ_id" options="{'no_create':True}"
+                                            attrs="{'invisible':[('state', 'not in', ['seller', 'shop'])]}"/>
                                     </group>
                                     <group>
                                         <field name="supplier_price"
@@ -207,7 +208,7 @@
 			<field name="arch" type="xml">
 				<search string="">
 					<field name="name"/>
-					<filter string="我发布的产品" name="publish_by_me" domain="[('create_uid', '=', uid)]"/>
+					<filter string="我发布的产品" name="publish_by_me" domain="[('publish_id', '=', uid)]"/>
 				</search>
 			</field>
 		</record>
