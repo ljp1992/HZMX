@@ -28,7 +28,6 @@
         'views/menu.xml',
         'views/res_users.xml',
         'views/auth_signup.xml',
-
     ],
     # only loaded in demonstration mode
     'demo': [

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
+from odoo.exceptions import UserError
+import datetime
+from odoo.addons.amazon_api.amazon_api.mws import Feeds
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
@@ -38,5 +41,28 @@ class SaleOrder(models.Model):
         ('Canceled', u'Canceled'),
         ('Unfulfillable', u'Unfulfillable'),
     ], string=u'亚马逊订单状态')
+    shipment_service_level_category = fields.Selection([
+        ('Expedited', 'Expedited'),
+        ('NextDay', 'NextDay'),
+        ('SecondDay', 'SecondDay'),
+        ('Standard', 'Standard'),
+        ('FreeEconomy', 'FreeEconomy')], string=u"货运服务等级", default='Standard')
+    delivery_upload_state = fields.Selection([
+        ('wait_upload', u'待上传'),
+        ('uploading', u'正在上传'),
+        ('done', u'完成'),
+        ('failed', u'失败')], default='wait_upload', string=u'发货信息上传状态')
 
-
+    @api.multi
+    def false_delivery(self):
+        '''假发货'''
+        self.ensure_one()
+        return {
+            'name': u'假发货',
+            'type': 'ir.actions.act_window',
+            'res_model': 'amazon.wizard',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'views': [(self.env.ref('amazon_api.false_delivery_wizard').id, 'form')],
+            'target': 'new',
+        }

@@ -15,7 +15,7 @@
 			</field>
 		</record>
 
-        <record id="sale_order_form" model="ir.ui.view">
+        <record id="sale_order_form1" model="ir.ui.view">
 			<field name="name">sale_order_form</field>
 			<field name="model">sale.order</field>
 			<field name="arch" type="xml">
@@ -66,6 +66,62 @@
 						</notebook>
 					</sheet>
 				</form>
+			</field>
+		</record>
+
+        <record id="sale_order_form" model="ir.ui.view">
+			<field name="name">sale_order_form</field>
+			<field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+			<field name="arch" type="xml">
+                <xpath expr="//header/button[@name='action_done']" position="after">
+                    <button name="false_delivery" type="object" string="假发货"/>
+                </xpath>
+				<xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='date_order']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='validity_date']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='payment_term_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="shop_id"/>
+                    <field name="e_order"/>
+                    <field name="amazon_country_id"/>
+                    <field name="e_order_amount"/>
+                    <field name="e_order_freight"/>
+                    <field name="e_order_commission"/>
+                </xpath>
+                <xpath expr="//field[@name='date_order']" position="after">
+                    <field name="partner_id"/>
+                    <field name="delivery_mode"/>
+                    <field name="amazon_state"/>
+                    <field name="sale_date"/>
+                    <field name="confirm_date"/>
+                    <field name="shipment_service_level_category"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='sequence']" position="before">
+                    <field name="order_item_id"/>
+                    <field name="shop_product_id"/>
+                    <field name="e_currency_id"/>
+                    <field name="e_price_unit"/>
+                    <field name="e_freight"/>
+                    <field name="by_platform"/>
+                </xpath>
+                <xpath expr="//page[position()=1]" position="after">
+                    <page string="收件信息">
+                        <group>
+                            <group>
+                                <field name="partner_id"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
 			</field>
 		</record>
         
