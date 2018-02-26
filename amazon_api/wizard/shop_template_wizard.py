@@ -54,7 +54,7 @@ class ShopTemplateWizard(models.TransientModel):
                 continue
             val = {
                 'name': template.name,
-                'platform_tmpl_id': template.id,
+                'platform_tmpl_id': template.platform_tmpl_id.id,
                 'state': 'shop',
                 'shop_id': self.shop_id.id,
                 'categ_id': template.categ_id.id,

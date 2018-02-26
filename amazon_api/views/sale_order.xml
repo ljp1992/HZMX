@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 	<data>
-		<record id="sale_order_tree" model="ir.ui.view">
+ <record id="sale_order_tree" model="ir.ui.view">
 			<field name="name">sale_order_tree</field>
 			<field name="model">sale.order</field>
 			<field name="arch" type="xml">
@@ -12,60 +12,6 @@
                     <field name="operator_id"/>
                     <field name="state"/>
 				</tree>
-			</field>
-		</record>
-
-        <record id="sale_order_form1" model="ir.ui.view">
-			<field name="name">sale_order_form</field>
-			<field name="model">sale.order</field>
-			<field name="arch" type="xml">
-				<form>
-                    <field name="state" invisible="1"/>
-					<sheet>
-                        <div class="oe_title">
-                            <h1>
-                                <field name="name" readonly="1"/>
-                            </h1>
-                        </div>
-                        <group>
-                            <group>
-                                <field name="platform"/>
-                                <field name="shop_id"/>
-                                <field name="e_order"/>
-                                <field name="amazon_country_id"/>
-                                <field name="e_order_amount"/>
-                                <field name="e_order_freight"/>
-                                <field name="e_order_commission"/>
-                            </group>
-                            <group>
-                                <field name="partner_id"/>
-                                <field name="delivery_mode"/>
-                                <field name="amazon_state"/>
-                                <field name="sale_date"/>
-                                <field name="confirm_date"/>
-                            </group>
-                        </group>
-						<notebook>
-                            <page string="订单明细">
-                                <field name="order_line">
-                                    <tree editable="bottom">
-                                        <field name="order_item_id"/>
-                                        <field name="shop_product_id"/>
-                                        <field name="e_currency_id"/>
-                                        <field name="e_price_unit"/>
-                                        <field name="e_freight" sum="1"/>
-                                        <field name="by_platform"/>
-                                        <field name="product_id"/>
-                                        <field name="price_unit"/>
-                                        <field name="product_uom"/>
-                                        <field name="product_uom_qty"/>
-                                        <field name="price_subtotal" sum="1"/>
-                                    </tree>
-                                </field>
-							</page>
-						</notebook>
-					</sheet>
-				</form>
 			</field>
 		</record>
 
@@ -80,42 +26,44 @@
                 <xpath expr="//sheet" position="before">
                     <header>
                         <field name="hide_platform_purchase_button" invisible="1"/>
+                        <field name="hide_myself_delivery_button" invisible="1"/>
                         <button name="false_delivery" type="object" string="假发货" states="draft,sent,sale"
                                 class="btn-primary"/>
-                        <button name="action_confirm" states="sent" string="自有发货"
-                                class="btn-primary o_sale_confirm" type="object"/>
+                        <button name="action_confirm" string="自有发货" class="btn-primary o_sale_confirm"
+                                attrs="{'invisible': [('hide_myself_delivery_button', '=', True)]}" type="object"/>
                         <button name="platform_purchase" type="object" string="平台采购" class="btn-primary"
                                 attrs="{'invisible': [('hide_platform_purchase_button', '=', True)]}"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,sent,sale"/>
                     </header>
                 </xpath>
-				<xpath expr="//field[@name='partner_id']" position="attributes">
+                <xpath expr="//sheet/group" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-                <xpath expr="//field[@name='date_order']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//field[@name='validity_date']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//field[@name='payment_term_id']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//field[@name='partner_id']" position="after">
-                    <field name="shop_id"/>
-                    <field name="e_order"/>
-                    <field name="amazon_country_id"/>
-                    <field name="e_order_amount"/>
-                    <field name="e_order_freight"/>
-                    <field name="e_order_commission"/>
-                </xpath>
-                <xpath expr="//field[@name='date_order']" position="after">
-                    <field name="partner_id"/>
-                    <field name="delivery_mode"/>
-                    <field name="amazon_state"/>
-                    <field name="sale_date"/>
-                    <field name="confirm_date"/>
-                    <field name="shipment_service_level_category"/>
+                <xpath expr="//sheet/group[position()=1]" position="after">
+                    <group>
+                        <group>
+                            <field name="shop_id"/>
+                            <field name="e_order"/>
+                            <field name="sale_date"/>
+                            <field name="confirm_date"/>
+                            <field name="delivery_mode"/>
+                            <field name="amazon_state"/>
+                            <field name="shipment_service_level_category"/>
+                            <field name="e_order_amount"/>
+                            <field name="e_order_freight"/>
+                            <field name="e_order_commission"/>
+                        </group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="country_id"/>
+                            <field name="province"/>
+                            <field name="city"/>
+                            <field name="street"/>
+                            <field name="postal_code"/>
+                            <field name="phone"/>
+                            <!--<field name="e_mail"/>-->
+                        </group>
+                    </group>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/tree/field[@name='sequence']" position="before">
                     <field name="order_item_id"/>
@@ -123,17 +71,17 @@
                     <field name="e_currency_id"/>
                     <field name="e_price_unit"/>
                     <field name="e_freight"/>
-                    <field name="by_platform" readonly="1"/>
+                    <field name="own_product" readonly="1"/>
                 </xpath>
-                <xpath expr="//page[position()=1]" position="after">
-                    <page string="收件信息">
-                        <group>
-                            <group>
-                                <field name="partner_id"/>
-                            </group>
-                        </group>
-                    </page>
-                </xpath>
+                <!--<xpath expr="//page[position()=1]" position="after">-->
+                    <!--<page string="收件信息">-->
+                        <!--<group>-->
+                            <!--<group>-->
+                                <!--<field name="partner_id"/>-->
+                            <!--</group>-->
+                        <!--</group>-->
+                    <!--</page>-->
+                <!--</xpath>-->
 			</field>
 		</record>
         
