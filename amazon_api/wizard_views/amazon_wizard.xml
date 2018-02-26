@@ -7,19 +7,18 @@
 			<field name="model">amazon.wizard</field>
 			<field name="arch" type="xml">
 				<form>
-					<sheet>
+					<group>
 						<group>
-							<group>
-								<field name="logistics_company" required="True"/>
-								<field name="shipment_number" required="True"/>
-								<field name="delivery_time" required="True"/>
-							</group>
+							<field name="logistics_company_name" required="True"/>
+							<!--<field name="logistics_company_code"/>-->
+							<field name="shipment_number" required="True"/>
+							<field name="delivery_time" required="True"/>
 						</group>
-                        <footer>
-                            <button string='假发货' name="false_delivery" type="object" class="btn-primary"/>
-                            <button string="取消" class="btn-default" special="cancel"/>
-                        </footer>
-					</sheet>
+					</group>
+					<footer>
+						<button string='假发货' name="false_delivery" type="object" class="btn-primary"/>
+						<button string="取消" class="btn-default" special="cancel"/>
+					</footer>
 				</form>
 			</field>
 		</record>
