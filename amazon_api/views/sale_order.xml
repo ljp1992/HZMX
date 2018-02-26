@@ -76,6 +76,7 @@
 			<field name="arch" type="xml">
                 <xpath expr="//header/button[@name='action_done']" position="after">
                     <button name="false_delivery" type="object" string="假发货"/>
+                    <button name="platform_purchase" type="object" string="平台采购"/>
                 </xpath>
 				<xpath expr="//field[@name='partner_id']" position="attributes">
                     <attribute name="invisible">1</attribute>

@@ -66,3 +66,59 @@ class SaleOrder(models.Model):
             'views': [(self.env.ref('amazon_api.false_delivery_wizard').id, 'form')],
             'target': 'new',
         }
+
+    @api.multi
+    def platform_purchase(self):
+        '''平台采购'''
+        self.ensure_one()
+        purchase_obj = self.env['purchase.order']
+        loc_obj = self.env['stock.location']
+        stock_picking_obj = self.env['stock.picking']
+        purchase_info = {}
+        for sale_line in self.order_line:
+            supplier_id = sale_line.product_id.product_tmpl_id.platform_tmpl_id.sudo().merchant_id.partner_id.id
+            if purchase_info.has_key(supplier_id):
+                purchase_info[supplier_id]['order_line'].append((0, 0, {
+                    'product_id': sale_line.product_id.platform_product_id.id,
+                    'price_unit': sale_line.product_id.platform_product_id.platform_price,
+                    'product_qty': sale_line.product_uom_qty,
+                    'product_uom': sale_line.product_uom.id,
+                }))
+            else:
+                purchase_info[supplier_id] = {
+                    'partner_id': supplier_id,
+                    'currency_id': self.currency_id.id,
+                    'date_order': datetime.datetime.now(),
+                    'date_planned': datetime.datetime.now(),
+                    'order_line': [(0, 0, {
+                        'product_id': sale_line.product_id.platform_product_id.id,
+                        'name': sale_line.product_id.platform_product_id.name,
+                        'price_unit': sale_line.product_id.platform_product_id.platform_price,
+                        'product_qty': sale_line.product_uom_qty,
+                        'product_uom': sale_line.product_uom.id,
+                        'date_planned': datetime.datetime.now(),
+                    })]
+                }
+        for (supplier_id, val) in purchase_info.items():
+            purchase_order = purchase_obj.create(val)
+            #create delivery
+            location_id = loc_obj.search([
+                ('partner_id', '=', supplier_id),
+                ('location_id', '=', self.env.ref('b2b_platform.supplier_stock').id)], limit=1).id
+            location_dest_id = self.env.ref('stock.stock_location_customers').id
+            delivery_info = {
+                'partner_id': purchase_order.partner_id.id,
+                'location_id': location_id,
+                'location_dest_id': location_dest_id,
+                'picking_type_id': 3,
+                'move_lines': [],
+            }
+            for pur_line in purchase_order.order_line:
+                delivery_info['move_lines'].append((0, 0, {
+                    'product_id': pur_line.product_id.id,
+                    'name': pur_line.product_id.name,
+                    'product_uom_qty': pur_line.product_qty,
+                    'product_uom': pur_line.product_uom.id,
+                }))
+            stock_picking_obj.create(delivery_info)
+        return
