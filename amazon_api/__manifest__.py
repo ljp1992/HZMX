@@ -19,6 +19,7 @@
         'security/ir_rule.xml',
         'data/ir_cron.xml',
         'data/ir_sequence.xml',
+        'views/load_js.xml',
         'views/amazon_seller.xml',
         'views/amazon_shop.xml',
         'views/product_category.xml',
@@ -37,9 +38,9 @@
         'views/sale_order.xml',
         'views/sync_sale_order.xml',
         'views/sync_sale_order_log.xml',
-
         'wizard_views/shop_template_wizard.xml',
         'wizard_views/amazon_wizard.xml',
+        'wizard_views/stock_adjust.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

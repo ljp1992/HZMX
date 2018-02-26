@@ -129,7 +129,6 @@ class ShopTemplateWizard(models.TransientModel):
             for pro in template.product_variant_ids:
                 pro_val = {
                     'product_tmpl_id': new_template.id,
-                    'platform_product_id': pro.id,
                     'attribute_value_ids': [(6, False, pro.attribute_value_ids.ids)],
                     'sku': pro.sku,
                     'upc': pro.upc,

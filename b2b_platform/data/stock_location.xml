@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="supplier_stock" model="stock.location">
+            <field name="name">供应商库存</field>
+            <field name="location_id" ref="stock.stock_location_stock"/>
+            <field name="usage">internal</field>
+            <!--<field name="company_id"></field>-->
+        </record>
+        <record id="third_warehouse" model="stock.location">
+            <field name="name">第三方仓库</field>
+            <field name="location_id" ref="stock.stock_location_stock"/>
+            <field name="usage">internal</field>
+            <!--<field name="company_id"></field>-->
+        </record>
+	</data>
+</odoo>

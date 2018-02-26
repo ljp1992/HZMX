@@ -30,3 +30,4 @@ from . import sync_sale_order_log
 from . import variation_theme
 from . import res_users
 from . import ir_cron
+from . import stock_location

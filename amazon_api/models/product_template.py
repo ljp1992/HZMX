@@ -477,10 +477,11 @@ class ProductTemplate(models.Model):
         for template in templates:
             shop = template.shop_id
             seller = shop.seller_id
-            inventory = 10
             message = ''
             message_id = 0
             for pro in template.product_variant_ids:
+                inventory = pro.platform_product_id.qty_available
+                inventory = int(inventory)
                 message_id += 1
                 message += """<Message>
                     <MessageID>%d</MessageID>
@@ -501,7 +502,6 @@ class ProductTemplate(models.Model):
                         <PurgeAndReplace>false</PurgeAndReplace>
                         %s
                         </AmazonEnvelope>""" % (seller.merchant_id_num, message)
-            print head
             mws_obj = Feeds(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
                             account_id=str(seller.merchant_id_num), region=shop.country_id.code, proxies={})
             try:
@@ -677,7 +677,6 @@ class ProductTemplate(models.Model):
             for pro in template.product_variant_ids:
                 pro_val = {
                     'product_tmpl_id': new_template.id,
-                    'platform_product_id': pro.id,
                     'attribute_value_ids': [(6, False, pro.attribute_value_ids.ids)],
                     'sku': pro.sku,
                     'upc': pro.upc,

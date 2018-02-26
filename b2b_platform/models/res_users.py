@@ -27,13 +27,24 @@ class ResUsers(models.Model):
     def pass_audit(self):
         '''审核通过'''
         self.ensure_one()
-        self.groups_id = [(6, False, [self.env.ref('b2b_platform.b2b_seller').id])]
-        self.audit_state = 'pass'
+        self.write({
+            'groups_id': [(6, False, [self.env.ref('b2b_platform.b2b_seller').id])],
+            'audit_state': 'pass',
+        })
+        location_obj = self.env['stock.location']
+        partner_id = self.partner_id.id
+        location_id = self.env.ref('b2b_platform.supplier_stock').id
+        location = location_obj.search([('partner_id', '=', partner_id), ('location_id', '=', location_id)])
+        if not location:
+            location_obj.create({
+                'name': self.name,
+                'location_id': location_id,
+                'partner_id': partner_id,
+            })
 
     @api.model
     def create(self, val):
         '''设置默认密码为123'''
-        print val
         context = self.env.context
         print context
         if context.get('user_type') == 'management':
@@ -49,7 +60,6 @@ class ResUsers(models.Model):
                 'groups_id': [(4, self.env.ref('b2b_platform.b2b_shop_operator').id)],
                 'password': 123,
             })
-        print val
         user = super(ResUsers, self).create(val)
         return user
 

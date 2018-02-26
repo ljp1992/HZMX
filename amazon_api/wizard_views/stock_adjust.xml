@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<!--库存调整-->
+		<record id="stock_adjust_form" model="ir.ui.view">
+			<field name="name">stock_adjust_form</field>
+			<field name="model">stock.adjust</field>
+			<field name="arch" type="xml">
+				<form>
+                    <group>
+                        <group>
+                            <field name="data" required="True"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button string='导入' name="import_stock_excel" type="object" class="btn-primary"/>
+                        <button string="取消" class="btn-default" special="cancel"/>
+                    </footer>
+				</form>
+			</field>
+		</record>
+	</data>
+</odoo>

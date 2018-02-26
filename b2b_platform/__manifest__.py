@@ -19,12 +19,13 @@
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'mail', 'sale', 'purchase', 'account', 'website', 'website_sale', 'web_tree_image',
-                'web_form_image', 'document_multi_upload'],
+                'web_form_image', 'document_multi_upload', 'web_export_view', 'l10n_cn_standard'],
 
     # always loaded
     'data': [
         'security/res_groups.xml',
         # 'security/ir.model.access.csv',
+        'data/stock_location.xml',
         'views/menu.xml',
         'views/res_users.xml',
         'views/auth_signup.xml',

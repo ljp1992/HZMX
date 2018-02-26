@@ -16,8 +16,10 @@ class ProductProduct(models.Model):
     shop_price_cny = fields.Monetary(string=u'店铺价格')
     shop_price = fields.Float(compute='_compute_shop_price', store=True, string=u'店铺价格')
 
-    platform_product_id = fields.Many2one('product.product', string=u'平台产品')
-    seller_product_id = fields.Many2one('product.product', string=u'经销商产品')
+    platform_product_id = fields.Many2one('product.product', compute='_get_platform_product', store=False,
+                                          string=u'平台产品')
+    seller_product_id = fields.Many2one('product.product', compute='_get_merchant_product', store=False,
+                                        string=u'经销商产品')
 
     seller_product_ids = fields.One2many('product.product', 'platform_product_id', string=u'经销商产品')
     shop_product_ids = fields.One2many('product.product', 'seller_product_id', string=u'经销商产品的店铺产品')
@@ -25,6 +27,24 @@ class ProductProduct(models.Model):
     main_images = fields.Many2many('product.image', 'product_main_image_rel', 'product_id', 'image_id', string=u'主图')
     other_images = fields.Many2many('product.image', 'product_other_image_rel', 'product_id', 'image_id',
                                     string=u'副图')
+
+    @api.multi
+    def _get_platform_product(self):
+        '''变体的平台变体'''
+        for pro in self:
+            pro.attribute_value_ids
+            for platform_pro in pro.product_tmpl_id.platform_tmpl_id.product_variant_ids:
+                if platform_pro.attribute_value_ids == pro.attribute_value_ids:
+                    pro.platform_product_id = platform_pro.id
+
+    @api.multi
+    def _get_merchant_product(self):
+        '''变体的商户变体'''
+        for pro in self:
+            pro.attribute_value_ids
+            for merchant_pro in pro.product_tmpl_id.seller_tmpl_id.product_variant_ids:
+                if merchant_pro.attribute_value_ids == pro.attribute_value_ids:
+                    pro.seller_product_id = merchant_pro.id
 
     @api.depends('shop_price_cny')
     def _compute_shop_price(self):

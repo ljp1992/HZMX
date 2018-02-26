@@ -2,7 +2,7 @@
 <odoo>
 	<data>
         <!--假发货-->
-        <record id="false_delivery_wizard" model="ir.ui.view">
+		<record id="false_delivery_wizard" model="ir.ui.view">
 			<field name="name">false_delivery_wizard</field>
 			<field name="model">amazon.wizard</field>
 			<field name="arch" type="xml">
