@@ -17,6 +17,8 @@ class SaleOrder(models.Model):
     e_order_freight = fields.Float(string=u'运费')
     e_order_commission = fields.Float(string=u'佣金')
 
+    hide_platform_purchase_button = fields.Boolean(compute='_hide_platform_purchase_button', string=u'隐藏平台采购按钮')
+
     shop_id = fields.Many2one('amazon.shop', string=u'店铺')
     e_currency_id = fields.Many2one('amazon.currency', related='shop_id.currency_id', string=u'币种')
     operator_id = fields.Many2one('res.users', default=lambda self: self.env.user, string=u'操作员')
@@ -52,6 +54,14 @@ class SaleOrder(models.Model):
         ('uploading', u'正在上传'),
         ('done', u'完成'),
         ('failed', u'失败')], default='wait_upload', string=u'发货信息上传状态')
+
+    @api.multi
+    def _hide_platform_purchase_button(self):
+        for order in self:
+            order.hide_platform_purchase_button = True
+            for line in order.order_line:
+                if line.product_id.merchant_id != self.env.user:
+                    order.hide_platform_purchase_button = False
 
     @api.multi
     def false_delivery(self):

@@ -74,9 +74,20 @@
 			<field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
 			<field name="arch" type="xml">
-                <xpath expr="//header/button[@name='action_done']" position="after">
-                    <button name="false_delivery" type="object" string="假发货"/>
-                    <button name="platform_purchase" type="object" string="平台采购"/>
+                <xpath expr="//header" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//sheet" position="before">
+                    <header>
+                        <field name="hide_platform_purchase_button" invisible="1"/>
+                        <button name="false_delivery" type="object" string="假发货" states="draft,sent,sale"
+                                class="btn-primary"/>
+                        <button name="action_confirm" states="sent" string="自有发货"
+                                class="btn-primary o_sale_confirm" type="object"/>
+                        <button name="platform_purchase" type="object" string="平台采购" class="btn-primary"
+                                attrs="{'invisible': [('hide_platform_purchase_button', '=', True)]}"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,sent,sale"/>
+                    </header>
                 </xpath>
 				<xpath expr="//field[@name='partner_id']" position="attributes">
                     <attribute name="invisible">1</attribute>
@@ -112,7 +123,7 @@
                     <field name="e_currency_id"/>
                     <field name="e_price_unit"/>
                     <field name="e_freight"/>
-                    <field name="by_platform"/>
+                    <field name="by_platform" readonly="1"/>
                 </xpath>
                 <xpath expr="//page[position()=1]" position="after">
                     <page string="收件信息">
