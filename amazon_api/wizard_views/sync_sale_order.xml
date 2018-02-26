@@ -26,7 +26,7 @@
 		</record>
 
         <record id="sync_sale_order_act" model="ir.actions.act_window">
-            <field name="name">同步销售订单</field>
+            <field name="name">下载客户订单</field>
             <field name="res_model">sync.sale.order</field>
             <field name="view_mode">form</field>
             <field name="view_type">form</field>
@@ -40,7 +40,7 @@
             <field name="act_window_id" ref="sync_sale_order_act"/>
         </record>
 
-        <menuitem id="sync_sale_order_menu" name="同步销售订单" parent="b2b_platform.ecommerce_menu_root"
-                  action="sync_sale_order_act" sequence="20"/>
+        <menuitem id="sync_sale_order_menu" name="下载客户订单" parent="b2b_platform.sale_order_parent_menu"
+                  action="sync_sale_order_act" sequence="1"/>
 	</data>
 </odoo>

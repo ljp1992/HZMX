@@ -10,7 +10,7 @@
             <menuitem id="account_authorized_menu" parent="ecommerce_menu_root" name="账户授权" sequence="1"/>
             <menuitem id="sale_order_parent_menu" parent="ecommerce_menu_root" name="销售" sequence="3"/>
             <menuitem id="purchase_parent_menu" parent="ecommerce_menu_root" name="采购" sequence="5"/>
-            <menuitem id="stock_parent_menu" parent="ecommerce_menu_root" name="仓储" sequence="7"/>
+            <menuitem id="stock_parent_menu" parent="ecommerce_menu_root" name="仓库" sequence="7"/>
             <menuitem id="log_menu" parent="ecommerce_menu_root" name="日志" sequence="10"/>
 
         <menuitem id="platform_manage_root" name="平台运营" sequence="3"/>

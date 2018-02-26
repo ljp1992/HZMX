@@ -36,11 +36,13 @@
         'views/upc_code.xml',
         'views/submission_history.xml',
         'views/sale_order.xml',
-        'views/sync_sale_order.xml',
         'views/sync_sale_order_log.xml',
+        'views/purchase_order.xml',
+        'views/stock_picking.xml',
         'wizard_views/shop_template_wizard.xml',
         'wizard_views/amazon_wizard.xml',
         'wizard_views/stock_adjust.xml',
+        'wizard_views/sync_sale_order.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

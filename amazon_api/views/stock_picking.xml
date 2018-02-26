@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+        <record id="stock_picking_act" model="ir.actions.act_window">
+            <field name="name">出入库单</field>
+            <field name="res_model">stock.picking</field>
+            <field name="view_mode">tree</field>
+            <field name="view_type">form</field>
+        </record>
+
+        <record id="stock_picking_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="stock.vpicktree"/>
+            <field name="act_window_id" ref="stock_picking_act"/>
+        </record>
+
+        <record id="stock_picking_act_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="stock.view_picking_form"/>
+            <field name="act_window_id" ref="stock_picking_act"/>
+        </record>
+
+        <menuitem id="stock_picking_menu" name="出入库单" parent="b2b_platform.stock_parent_menu" sequence="1"
+                  action="stock_picking_act"/>
+	</data>
+</odoo>

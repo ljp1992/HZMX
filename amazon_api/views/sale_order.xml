@@ -157,7 +157,7 @@
             <field name="act_window_id" ref="sale_order_act"/>
         </record>
 
-        <menuitem id="sale_order_menu" name="销售订单" parent="b2b_platform.sale_order_parent_menu" sequence="4"
+        <menuitem id="sale_order_menu" name="客户订单" parent="b2b_platform.sale_order_parent_menu" sequence="4"
                   action="sale_order_act"/>
 	</data>
 </odoo>

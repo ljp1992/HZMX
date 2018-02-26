@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>        
+        <record id="purchase_order_act" model="ir.actions.act_window">
+            <field name="name">采购订单</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_mode">tree</field>
+            <field name="view_type">form</field>
+        </record>
+
+        <record id="purchase_order_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="purchase.purchase_order_tree"/>
+            <field name="act_window_id" ref="purchase_order_act"/>
+        </record>
+
+        <record id="purchase_order_act_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="purchase.purchase_order_form"/>
+            <field name="act_window_id" ref="purchase_order_act"/>
+        </record>
+
+        <menuitem id="purchase_order_menu" name="采购订单" parent="b2b_platform.purchase_parent_menu" sequence="1"
+                  action="purchase_order_act"/>
+	</data>
+</odoo>
