@@ -51,7 +51,7 @@ class AmazonWizard(models.TransientModel):
                     </OrderFulfillment>
                 </Message>""" % (message_id, AmazonOrderID, FulfillmentDate,
                                  self.logistics_company_name, order.shipment_service_level_category,
-                                 self.shipment_number, line.order_item_id, line.product_uom_qty)
+                                 self.shipment_number, line.order_item_id, int(line.product_uom_qty))
             head = """<?xml version="1.0" encoding="utf-8"?>
                 <AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
                     <Header>
