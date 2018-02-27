@@ -6,19 +6,30 @@ from odoo.exceptions import UserError
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
 
+    own_data = fields.Boolean(search='_own_data_search', store=False)
+
     sale_order_id = fields.Many2one('sale.order')
 
     delivery_order_count = fields.Integer(compute='_delivery_order_count')
 
     deliverys = fields.One2many('stock.picking', 'purchase_order_id')
 
-
-
     platform_purchase_state = fields.Selection([
         ('draft', u'草稿'),
         ('send', u'已发送'),
         ('done', u'完成'),
     ], default='draft', string=u'平台采购状态')
+
+    @api.model
+    def _own_data_search(self, operator, value):
+        print '_own_data_search purchase'
+        user = self.env.user
+        if user.user_type == 'operator':
+            return [('id', '=', 0)]
+        elif user.user_type == 'merchant':
+            return [('partner_id', '=', user.partner_id.id)]
+        else:
+            return []
 
     @api.multi
     def view_delivery_order(self):

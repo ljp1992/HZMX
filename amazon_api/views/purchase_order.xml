@@ -40,6 +40,7 @@
             <field name="res_model">purchase.order</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
+            <field name="domain">[('own_data', '=', True)]</field>
         </record>
 
         <record id="purchase_order_act_tree" model="ir.actions.act_window.view">

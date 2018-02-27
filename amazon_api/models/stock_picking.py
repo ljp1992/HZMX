@@ -14,10 +14,23 @@ class StockPicking(models.Model):
     e_mail = fields.Char(string=u'邮箱')
     shippment_number = fields.Char(string=u'物流单号')
 
+    own_data = fields.Boolean(search='_own_data_search', store=False)
+
     country_id = fields.Many2one('amazon.country', string=u'国家')
     logistics_company_id = fields.Many2one('logistics.company', string=u'物流公司')
     sale_order_id = fields.Many2one('sale.order')
     purchase_order_id = fields.Many2one('purchase.order')
+
+    @api.model
+    def _own_data_search(self, operator, value):
+        print '_own_data_search stock_picking'
+        user = self.env.user
+        if user.user_type == 'operator':
+            return [('id', '=', 0)]
+        elif user.user_type == 'merchant':
+            return [('partner_id', '=', user.partner_id.id)]
+        else:
+            return []
 
     # @api.model
     # def search(self, args, offset=0, limit=None, order=None, count=False):
@@ -39,6 +52,7 @@ class StockPicking(models.Model):
         self.ensure_one()
         result = super(StockPicking, self).do_new_transfer()
         self.purchase_order_id.platform_purchase_state = 'done'
+        # self.purchase_order_id.sale_state = 'done'
         return result
 
     @api.multi

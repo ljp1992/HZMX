@@ -25,7 +25,8 @@ class SaleOrder(models.Model):
     e_order_freight = fields.Float(compute='_e_order_freight', store=False, string=u'运费')
     e_order_commission = fields.Float(compute='_e_order_commission', store=False, string=u'佣金')
 
-
+    # own_data = fields.Boolean(compute='_get_own_data', search='_own_data_search')
+    own_data = fields.Boolean(search='_own_data_search', store=False)
     hide_platform_purchase_button = fields.Boolean(compute='_hide_platform_purchase_button', string=u'隐藏平台采购按钮')
     hide_myself_delivery_button = fields.Boolean(compute='_hide_myself_delivery_button', string=u'隐藏自有发货按钮')
 
@@ -130,20 +131,53 @@ class SaleOrder(models.Model):
             'target': 'new',
         }
 
+    # @api.multi
+    # def _get_own_data(self):
+    #     print '_get_own_data'
+    #     user = self.env.user
+    #     for record in self:
+    #         if user.user_type == 'operator':
+    #             if record.shop_id in user.shop_ids.ids:
+    #                 record.own_data = True
+    #             else:
+    #                 record.own_data = False
+    #         elif user.user_type == 'merchant':
+    #             shop_ids = []
+    #             for operator in user.operator_ids:
+    #                 shop_ids += operator.shop_ids.ids
+    #             if record.shop_id in shop_ids:
+    #                 record.own_data = True
+    #             else:
+    #                 record.own_data = False
+
     @api.model
-    def search(self, args, offset=0, limit=None, order=None, count=False):
-        context = self.env.context
-        if context.get('view_own_data'):
-            user = self.env.user
-            if user.user_type == 'operator':
-                shop_ids = user.shop_ids.ids
-                args += [('shop_id', 'in', shop_ids)]
-            elif user.user_type == 'merchant':
-                shop_ids = []
-                for operator in user.operator_ids:
-                    shop_ids += operator.shop_ids.ids
-                args += [('shop_id', 'in', shop_ids)]
-        return super(SaleOrder, self).search(args, offset, limit, order, count=count)
+    def _own_data_search(self, operator, value):
+        print '_own_data_search'
+        user = self.env.user
+        if user.user_type == 'operator':
+            return [('shop_id', 'in', user.shop_ids.ids)]
+        elif user.user_type == 'merchant':
+            shop_ids = []
+            for operator in user.operator_ids:
+                shop_ids += operator.shop_ids.ids
+            return [('shop_id', 'in', shop_ids)]
+        else:
+            return []
+
+    # @api.model
+    # def search(self, args, offset=0, limit=None, order=None, count=False):
+    #     context = self.env.context
+    #     if context.get('view_own_data'):
+    #         user = self.env.user
+    #         if user.user_type == 'operator':
+    #             shop_ids = user.shop_ids.ids
+    #             args += [('shop_id', 'in', shop_ids)]
+    #         elif user.user_type == 'merchant':
+    #             shop_ids = []
+    #             for operator in user.operator_ids:
+    #                 shop_ids += operator.shop_ids.ids
+    #             args += [('shop_id', 'in', shop_ids)]
+    #     return super(SaleOrder, self).search(args, offset, limit, order, count=count)
 
     @api.multi
     def platform_purchase(self):
