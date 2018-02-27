@@ -24,6 +24,7 @@
     # always loaded
     'data': [
         'security/res_groups.xml',
+        'security/ir_rule.xml',
         'security/ir.model.access.csv',
         'data/stock_location.xml',
         'data/ir_sequence.xml',
@@ -33,6 +34,7 @@
         'views/account_charge.xml',
         'views/res_bank.xml',
         'views/bank_account.xml',
+        'views/account_cash.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

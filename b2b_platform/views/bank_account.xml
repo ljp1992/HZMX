@@ -8,7 +8,7 @@
 			<field name="arch" type="xml">
 				<tree editable="top">
 					<field name="name"/>
-                    <field name="bank_id"/>
+                    <field name="bank_id" options="{'no_create': True}"/>
                     <field name="merchant_id" groups="base.group_no_one"/>
 				</tree>
 			</field>

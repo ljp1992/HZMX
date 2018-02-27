@@ -10,7 +10,9 @@ class ResUsers(models.Model):
 
     account_amount = fields.Float(string=u'账户余额')
     wait_clear_amount = fields.Float(store=False, string=u'待结算金额')
-    available_cash = fields.Float(store=False, string=u'可提现金额')
+    available_cash = fields.Float(compute='_available_cash', store=False, string=u'可提现金额')
+
+    own_my_data = fields.Boolean(search='_own_my_data', store=False)
 
     merchant_id = fields.Many2one('res.users', string=u'商户')
 
@@ -26,6 +28,10 @@ class ResUsers(models.Model):
         ('pass', u'审核通过'),
         ('failed', u'未审核通过')
     ], string=u'审核状态')
+
+    def _available_cash(self):
+        for record in self:
+            record.available_cash = record.account_amount - record.wait_clear_amount
 
     @api.multi
     def pass_audit(self):
@@ -45,6 +51,16 @@ class ResUsers(models.Model):
                 'location_id': location_id,
                 'partner_id': partner_id,
             })
+
+    @api.model
+    def _own_my_data(self, operator, value):
+        user = self.env.user
+        if user.user_type == 'operator':
+            return [('id', '=', 0)]
+        elif user.user_type == 'merchant':
+            return [('id', '=', self.env.user.id)]
+        else:
+            return []
 
     @api.model
     def create(self, val):

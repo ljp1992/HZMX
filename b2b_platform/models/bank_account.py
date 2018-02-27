@@ -10,7 +10,8 @@ class BankAccount(models.Model):
 
     bank_id = fields.Many2one('res.bank', string=u'银行')
 
-    merchant_id = fields.Many2one('res.users', default=lambda self: self.env.user, string=u'商户')
+    merchant_id = fields.Many2one('res.users', default=lambda self: self.env.user.merchant_id or self.env.user,
+                                  string=u'商户')
 
 
 

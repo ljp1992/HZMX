@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_tree_qdoo_deposit" model="ir.ui.view">
+            <field name="name">qdoo_deposit_tree</field>
+            <field name="model">account.cash</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="bank_id"/>
+                    <field name="account_id"/>
+                    <field name="amount" sum="1"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_form_qdoo_deposit" model="ir.ui.view">
+            <field name="name">qdoo_deposit_form</field>
+            <field name="model">account.cash</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="btn_notice" string="提现申请" states='draft' type="object" class="oe_highlight"/>
+                        <button name="platform_confirm" string="确认" states='paltform_confirm' type="object"
+                                class="oe_highlight" groups="b2b_platform.b2b_manager"/>
+                        <button name="merchant_confirm" string="到账确认" states='merchant_confirm' type="object"
+                                class="oe_highlight" groups="b2b_platform.b2b_seller"/>
+                        <field name="state" widget="statusbar"
+                               statusbar_visible="draft,paltform_confirm,merchant_confirm,done" readonly="1"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" class="oe_inline" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="merchant_id" readonly="True"/>
+                                <field name="date" attrs="{'readonly':[('state','!=','draft')]}"/>
+                                <!--<field name="file_name"/>-->
+                                <field name="proof" attrs="{'readonly':[('state','!=','draft')]}"/>
+                            </group>
+                            <group>
+                                <field name="available_cash" readonly="1"
+                                       attrs="{'invisible':[('state', '!=', 'draft')]}"/>
+                                <field name="amount" attrs="{'readonly':[('state','!=','draft')]}"/>
+                                <field name="bank_id" options="{'no_create': True}"
+                                       attrs="{'readonly':[('state','!=','draft')]}"/>
+                                <field name="account_id" domain="[('bank_id', '=', bank_id)]"
+                                       options="{'no_create': True}" attrs="{'readonly':[('state','!=','draft')]}"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="note" attrs="{'readonly':[('state','!=','draft')]}"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="account_cash_act" model="ir.actions.act_window">
+            <field name="name">账户充值</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">account.cash</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="acount_cash_menu" name="提现" parent="b2b_platform.account_management_menu"
+                  action="account_cash_act" groups="b2b_platform.b2b_seller,b2b_platform.b2b_manager" sequence="5"/>
+    </data>
+</odoo>

@@ -15,6 +15,8 @@ class AccountCharge(models.Model):
 
     amount = fields.Float(string=u'充值金额', required=True)
 
+    own_my_data = fields.Boolean(search='_own_my_data', store=False)
+
     date = fields.Date(string=u'日期', required=True)
 
     proof = fields.Binary(string=u'付款凭证', required=True)
@@ -41,9 +43,20 @@ class AccountCharge(models.Model):
 
     def btn_done(self):
         self.state = 'done'
+        self.merchant_id.account_amount += self.amount
 
     def btn_cancel(self):
         self.state = 'cancel'
+
+    @api.model
+    def _own_my_data(self, operator, value):
+        user = self.env.user
+        if user.user_type == 'operator':
+            return [('id', '=', 0)]
+        elif user.user_type == 'merchant':
+            return [('merchant_id', '=', self.env.user.id)]
+        else:
+            return []
 
 
 
