@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_tree_qdoo_deposit" model="ir.ui.view">
+            <field name="name">qdoo_deposit_tree</field>
+            <field name="model">account.charge</field>
+            <field name="priority">10</field>
+            <field name="arch" type="xml">
+                <tree string="充值">
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="bank_id"/>
+                    <field name="account_id"/>
+                    <field name="amount" sum="合计"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_form_qdoo_deposit" model="ir.ui.view">
+            <field name="name">qdoo_deposit_form</field>
+            <field name="model">account.charge</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="btn_notice" string="付款通知" states='draft' type="object" class="oe_highlight"/>
+                        <button name="btn_done" string="确认" states='notice' type="object"/>
+                        <button name="btn_cancel" string="取消" states='notice' type="object"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,notice,done" readonly="1"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" class="oe_inline" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="merchant_id" readonly="True"/>
+                                <field name="bank_id" options="{'no_create': True}"/>
+                                <field name="account_id" domain="[('bank_id', '=', bank_id)]"
+                                       options="{'no_create': True}"/>
+                                <field name="amount"/>
+                            </group>
+                            <group>
+                                <field name="date"/>
+                                <!--<field name="file_name"/>-->
+                                <field name="proof"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="note"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_qdoo_deposit" model="ir.actions.act_window">
+            <field name="name">账户充值</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">account.charge</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="acount_charge_menu" name="账户充值" parent="b2b_platform.account_management_menu"
+                  action="action_qdoo_deposit" groups="b2b_platform.b2b_seller" sequence="3"/>
+    </data>
+</odoo>

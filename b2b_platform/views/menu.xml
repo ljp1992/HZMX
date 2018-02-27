@@ -13,7 +13,12 @@
             <menuitem id="stock_parent_menu" parent="ecommerce_menu_root" name="仓库" sequence="7"/>
             <menuitem id="log_menu" parent="ecommerce_menu_root" name="日志" sequence="10"/>
 
-        <menuitem id="platform_manage_root" name="平台运营" sequence="3"/>
+        <menuitem id="b2b_acount_root" name="财务" sequence="3"/>
+            <menuitem id="account_management_menu" parent="b2b_acount_root" name="财务管理" sequence="1"/>
+            <menuitem id="account_clear_menu" parent="b2b_acount_root" name="结算管理" sequence="2"/>
+            <menuitem id="account_configuration_menu" parent="b2b_acount_root" name="配置" sequence="3"/>
+
+        <menuitem id="platform_manage_root" name="平台运营" sequence="4"/>
             <menuitem id="acount_manage_parent" name="账号管理" parent="platform_manage_root" sequence="1"/>
             <menuitem id="base_data_menu" name="基础数据" parent="platform_manage_root" sequence="3"/>
 

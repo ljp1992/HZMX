@@ -1,1 +1,12 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+account_charge_operator_id,account_charge,model_account_charge,b2b_platform.b2b_shop_operator,1,1,1,1
+account_charge_merchant_id,account_charge,model_account_charge,b2b_platform.b2b_seller,1,1,1,1
+account_charge_manager_id,account_charge,model_account_charge,b2b_platform.b2b_manager,1,1,1,1
+
+res_bank_operator_id,res_bank,base.model_res_bank,b2b_platform.b2b_shop_operator,1,1,1,1
+res_bank_merchant_id,res_bank,base.model_res_bank,b2b_platform.b2b_seller,1,1,1,1
+res_bank_manager_id,res_bank,base.model_res_bank,b2b_platform.b2b_manager,1,1,1,1
+
+bank_account_operator_id,bank_account,model_bank_account,b2b_platform.b2b_shop_operator,1,0,0,0
+bank_account_merchant_id,bank_account,model_bank_account,b2b_platform.b2b_seller,1,1,1,1
+bank_account_manager_id,bank_account,model_bank_account,b2b_platform.b2b_manager,1,1,1,1

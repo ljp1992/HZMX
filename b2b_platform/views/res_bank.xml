@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<!--b2b平台运营账号-->
+        <record id="b2b_res_bank_tree" model="ir.ui.view">
+			<field name="name">res_bank_tree</field>
+			<field name="model">res.bank</field>
+			<field name="arch" type="xml">
+				<tree editable="top">
+					<field name="name"/>
+				</tree>
+			</field>
+		</record>       
+
+        <record id="b2b_res_bank_act" model="ir.actions.act_window">
+			<field name="name">银行</field>
+			<field name="res_model">res.bank</field>
+            <field name="view_mode">tree</field>
+			<field name="view_type">form</field>
+		</record>
+
+        <record id="b2b_res_bank_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="b2b_platform.b2b_res_bank_tree"/>
+            <field name="act_window_id" ref="b2b_platform.b2b_res_bank_act"/>
+        </record>
+
+        <menuitem id="b2b_res_bank_menu" name="银行" parent="account_configuration_menu" sequence="1"
+                  action="b2b_platform.b2b_res_bank_act"/>
+	</data>
+</odoo>

@@ -8,6 +8,10 @@ class ResUsers(models.Model):
 
     introduction = fields.Text(u'简介')
 
+    account_amount = fields.Float(string=u'账户余额')
+    wait_clear_amount = fields.Float(store=False, string=u'待结算金额')
+    available_cash = fields.Float(store=False, string=u'可提现金额')
+
     merchant_id = fields.Many2one('res.users', string=u'商户')
 
     operator_ids = fields.One2many('res.users', 'merchant_id', string=u'操作员')
