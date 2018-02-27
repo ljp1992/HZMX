@@ -19,9 +19,12 @@ class SaleOrder(models.Model):
     sale_date = fields.Datetime(string=u'下单日期')
     confirm_date = fields.Datetime(string=u'确认日期')
 
+    purchase_count = fields.Integer(compute='_purchase_count')
+
     e_order_amount = fields.Float(string=u'订单金额')
     e_order_freight = fields.Float(compute='_e_order_freight', store=False, string=u'运费')
     e_order_commission = fields.Float(compute='_e_order_commission', store=False, string=u'佣金')
+
 
     hide_platform_purchase_button = fields.Boolean(compute='_hide_platform_purchase_button', string=u'隐藏平台采购按钮')
     hide_myself_delivery_button = fields.Boolean(compute='_hide_myself_delivery_button', string=u'隐藏自有发货按钮')
@@ -32,6 +35,9 @@ class SaleOrder(models.Model):
     operator_id = fields.Many2one('res.users', default=lambda self: self.env.user, string=u'操作员')
     merchant_id = fields.Many2one('res.users', default=lambda self: self.env.user.merchant_id or self.env.user,
                                   string=u'商户')
+
+    purchase_orders = fields.One2many('purchase.order', 'sale_order_id')
+    deliverys = fields.One2many('stock.picking', 'sale_order_id')
 
     platform = fields.Selection([
         ('amazon', u'亚马逊'),
@@ -60,6 +66,26 @@ class SaleOrder(models.Model):
         ('uploading', u'正在上传'),
         ('done', u'完成'),
         ('failed', u'失败')], default='wait_upload', string=u'发货信息上传状态')
+
+    @api.multi
+    def view_purchase_order(self):
+        return {
+            'name': u'采购单',
+            'type': 'ir.actions.act_window',
+            'res_model': 'purchase.order',
+            'view_mode': 'tree,form',
+            'view_type': 'form',
+            'views': [
+                (self.env.ref('purchase.purchase_order_tree').id, 'tree'),
+                (self.env.ref('purchase.purchase_order_form').id, 'form')],
+            'domain': [('id', 'in', self.purchase_orders.ids)],
+            'target': 'current',
+        }
+
+    @api.multi
+    def _purchase_count(self):
+        for order in self:
+            order.purchase_count = len(order.purchase_orders)
 
     @api.multi
     def _e_order_commission(self):
@@ -140,7 +166,9 @@ class SaleOrder(models.Model):
                 }))
             else:
                 purchase_info[supplier_id] = {
+                    'sale_order_id': self.id,
                     'partner_id': supplier_id,
+                    'state': 'draft',
                     'currency_id': self.currency_id.id,
                     'date_order': datetime.datetime.now(),
                     'date_planned': datetime.datetime.now(),
@@ -157,24 +185,4 @@ class SaleOrder(models.Model):
             print val
             purchase_order = purchase_obj.create(val)
             print purchase_order
-            #create delivery
-            location_id = loc_obj.search([
-                ('partner_id', '=', supplier_id),
-                ('location_id', '=', self.env.ref('b2b_platform.supplier_stock').id)], limit=1).id
-            location_dest_id = self.env.ref('stock.stock_location_customers').id
-            delivery_info = {
-                'partner_id': purchase_order.partner_id.id,
-                'location_id': location_id,
-                'location_dest_id': location_dest_id,
-                'picking_type_id': 3,
-                'move_lines': [],
-            }
-            for pur_line in purchase_order.order_line:
-                delivery_info['move_lines'].append((0, 0, {
-                    'product_id': pur_line.product_id.id,
-                    'name': pur_line.product_id.name,
-                    'product_uom_qty': pur_line.product_qty,
-                    'product_uom': pur_line.product_uom.id,
-                }))
-            stock_picking_obj.create(delivery_info)
         return

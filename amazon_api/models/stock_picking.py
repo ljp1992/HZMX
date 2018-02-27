@@ -6,6 +6,19 @@ from odoo.exceptions import UserError
 class StockPicking(models.Model):
     _inherit = "stock.picking"
 
+    province = fields.Char(string=u'州／省')
+    city = fields.Char(string=u'市')
+    street = fields.Char(string=u'街道')
+    postal_code = fields.Char(string=u'邮编')
+    phone = fields.Char(string=u'电话')
+    e_mail = fields.Char(string=u'邮箱')
+    shippment_number = fields.Char(string=u'物流单号')
+
+    country_id = fields.Many2one('amazon.country', string=u'国家')
+    logistics_company_id = fields.Many2one('logistics.company', string=u'物流公司')
+    sale_order_id = fields.Many2one('sale.order')
+    purchase_order_id = fields.Many2one('purchase.order')
+
     # @api.model
     # def search(self, args, offset=0, limit=None, order=None, count=False):
     #     context = self.env.context
@@ -20,3 +33,18 @@ class StockPicking(models.Model):
     #                 shop_ids += operator.shop_ids.ids
     #             args += [('shop_id', 'in', shop_ids)]
     #     return super(StockPicking, self).search(args, offset, limit, order, count=count)
+
+    @api.multi
+    def do_new_transfer(self):
+        self.ensure_one()
+        result = super(StockPicking, self).do_new_transfer()
+        self.purchase_order_id.platform_purchase_state = 'done'
+        return result
+
+    @api.multi
+    def upload_delivery_info(self):
+        self.ensure_one()
+        # print self.env.context
+        # sale_obj = self.env['sale.order']
+        # sale_order = sale_obj.search([('procurement_group_id', '=', self.group_id.id)], limit=1)
+        return self.sale_order_id.false_delivery()

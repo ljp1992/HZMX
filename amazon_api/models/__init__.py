@@ -33,3 +33,4 @@ from . import ir_cron
 from . import stock_location
 from . import stock_picking
 from . import logistics_company
+from . import purchase_order
