@@ -31,3 +31,5 @@ from . import variation_theme
 from . import res_users
 from . import ir_cron
 from . import stock_location
+from . import stock_picking
+from . import logistics_company

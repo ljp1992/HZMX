@@ -102,3 +102,12 @@ class ProductProduct(models.Model):
         for product in self:
             if len(product.main_images) > 1:
                 raise UserError(u'只能选择一张主图！')
+
+    @api.model
+    def search(self, args, offset=0, limit=None, order=None, count=False):
+        context = self.env.context
+        if context.get('view_own_product'):
+            user = self.env.user
+            if user.user_type == 'merchant':
+                args += [('merchant_id', '=', user.id)]
+        return super(ProductProduct, self).search(args, offset, limit, order, count=count)

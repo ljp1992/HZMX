@@ -22,6 +22,7 @@ sync_sale_order_log_operator_id,sync_sale_order_log,model_sync_sale_order_log,b2
 sync_sale_order_log_line_operator_id,sync_sale_order_log_line,model_sync_sale_order_log_line,b2b_platform.b2b_shop_operator,1,1,1,1
 variation_theme_operator_id,variation_theme,model_variation_theme,b2b_platform.b2b_shop_operator,1,0,0,0
 product_category_operator_id,product_category,model_product_category,b2b_platform.b2b_shop_operator,1,0,0,0
+logistics_company_operator_id,logistics_company,model_logistics_company,b2b_platform.b2b_shop_operator,1,1,1,1
 
 
 amazon_country_merchant_id,amazon_country,model_amazon_country,b2b_platform.b2b_seller,1,1,1,1
@@ -46,7 +47,8 @@ submission_history_merchant_id,submission_history,model_submission_history,b2b_p
 sync_sale_order_log_merchant_id,sync_sale_order_log,model_sync_sale_order_log,b2b_platform.b2b_seller,1,1,1,1
 sync_sale_order_log_line_merchant_id,sync_sale_order_log_line,model_sync_sale_order_log_line,b2b_platform.b2b_seller,1,1,1,1
 variation_theme_merchant_id,variation_theme,model_variation_theme,b2b_platform.b2b_seller,1,0,0,0
-product_category_operator_id,product_category,model_product_category,b2b_platform.b2b_seller,1,0,0,0
+product_category_merchant_id,product_category,model_product_category,b2b_platform.b2b_seller,1,0,0,0
+logistics_company_merchant_id,logistics_company,model_logistics_company,b2b_platform.b2b_seller,1,1,1,1
 
 
 
@@ -73,7 +75,9 @@ submission_history_management_id,submission_history,model_submission_history,b2b
 sync_sale_order_log_management_id,sync_sale_order_log,model_sync_sale_order_log,b2b_platform.b2b_manager,1,1,1,1
 sync_sale_order_log_line_management_id,sync_sale_order_log_line,model_sync_sale_order_log_line,b2b_platform.b2b_manager,1,1,1,1
 variation_theme_management_id,variation_theme,model_variation_theme,b2b_platform.b2b_manager,1,1,1,1
-product_category_operator_id,product_category,model_product_category,b2b_platform.b2b_manager,1,1,1,1
+product_category_manager_id,product_category,model_product_category,b2b_platform.b2b_manager,1,1,1,1
+logistics_company_manager_id,logistics_company,model_logistics_company,b2b_platform.b2b_manager,1,1,1,1
+
 
 
 

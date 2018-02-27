@@ -82,6 +82,7 @@
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
 			<field name="domain">[('state', '=', 'platform_published')]</field>
+			<field name="context">{'view_own_product': True}</field>
         </record>
 
 		<record id="product_product_act_tree" model="ir.actions.act_window.view">

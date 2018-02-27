@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+        <record id="logistic_company_tree" model="ir.ui.view">
+			<field name="name">logistic_company_tree</field>
+			<field name="model">logistics.company</field>
+			<field name="arch" type="xml">
+				<tree editable="top">
+					<field name="name" required="True"/>
+                    <field name="code"/>
+				</tree>
+			</field>
+		</record>
+
+        <record id="logistic_company_act" model="ir.actions.act_window">
+            <field name="name">物流公司</field>
+            <field name="res_model">logistics.company</field>
+            <field name="view_mode">tree</field>
+            <field name="view_type">form</field>
+        </record>
+
+        <record id="logistic_company_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="logistic_company_tree"/>
+            <field name="act_window_id" ref="logistic_company_act"/>
+        </record>
+
+		<menuitem id="logistic_company_menu" name="物流公司" parent="b2b_platform.base_data_menu"
+                  sequence="8" action="logistic_company_act"/>
+	</data>
+</odoo>
