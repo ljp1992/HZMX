@@ -28,7 +28,7 @@ class AmazonShop(models.Model):
         self.env.ref('amazon_api.product_template_operator_rule4').name = 'product_template_operator_rule4'
         self.env.ref('amazon_api.product_template_merchant_rule1').name = 'product_template_merchant_rule1'
         self.env.ref('amazon_api.submission_history_operator_rule').name = 'submission_history_operator_rule'
-        self.env.ref('amazon_api.sale_order_operator_rule').name = 'sale_order_operator_rule'
+        # self.env.ref('amazon_api.sale_order_operator_rule').name = 'sale_order_operator_rule'
 
     # @api.model
     # def name_search(self, name, args=None, operator='ilike', limit=100):
