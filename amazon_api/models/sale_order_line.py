@@ -24,7 +24,8 @@ class SaleOrderLine(models.Model):
     @api.multi
     def _own_product(self):
         for line in self:
-            if line.product_id.product_tmpl_id.merchant_id == self.env.user:
+            merchant = self.env.user.merchant_id or self.env.user
+            if line.product_id.product_tmpl_id.merchant_id == merchant:
                 line.own_product = True
             else:
                 line.own_product = False

@@ -34,7 +34,10 @@ class PurchaseOrder(models.Model):
 
     def _hide_delivery_button(self):
         for record in self:
-            record.hide_delivery_button = True
+            if record.merchant_id == self.env.user:
+                record.hide_delivery_button = False
+            else:
+                record.hide_delivery_button = True
 
     def _compute_total(self):
         for record in self:
@@ -74,7 +77,6 @@ class PurchaseOrder(models.Model):
 
     @api.model
     def _own_data_search(self, operator, value):
-        print '_own_data_search purchase'
         user = self.env.user
         if user.user_type == 'operator':
             return [('id', '=', 0)]
@@ -92,8 +94,8 @@ class PurchaseOrder(models.Model):
             'view_mode': 'tree,form',
             'view_type': 'form',
             'views': [
-                (self.env.ref('stock.vpicktree').id, 'tree'),
-                (self.env.ref('stock.view_picking_form').id, 'form')],
+                (self.env.ref('amazon_api.stock_picking_tree').id, 'tree'),
+                (self.env.ref('amazon_api.stock_picking_form').id, 'form')],
             'domain': [('id', 'in', self.deliverys.ids)],
             'target': 'current',
         }

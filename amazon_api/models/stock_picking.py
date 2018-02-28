@@ -15,6 +15,8 @@ class StockPicking(models.Model):
     e_mail = fields.Char(string=u'邮箱')
     shippment_number = fields.Char(string=u'物流单号')
 
+    receiver_info = fields.Text(string=u'收件信息')
+
     delivery_date = fields.Datetime(string=u'发货时间')
 
     own_data = fields.Boolean(search='_own_data_search', store=False)
@@ -26,9 +28,12 @@ class StockPicking(models.Model):
     purchase_order_id = fields.Many2one('purchase.order')
     # distributor_invoice_ids = fields.Many2one('invoice', related='sale_order_id.invoice_ids', string=u'经销商发票')
 
+    b2b_state = fields.Selection([
+        ('wait_delivery', u'代发货'),
+        ('done', u'已发货')], default='wait_delivery', string=u'发货状态')
+
     @api.model
     def _own_data_search(self, operator, value):
-        print '_own_data_search stock_picking'
         user = self.env.user
         if user.user_type == 'operator':
             return [('id', '=', 0)]
@@ -36,6 +41,21 @@ class StockPicking(models.Model):
             return [('partner_id', '=', user.partner_id.id)]
         else:
             return []
+
+    @api.multi
+    def create_delivery_info(self):
+        for record in self:
+            sale_order = record.sale_order_id
+            receiver_info = u"国家:%s\n州／省:%s\n市:%s\n街道:%s\n邮编:%s\n姓名:%s\n电话:%s\ne-mail:%s" % (
+                sale_order.country_id.name or '',
+                sale_order.province or '',
+                sale_order.city or '',
+                sale_order.street or '',
+                sale_order.postal_code or '',
+                sale_order.partner_id.name or '',
+                sale_order.phone or '',
+                sale_order.e_mail or '')
+            record.receiver_info = receiver_info
 
     # @api.model
     # def search(self, args, offset=0, limit=None, order=None, count=False):
@@ -56,8 +76,12 @@ class StockPicking(models.Model):
     def do_new_transfer(self):
         self.ensure_one()
         result = super(StockPicking, self).do_new_transfer()
-        self.delivery_date = datetime.datetime.now()
+        self.write({
+            'b2b_state': 'done',
+            'delivery_date': datetime.datetime.now(),
+        })
         self.purchase_order_id.platform_purchase_state = 'done'
+        # self.sale_order_id.b2b_state = 'delivered'
         self.sale_order_id.invoice_ids.invoice_confirm()
         self.purchase_order_id.b2b_invoice_ids.invoice_confirm()
         done = True
@@ -68,7 +92,6 @@ class StockPicking(models.Model):
         print done
         if done:
             self.sale_order_id.b2b_state = 'delivered'
-        raise UserError(u'ljp')
         return result
 
     @api.multi

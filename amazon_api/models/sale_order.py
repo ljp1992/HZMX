@@ -106,7 +106,7 @@ class SaleOrder(models.Model):
             'view_mode': 'tree,form',
             'view_type': 'form',
             'views': [
-                (self.env.ref('purchase.purchase_order_tree').id, 'tree'),
+                (self.env.ref('amazon_api.purchase_order_tree').id, 'tree'),
                 (self.env.ref('purchase.purchase_order_form').id, 'form')],
             'domain': [('id', 'in', self.purchase_orders.ids)],
             'target': 'current',
@@ -133,10 +133,12 @@ class SaleOrder(models.Model):
     @api.multi
     def _hide_platform_purchase_button(self):
         for order in self:
-            order.hide_platform_purchase_button = True
+            hide_platform_purchase_button = True
             for line in order.order_line:
                 if not line.own_product:
-                    order.hide_platform_purchase_button = False
+                    hide_platform_purchase_button = False
+                    break
+            order.hide_platform_purchase_button = hide_platform_purchase_button
 
     @api.multi
     def _hide_myself_delivery_button(self):
@@ -222,21 +224,7 @@ class SaleOrder(models.Model):
             'sale_order_id': self.id,
             'order_line': [],
         }
-        # supplier_invoice = {
-        #     'type': 'supplier',
-        #     'order_line': [],
-        # }
-
         for sale_line in self.order_line:
-            # product_supplier = sale_line.product_id.product_tmpl_id.merchant_id
-            # if supplier_invoice.has_key(product_supplier):
-            #     pass
-            # else:
-            #     supplier_invoice[product_supplier] = {
-            #         'type': 'supplier',
-            #         'merchant_id': product_supplier.id,
-            #
-            #     }
             invoice_data['order_line'].append((0, 0, {
                 'product_id': sale_line.product_id.id,
                 'platform_price': sale_line.product_id.platform_price,
@@ -260,6 +248,7 @@ class SaleOrder(models.Model):
                     'merchant_id': platform_pro_merchant.id,
                     'partner_id': supplier_id,
                     'state': 'draft',
+                    'platform_purchase_state': 'send',
                     'currency_id': self.currency_id.id,
                     'date_order': datetime.datetime.now(),
                     'date_planned': datetime.datetime.now(),

@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 	<data>
+        <record id="purchase_order_tree" model="ir.ui.view">
+			<field name="name">purchase_order_tree</field>
+			<field name="model">purchase.order</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="name"/>
+                    <field name="date_order"/>
+                    <field name="state" invisible="1"/>
+                    <field name="platform_purchase_state"/>
+				</tree>
+			</field>
+		</record>
+
         <record id="purchase_order_form" model="ir.ui.view">
 			<field name="name">purchase_order_form</field>
 			<field name="model">purchase.order</field>
@@ -11,8 +24,9 @@
                 </xpath>
                 <xpath expr="//sheet" position="before">
                     <header>
+                        <field name="hide_delivery_button" invisible="1"/>
                         <button name="confirm_purchase_ljp" type="object" string="发货"
-                                class="btn-primary"/>
+                                attrs="{'invisible': [('hide_delivery_button', '=', True)]}" class="btn-primary"/>
                         <field name="platform_purchase_state" widget="statusbar" statusbar_visible="draft,send,done"/>
                     </header>
                 </xpath>
@@ -86,13 +100,13 @@
             <field name="res_model">purchase.order</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
-            <field name="domain">[('own_data', '=', True)]</field>
+            <field name="domain">[('own_data', '=', True), ('platform_purchase_state', '=', 'send')]</field>
         </record>
 
         <record id="purchase_order_act_tree" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
-            <field name="view_id" ref="purchase.purchase_order_tree"/>
+            <field name="view_id" ref="amazon_api.purchase_order_tree"/>
             <field name="act_window_id" ref="purchase_order_act"/>
         </record>
 
@@ -103,7 +117,32 @@
             <field name="act_window_id" ref="purchase_order_act"/>
         </record>
 
-        <menuitem id="purchase_order_menu" name="采购订单" parent="b2b_platform.purchase_parent_menu" sequence="1"
+        <menuitem id="purchase_order_menu" name="代发货" parent="b2b_platform.purchase_parent_menu" sequence="1"
                   action="purchase_order_act"/>
+
+        <record id="deliveryed_purchase_order_act" model="ir.actions.act_window">
+            <field name="name">已发货</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_mode">tree</field>
+            <field name="view_type">form</field>
+            <field name="domain">[('own_data', '=', True), ('platform_purchase_state', '=', 'done')]</field>
+        </record>
+
+        <record id="purchase_order_act_tree1" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="amazon_api.purchase_order_tree"/>
+            <field name="act_window_id" ref="deliveryed_purchase_order_act"/>
+        </record>
+
+        <record id="purchase_order_act_form1" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="purchase.purchase_order_form"/>
+            <field name="act_window_id" ref="deliveryed_purchase_order_act"/>
+        </record>
+
+        <menuitem id="deliveryed_purchase_order_menu" name="已发货" parent="b2b_platform.purchase_parent_menu"
+                  sequence="2" action="deliveryed_purchase_order_act"/>
 	</data>
 </odoo>
