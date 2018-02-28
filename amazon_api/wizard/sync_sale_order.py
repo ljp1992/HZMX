@@ -148,7 +148,7 @@ class SyncSaleOrder(models.TransientModel):
                         'product_id': shop_product.platform_product_id.id,
                         'product_uom_qty': product_uom_qty,
                         'price_unit': shop_product.platform_product_id.platform_price,
-                        'by_platform': False,
+                        'tax_id': [(6, False, [])],
                     }
                     order_lines.append((0, False, order_line))
                 order_val['order_line'] = order_lines

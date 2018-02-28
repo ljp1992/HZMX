@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="invoice_tree" model="ir.ui.view">
+            <field name="name">invoice_tree</field>
+            <field name="model">invoice</field>
+            <field name="priority">10</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="merchant_id"/>
+                    <field name="date"/>
+                    <field name="total" sum="1"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record id="invoice_form" model="ir.ui.view">
+            <field name="name">invoice_form</field>
+            <field name="model">invoice</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <!--<button name="btn_notice" string="付款" states='draft' type="object" class="oe_highlight"/>-->
+                        <field name="state" widget="statusbar" statusbar_visible="draft,paid" readonly="1"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" class="oe_inline" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="merchant_id" readonly="True"/>
+                                <field name="sale_order_id" attrs="{'readonly':[('state','!=','draft')]}"/>
+                            </group>
+                            <group>
+                                <field name="date" attrs="{'readonly':[('state','!=','draft')]}"/>
+                                <field name="total" readonly="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="明细">
+                                <field name="order_line">
+                                    <tree editable="bottom">
+                                        <field name="product_id"/>
+                                        <field name="platform_price"/>
+                                        <field name="product_uom_qty"/>
+                                        <field name="product_uom"/>
+                                        <field name="total" sum="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="invoice_act" model="ir.actions.act_window">
+            <field name="name">经销商发票</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">invoice</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('type', '=', 'distributor')]</field>
+        </record>
+
+        <record id="invoice_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="invoice_tree"/>
+            <field name="act_window_id" ref="invoice_act"/>
+        </record>
+
+        <record id="invoice_act_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="invoice_form"/>
+            <field name="act_window_id" ref="invoice_act"/>
+        </record>
+
+        <menuitem id="distributor_invoice_menu" name="经销商发票" parent="account_close_menu"
+                  action="b2b_platform.invoice_act" sequence="1"/>
+
+        <record id="supplier_invoice_form" model="ir.ui.view">
+            <field name="name">supplier_invoice_form</field>
+            <field name="model">invoice</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <!--<button name="btn_notice" string="付款" states='draft' type="object" class="oe_highlight"/>-->
+                        <field name="state" widget="statusbar" statusbar_visible="draft,paid" readonly="1"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" class="oe_inline" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="merchant_id" readonly="True"/>
+                                <field name="purchase_order_id" attrs="{'readonly':[('state','!=','draft')]}"/>
+                            </group>
+                            <group>
+                                <field name="date" attrs="{'readonly':[('state','!=','draft')]}"/>
+                                <field name="total" readonly="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="明细">
+                                <field name="order_line">
+                                    <tree editable="bottom">
+                                        <field name="product_id"/>
+                                        <field name="platform_price"/>
+                                        <field name="product_uom_qty"/>
+                                        <field name="product_uom"/>
+                                        <field name="freight"/>
+                                        <field name="total" sum="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="supplier_invoice_act" model="ir.actions.act_window">
+            <field name="name">供应商发票</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">invoice</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('type', '=', 'supplier')]</field>
+        </record>
+
+        <record id="invoice_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="invoice_tree"/>
+            <field name="act_window_id" ref="supplier_invoice_act"/>
+        </record>
+
+        <record id="invoice_act_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="supplier_invoice_form"/>
+            <field name="act_window_id" ref="supplier_invoice_act"/>
+        </record>
+
+        <menuitem id="supplier_invoice_menu" name="供应商发票" parent="account_close_menu"
+                  action="b2b_platform.supplier_invoice_act" sequence="2"/>
+    </data>
+</odoo>

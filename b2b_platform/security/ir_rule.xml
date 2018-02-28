@@ -128,5 +128,38 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
+        
+         <!-- invoice -->
+		<record id="invoice_operator_rule" model="ir.rule">
+            <field name="name">invoice_operator_rule</field>
+            <field name="model_id" ref="model_invoice"/>
+            <field name="domain_force">[('merchant_id', '=', user.merchant_id.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="invoice_merchant_rule" model="ir.rule">
+            <field name="name">invoice_merchant_rule</field>
+            <field name="model_id" ref="model_invoice"/>
+            <field name="domain_force">[('merchant_id', '=', user.id)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record id="invoice_manager_rule" model="ir.rule">
+            <field name="name">invoice_manager_rule</field>
+            <field name="model_id" ref="model_invoice"/>
+            <field name="domain_force">[]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        
 	</data>
 </odoo>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<!--b2b平台运营账号-->
+        <record id="stock_location_tree" model="ir.ui.view">
+			<field name="name">stock_location_tree</field>
+			<field name="model">stock.location</field>
+			<field name="arch" type="xml">
+				<tree editable="top">
+					<field name="display_name" readonly="1"/>
+                    <field name="name" required="True"/>
+                    <field name="location_id" options="{'no_create': True}"/>
+				</tree>
+			</field>
+		</record>
+
+        <record id="stock_location_act" model="ir.actions.act_window">
+			<field name="name">库位</field>
+			<field name="res_model">stock.location</field>
+            <field name="view_mode">tree</field>
+			<field name="view_type">form</field>
+		</record>
+
+        <record id="stock_location_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="stock_location_tree"/>
+            <field name="act_window_id" ref="stock_location_act"/>
+        </record>
+
+        <menuitem id="stock_location_menu" name="库位" parent="stock_parent_menu" sequence="5"
+                  action="stock_location_act" groups="b2b_manager"/>
+	</data>
+</odoo>

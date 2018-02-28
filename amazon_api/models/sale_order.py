@@ -15,11 +15,15 @@ class SaleOrder(models.Model):
     postal_code = fields.Char(string=u'邮编')
     phone = fields.Char(string=u'电话')
     e_mail = fields.Char(string=u'邮箱')
+    e_currency_id1 = fields.Char(related='e_currency_id.symbol', string=u'币种')
+    e_currency_id2 = fields.Char(related='e_currency_id.symbol', string=u'币种')
+    e_currency_id3 = fields.Char(related='e_currency_id.symbol', string=u'币种')
 
     sale_date = fields.Datetime(string=u'下单日期')
     confirm_date = fields.Datetime(string=u'确认日期')
 
     purchase_count = fields.Integer(compute='_purchase_count')
+    invoice_count = fields.Integer(compute='_invoice_count')
 
     e_order_amount = fields.Float(string=u'订单金额')
     e_order_freight = fields.Float(compute='_e_order_freight', store=False, string=u'运费')
@@ -39,6 +43,7 @@ class SaleOrder(models.Model):
 
     purchase_orders = fields.One2many('purchase.order', 'sale_order_id')
     deliverys = fields.One2many('stock.picking', 'sale_order_id')
+    invoice_ids = fields.One2many('invoice', 'sale_order_id', string=u'发票')
 
     platform = fields.Selection([
         ('amazon', u'亚马逊'),
@@ -67,6 +72,30 @@ class SaleOrder(models.Model):
         ('uploading', u'正在上传'),
         ('done', u'完成'),
         ('failed', u'失败')], default='wait_upload', string=u'发货信息上传状态')
+    b2b_state = fields.Selection([
+        ('wait_handle', u'待处理'),
+        ('delivering', u'待发货'),
+        ('delivered', u'已交付'),
+        ('cancel', u'取消')], default='wait_handle', string=u'状态')
+
+    def _invoice_count(self):
+        for record in self:
+            record.invoice_count = len(record.invoice_ids)
+
+    def view_invoice(self):
+        self.ensure_one()
+        return {
+            'name': u'经销商发票',
+            'type': 'ir.actions.act_window',
+            'res_model': 'invoice',
+            'view_mode': 'tree,form',
+            'view_type': 'form',
+            'views': [
+                (self.env.ref('b2b_platform.invoice_tree').id, 'tree'),
+                (self.env.ref('b2b_platform.invoice_form').id, 'form')],
+            'domain': [('sale_order_id', '=', self.id)],
+            'target': 'current',
+        }
 
     @api.multi
     def view_purchase_order(self):
@@ -183,12 +212,39 @@ class SaleOrder(models.Model):
     def platform_purchase(self):
         '''平台采购'''
         self.ensure_one()
+        self.b2b_state = 'delivering'
         purchase_obj = self.env['purchase.order']
         loc_obj = self.env['stock.location']
         stock_picking_obj = self.env['stock.picking']
         purchase_info = {}
+        invoice_data = {
+            'type': 'distributor',
+            'sale_order_id': self.id,
+            'order_line': [],
+        }
+        # supplier_invoice = {
+        #     'type': 'supplier',
+        #     'order_line': [],
+        # }
+
         for sale_line in self.order_line:
-            supplier_id = sale_line.sudo().product_id.product_tmpl_id.merchant_id.partner_id.id
+            # product_supplier = sale_line.product_id.product_tmpl_id.merchant_id
+            # if supplier_invoice.has_key(product_supplier):
+            #     pass
+            # else:
+            #     supplier_invoice[product_supplier] = {
+            #         'type': 'supplier',
+            #         'merchant_id': product_supplier.id,
+            #
+            #     }
+            invoice_data['order_line'].append((0, 0, {
+                'product_id': sale_line.product_id.id,
+                'platform_price': sale_line.product_id.platform_price,
+                'product_uom_qty': sale_line.product_uom_qty,
+                'product_uom': sale_line.product_uom.id,
+            }))
+            platform_pro_merchant = sale_line.sudo().product_id.product_tmpl_id.merchant_id
+            supplier_id = platform_pro_merchant.partner_id.id
             if purchase_info.has_key(supplier_id):
                 purchase_info[supplier_id]['order_line'].append((0, 0, {
                     'product_id': sale_line.product_id.id,
@@ -201,6 +257,7 @@ class SaleOrder(models.Model):
             else:
                 purchase_info[supplier_id] = {
                     'sale_order_id': self.id,
+                    'merchant_id': platform_pro_merchant.id,
                     'partner_id': supplier_id,
                     'state': 'draft',
                     'currency_id': self.currency_id.id,
@@ -210,13 +267,28 @@ class SaleOrder(models.Model):
                         'product_id': sale_line.product_id.id,
                         'name': sale_line.product_id.name,
                         'price_unit': sale_line.product_id.platform_price,
+                        'taxes_id': [(6, False, [])],
                         'product_qty': sale_line.product_uom_qty,
                         'product_uom': sale_line.product_uom.id,
                         'date_planned': datetime.datetime.now(),
                     })]
                 }
+        invoice = self.env['invoice'].create(invoice_data)
         for (supplier_id, val) in purchase_info.items():
-            print val
             purchase_order = purchase_obj.create(val)
-            print purchase_order
+            val = {
+                'type': 'supplier',
+                'merchant_id': purchase_order.merchant_id.id,
+                'purchase_order_id': purchase_order.id,
+                'order_line': [],
+            }
+            for line in purchase_order.order_line:
+                val['order_line'].append((0, 0, {
+                    'product_id': line.product_id.id,
+                    'platform_price': line.product_id.supplier_price,
+                    'product_uom_qty': line.product_qty,
+                    'product_uom': line.product_uom.id,
+                    'freight': line.freight,
+                }))
+            supplier_invoice = self.env['invoice'].sudo().create(val)
         return

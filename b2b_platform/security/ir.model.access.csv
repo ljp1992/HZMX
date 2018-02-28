@@ -14,3 +14,11 @@ bank_account_manager_id,bank_account,model_bank_account,b2b_platform.b2b_manager
 account_cash_operator_id,account_cash,model_account_cash,b2b_platform.b2b_shop_operator,1,1,1,1
 account_cash_merchant_id,account_cash,model_account_cash,b2b_platform.b2b_seller,1,1,1,1
 account_cash_manager_id,account_cash,model_account_cash,b2b_platform.b2b_manager,1,1,1,1
+
+invoice_operator_id,invoice,model_invoice,b2b_platform.b2b_shop_operator,1,1,1,1
+invoice_merchant_id,invoice,model_invoice,b2b_platform.b2b_seller,1,1,1,1
+invoice_manager_id,invoice,model_invoice,b2b_platform.b2b_manager,1,1,1,1
+
+invoice_line_operator_id,invoice_line,model_invoice_line,b2b_platform.b2b_shop_operator,1,1,1,1
+invoice_line_merchant_id,invoice_line,model_invoice_line,b2b_platform.b2b_seller,1,1,1,1
+invoice_line_manager_id,invoice_line,model_invoice_line,b2b_platform.b2b_manager,1,1,1,1

@@ -6,14 +6,28 @@
 			<field name="model">stock.picking</field>
             <field name="inherit_id" ref="stock.view_picking_form"/>
 			<field name="arch" type="xml">
-                <xpath expr="//header" position="attributes">
+                <!--<xpath expr="//header" position="attributes">-->
+                    <!--<attribute name="invisible">1</attribute>-->
+                <!--</xpath>-->
+                <!--<xpath expr="//sheet" position="before">-->
+                    <!--<header>-->
+                        <!--<button name="upload_delivery_info" type="object" string="上传亚马逊"-->
+                                <!--class="btn-primary"/>-->
+                    <!--</header>-->
+                <!--</xpath>-->
+                <xpath expr="//sheet/group" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-                <xpath expr="//sheet" position="before">
-                    <header>
-                        <button name="upload_delivery_info" type="object" string="上传亚马逊"
-                                class="btn-primary"/>
-                    </header>
+                <xpath expr="//sheet/group" position="after">
+                    <group>
+                        <group>
+                            <field name="merchant_id"/>
+                        </group>
+                        <group>
+                            <field name="create_date"/>
+                            <!--<field name="delivery_date"/>-->
+                        </group>
+                    </group>
                 </xpath>
                 <xpath expr="//page[position()=3]" position="after">
                     <page string="收件人信息">

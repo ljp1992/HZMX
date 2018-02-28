@@ -11,28 +11,74 @@
                 </xpath>
                 <xpath expr="//sheet" position="before">
                     <header>
-                        <button name="confirm_purchase_ljp" type="object" string="确认采购"
+                        <button name="confirm_purchase_ljp" type="object" string="发货"
                                 class="btn-primary"/>
                         <field name="platform_purchase_state" widget="statusbar" statusbar_visible="draft,send,done"/>
                     </header>
                 </xpath>
-                <!--<xpath expr="//button[@name='action_view_picking']" position="after">-->
-                    <!--<field name="delivery_order_count" invisible="1"/>-->
-                    <!--<button type="object" name="view_delivery_order" class="oe_stat_button" icon="fa-truck">-->
-                        <!--<field name="delivery_order_count" widget="statinfo" string="Shipment" />-->
-                    <!--</button>-->
-                    <!--&lt;!&ndash;<button name="view_delivery_order" type="object" class="oe_stat_button" icon="fa-pencil-square-o">&ndash;&gt;-->
-                        <!--&lt;!&ndash;<field name="delivery_order_count" widget="statinfo" string="发货单"/>&ndash;&gt;-->
-                    <!--&lt;!&ndash;</button>&ndash;&gt;-->
-                <!--</xpath>-->
-
-                <xpath expr="//sheet/div/button[@name='action_view_picking']" position="after">
-                    <field name="delivery_order_count" invisible="1"/>
-                    <button name="view_delivery_order" type="object" class="oe_stat_button" icon="fa-pencil-square-o">
-                        <field name="delivery_order_count" widget="statinfo" string="发货单"/>
-                    </button>
+                <xpath expr="//sheet/div[@name='button_box']" position="attributes">
+                    <attribute name="invisible">1</attribute>
                 </xpath>
-			</field>
+                <xpath expr="//sheet/div[@name='button_box']" position="after">
+                    <field name="b2b_delivery_count" invisible="1"/>
+                    <field name="b2b_invoice_count" invisible="1"/>
+                    <div class="oe_button_box">
+                        <button name="view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"
+                                attrs="{'invisible': [('b2b_invoice_count', '=', 0)]}">
+                            <field name="b2b_invoice_count" widget="statinfo" string="发票"/>
+                        </button>
+                        <button name="view_delivery_order" type="object" class="oe_stat_button" icon="fa-truck"
+                                attrs="{'invisible': [('b2b_delivery_count', '=', 0)]}">
+                            <field name="b2b_delivery_count" widget="statinfo" string="发货单"/>
+                        </button>
+                    </div>
+                </xpath>
+                <xpath expr="//sheet/div[@class='oe_title']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//sheet/div[@class='oe_title']" position="after">
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                </xpath>
+                <xpath expr="//sheet/group[position()=1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//sheet/group[position()=1]" position="after">
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="b2b_total"/>
+                        </group>
+                        <group>
+                            <field name="date_order"/>
+                        </group>
+                    </group>
+                </xpath>
+
+                <xpath expr="//notebook" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//notebook" position="after">
+                    <notebook>
+                        <page string="明细">
+                            <field name="order_line">
+                                <tree>
+                                    <field name="product_id"/>
+                                    <field name="price_unit"/>
+                                    <field name="product_qty"/>
+                                    <field name="product_uom"/>
+                                    <field name="freight"/>
+                                    <field name="b2b_total" sum="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </xpath>
+
+            </field>
 		</record>
 
         <record id="purchase_order_act" model="ir.actions.act_window">
