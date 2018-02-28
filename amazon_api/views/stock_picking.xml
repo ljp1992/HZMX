@@ -26,6 +26,7 @@
                     <header>
                         <button name="do_new_transfer" string="确认发货" type="object" class="oe_highlight"
                                 attrs="{'invisible': [('b2b_state', '!=', 'wait_delivery')]}"/>
+                        <button name="upload_delivery_info" string="上传发货信息" type="object" class="oe_highlight"/>
                         <!--<button name="create_delivery_info" string="获取收件信息" type="object" class="oe_highlight"/>-->
                         <field name="b2b_state" widget="statusbar" statusbar_visible="wait_delivery,done"/>
                     </header>
@@ -57,24 +58,10 @@
                     <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//page[position()=3]" position="after">
-                    <!--<page string="收件人信息">-->
-                        <!--<group>-->
-                            <!--<group>-->
-                                <!--<field name="partner_id"/>-->
-                                <!--<field name="country_id"/>-->
-                                <!--<field name="province"/>-->
-                                <!--<field name="city"/>-->
-                                <!--<field name="street"/>-->
-                                <!--<field name="postal_code"/>-->
-                                <!--<field name="phone"/>-->
-                                <!--<field name="e_mail"/>-->
-                            <!--</group>-->
-                        <!--</group>-->
-                    <!--</page>-->
                     <page string="收件信息">
                         <group>
                             <group>
-                                <field name="logistics_company_id"/>
+                                <field name="logistics_company_id" options="{'no_create': True}"/>
                                 <field name="shippment_number"/>
                             </group>
                         </group>

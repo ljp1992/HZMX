@@ -10,6 +10,8 @@ class ProductProduct(models.Model):
     upc = fields.Char(string=u'UPC')
     main_img_url = fields.Char(compute='_get_main_img_url', string=u'主图')
 
+    hide_platform_price = fields.Boolean(related='product_tmpl_id.hide_platform_price')
+
     supplier_price = fields.Monetary(inverse='_set_product_platform_price', string=u'供应商供货价')
     platform_price = fields.Monetary(inverse='_set_seller_price', string=u'平台价格')
     seller_price = fields.Monetary(inverse='_set_shop_price_cny', string=u'经销商价格')
@@ -20,6 +22,7 @@ class ProductProduct(models.Model):
                                           string=u'平台产品')
     seller_product_id = fields.Many2one('product.product', compute='_get_merchant_product', store=False,
                                         string=u'经销商产品')
+    currency_id = fields.Many2one('res.currency', related='product_tmpl_id.currency_id')
 
     seller_product_ids = fields.One2many('product.product', 'platform_product_id', string=u'经销商产品')
     shop_product_ids = fields.One2many('product.product', 'seller_product_id', string=u'经销商产品的店铺产品')

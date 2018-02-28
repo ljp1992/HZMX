@@ -23,6 +23,7 @@
                     <field name="state" invisible="1"/>
                     <field name="show_merchant_include_button" invisible="1"/>
                     <field name="hide_supplier_price" invisible="1"/>
+                    <field name="hide_platform_price" invisible="1"/>
 					<header>
                         <button name="publish_platform" type="object" string="发布到平台" class="oe_highlight"
                                 attrs="{'invisible':[('state', '!=', 'platform_unpublished')]}"/>
@@ -53,8 +54,8 @@
                                     <group>
                                         <field name="supplier_price"
                                                attrs="{'invisible':[('hide_supplier_price', '=', True)]}"/>
-                                        <field name="platform_price" attrs="{'invisible':[('state', 'not in',
-                                            ['platform_unpublished', 'platform_published'])]}"/>
+                                        <field name="platform_price"
+                                               attrs="{'invisible':[('hide_platform_price', '=', True)]}"/>
                                         <field name="seller_price"
                                                attrs="{'invisible':[('state', '!=', 'seller')]}"/>
                                         <field name="shop_price_cny"

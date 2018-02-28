@@ -30,16 +30,18 @@ class ProductTemplate(models.Model):
     show_merchant_include_button = fields.Boolean(compute='_show_merchant_include_button', string=u'显示经销商收录按钮')
     # my_template = fields.Boolean(compute='', search='_my_template', string=u'产品是否为用户所拥有')
     # show_shop_include_button = fields.Boolean(compute='_show_shop_include_button', string='显示店铺收录按钮')
+    hide_platform_price = fields.Boolean(compute='_hide_platform_price')
 
     handle_days = fields.Integer(string=u'处理天数')
 
     supplier_price = fields.Monetary(inverse='_set_template_platform_price', string=u'供应商供货价')
     platform_price = fields.Monetary(inverse='_set_seller_price', string=u'平台价格')
     seller_price = fields.Monetary(inverse='_set_shop_price_cny', string=u'经销商价格')
-    shop_price_cny = fields.Monetary(string=u'店铺价格')
-    shop_price = fields.Float(compute='_compute_shop_price', inverse='_set_tmpl_state', store=True, readonly=False, string=u'店铺价格')
+    shop_price_cny = fields.Monetary(inverse='_set_tmpl_state', string=u'店铺价格')
+    shop_price = fields.Float(compute='_compute_shop_price',  store=False, readonly=True, string=u'店铺价格')
     declare_price = fields.Monetary(string=u'申报单价')
     pack_weight = fields.Float(string=u'包装重量')
+    freight = fields.Float(compute='_compute_freight', string=u'运费')
 
     publish_id = fields.Many2one('res.users', string=u'发布人')
     amazon_categ_id = fields.Many2one('amazon.category', inverse='_set_variation_theme_id', string=u'亚马逊模板')
@@ -113,6 +115,24 @@ class ProductTemplate(models.Model):
         ('failed', u'失败'),
         ('to_delete', u'待删除'),
         ('deleted', u'已删除')], default='pending', string=u'库存状态')
+
+    def _compute_freight(self):
+        for tmpl in self:
+            country = tmpl.shop_id.country_id
+            freight_line = tmpl.freight_lines.filtered(lambda r: r.country_id == country)
+            print freight_line
+            if freight_line:
+                tmpl.freight = freight_line[0].freight
+            else:
+                tmpl.freight = 0
+
+    def _hide_platform_price(self):
+        merchant = self.env.user.merchant_id or self.env.user
+        for tmpl in self:
+            if tmpl.merchant_id != merchant and tmpl.state == 'platform_published':
+                tmpl.hide_platform_price = False
+            else:
+                tmpl.hide_platform_price = True
 
     @api.multi
     def _set_variation_theme_id(self):
@@ -354,16 +374,11 @@ class ProductTemplate(models.Model):
             shop = template.shop_id
             seller = shop.seller_id
             currency_code = template.shop_currency.name
-            rate = template.shop_currency.rate
-            freight = 0
-            freight_lines = template.freight_lines.filtered(lambda r: r.country_id == shop.country_id)
-            if freight_lines:
-                freight = freight_lines[0].freight * rate
             message = ''
             message_id = 0
             for pro in template.product_variant_ids:
                 message_id += 1
-                price = round(pro.shop_price + freight, 2)
+                price = round(pro.shop_price, 2)
                 message += """<Message>
                 <MessageID>%d</MessageID>
                 <OperationType>Update</OperationType>
@@ -561,7 +576,7 @@ class ProductTemplate(models.Model):
     def _set_shop_price_cny(self):
         for record in self:
             rate = record.shop_id and record.shop_id.rate or 0
-            record.shop_price_cny = record.seller_price * (1 + rate / 100)
+            record.shop_price_cny = record.seller_price * (1 + rate / 100) + record.freight
 
     @api.multi
     def _set_seller_price(self):
@@ -580,6 +595,8 @@ class ProductTemplate(models.Model):
     @api.multi
     def _set_template_platform_price(self):
         for template in self:
+            for pro in template.product_variant_ids:
+                pro.supplier_price = template.supplier_price
             rate = template.categ_id and template.categ_id.rate or 0
             template.platform_price = template.supplier_price * (1 + rate / 100)
 
@@ -780,8 +797,11 @@ class ProductTemplate(models.Model):
     @api.multi
     def publish_platform(self):
         self.ensure_one()
-        self.state = 'platform_published'
-        self.publish_id = self.env.user.id
+        self.write({
+            'state': 'platform_published',
+            'publish_id': self.env.user.id,
+        })
+        self.merchant_include()
 
     @api.multi
     def check_data(self, val):

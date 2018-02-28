@@ -21,6 +21,8 @@
 			<field name="arch" type="xml">
 				<form>
 					<field name="state" invisible="1"/>
+					<field name="hide_platform_price" invisible="1"/>
+					<field name="currency_id" invisible="1"/>
 					<sheet>
 						<field name="main_img_url" widget="form_image" class="oe_avatar"/>
                         <div class="oe_title">
@@ -31,7 +33,7 @@
 							<field name="attribute_value_ids" widget="many2many_tags" readonly="1"/>
                         </group>
                         <group>
-                            <group>
+                            <group attrs="{'invisible':[('state', '!=', 'shop')]}">
 								<field name="sku"/>
                                 <field name="upc"/>
                             </group>
@@ -44,8 +46,8 @@
                             <group>
 								<field name="supplier_price" attrs="{'invisible':[('state', 'not in',
 									['platform_unpublished'])]}"/>
-								<field name="platform_price" attrs="{'invisible':[('state', 'not in',
-									['platform_unpublished', 'platform_published'])]}"/>
+								<field name="platform_price"
+									   attrs="{'invisible': [('hide_platform_price', '=', True)]}"/>
 								<field name="seller_price" attrs="{'invisible':[('state', '!=', 'seller')]}"/>
 								<field name="shop_price_cny" attrs="{'invisible':[('state', '!=', 'shop')]}"/>
 								<label for="shop_price" attrs="{'invisible':[('state', '!=', 'shop')]}"/>
