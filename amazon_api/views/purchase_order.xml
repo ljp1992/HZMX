@@ -25,9 +25,9 @@
                 <xpath expr="//sheet" position="before">
                     <header>
                         <field name="hide_delivery_button" invisible="1"/>
-                        <button name="confirm_purchase_ljp" type="object" string="发货"
+                        <button name="confirm_purchase_ljp" type="object" string="确认"
                                 attrs="{'invisible': [('hide_delivery_button', '=', True)]}" class="btn-primary"/>
-                        <field name="platform_purchase_state" widget="statusbar" statusbar_visible="draft,send,done"/>
+                        <field name="platform_purchase_state" widget="statusbar" statusbar_visible="send,done"/>
                     </header>
                 </xpath>
                 <xpath expr="//sheet/div[@name='button_box']" position="attributes">

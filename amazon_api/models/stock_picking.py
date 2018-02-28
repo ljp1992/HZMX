@@ -6,6 +6,7 @@ import datetime
 
 class StockPicking(models.Model):
     _inherit = "stock.picking"
+    _order = 'id desc'
 
     province = fields.Char(string=u'州／省')
     city = fields.Char(string=u'市')
@@ -16,6 +17,8 @@ class StockPicking(models.Model):
     shippment_number = fields.Char(string=u'物流单号')
 
     receiver_info = fields.Text(string=u'收件信息')
+
+    hide_delivery_button = fields.Boolean(compute='_hide_delivery_button')
 
     delivery_date = fields.Datetime(string=u'发货时间')
 
@@ -31,6 +34,13 @@ class StockPicking(models.Model):
     b2b_state = fields.Selection([
         ('wait_delivery', u'代发货'),
         ('done', u'已发货')], default='wait_delivery', string=u'发货状态')
+
+    def _hide_delivery_button(self):
+        for record in self:
+            if record.b2b_state == 'wait_delivery':
+                record.hide_delivery_button = False
+            else:
+                record.hide_delivery_button = True
 
     @api.model
     def _own_data_search(self, operator, value):
@@ -76,20 +86,18 @@ class StockPicking(models.Model):
     def do_new_transfer(self):
         self.ensure_one()
         result = super(StockPicking, self).do_new_transfer()
+        self.create_delivery_info()
         self.write({
             'b2b_state': 'done',
             'delivery_date': datetime.datetime.now(),
         })
         self.purchase_order_id.platform_purchase_state = 'done'
-        # self.sale_order_id.b2b_state = 'delivered'
-        self.sale_order_id.invoice_ids.invoice_confirm()
-        self.purchase_order_id.b2b_invoice_ids.invoice_confirm()
+        self.sale_order_id.sudo().b2b_invoice_ids.invoice_confirm()
+        self.purchase_order_id.sudo().b2b_invoice_ids.invoice_confirm()
         done = True
         for purchase in self.sale_order_id.purchase_orders:
-            print purchase
             if purchase.platform_purchase_state != 'done':
                 done = False
-        print done
         if done:
             self.sale_order_id.b2b_state = 'delivered'
         return result

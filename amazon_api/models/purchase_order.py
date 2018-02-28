@@ -33,10 +33,13 @@ class PurchaseOrder(models.Model):
     ], default='draft', string=u'状态')
 
     def _hide_delivery_button(self):
+        merchant = self.env.user.merchant_id or self.env.user
         for record in self:
-            if record.merchant_id == self.env.user:
+            if record.merchant_id == merchant:
                 record.hide_delivery_button = False
             else:
+                record.hide_delivery_button = True
+            if record.platform_purchase_state != 'send':
                 record.hide_delivery_button = True
 
     def _compute_total(self):

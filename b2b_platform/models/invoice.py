@@ -48,6 +48,8 @@ class Invoice(models.Model):
     @api.multi
     def invoice_confirm(self):
         for record in self:
+            print record.merchant_id.name
+            print record.type
             record.state = 'paid'
             if record.type == 'distributor':
                 record.merchant_id.account_amount -= record.total

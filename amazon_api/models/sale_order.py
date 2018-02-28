@@ -43,7 +43,7 @@ class SaleOrder(models.Model):
 
     purchase_orders = fields.One2many('purchase.order', 'sale_order_id')
     deliverys = fields.One2many('stock.picking', 'sale_order_id')
-    invoice_ids = fields.One2many('invoice', 'sale_order_id', string=u'发票')
+    b2b_invoice_ids = fields.One2many('invoice', 'sale_order_id', string=u'发票')
 
     platform = fields.Selection([
         ('amazon', u'亚马逊'),
@@ -80,7 +80,7 @@ class SaleOrder(models.Model):
 
     def _invoice_count(self):
         for record in self:
-            record.invoice_count = len(record.invoice_ids)
+            record.invoice_count = len(record.b2b_invoice_ids)
 
     def view_invoice(self):
         self.ensure_one()
@@ -138,6 +138,8 @@ class SaleOrder(models.Model):
                 if not line.own_product:
                     hide_platform_purchase_button = False
                     break
+            if order.purchase_count > 0:
+                hide_platform_purchase_button = True
             order.hide_platform_purchase_button = hide_platform_purchase_button
 
     @api.multi
@@ -237,7 +239,7 @@ class SaleOrder(models.Model):
                 purchase_info[supplier_id]['order_line'].append((0, 0, {
                     'product_id': sale_line.product_id.id,
                     'name': sale_line.product_id.name,
-                    'price_unit': sale_line.product_id.platform_price,
+                    'price_unit': sale_line.product_id.supplier_price,
                     'product_qty': sale_line.product_uom_qty,
                     'product_uom': sale_line.product_uom.id,
                     'date_planned': datetime.datetime.now(),
@@ -255,7 +257,7 @@ class SaleOrder(models.Model):
                     'order_line': [(0, 0, {
                         'product_id': sale_line.product_id.id,
                         'name': sale_line.product_id.name,
-                        'price_unit': sale_line.product_id.platform_price,
+                        'price_unit': sale_line.product_id.supplier_price,
                         'taxes_id': [(6, False, [])],
                         'product_qty': sale_line.product_uom_qty,
                         'product_uom': sale_line.product_uom.id,
