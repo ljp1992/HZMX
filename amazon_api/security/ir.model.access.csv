@@ -81,6 +81,10 @@ logistics_company_manager_id,logistics_company,model_logistics_company,b2b_platf
 
 
 
+request_location_operator_id,request_location,model_request_location,b2b_platform.b2b_shop_operator,1,1,1,1
+request_location_merchant_id,request_location,model_request_location,b2b_platform.b2b_seller,1,1,1,1
+request_location_manager_id,request_location,model_request_location,b2b_platform.b2b_manager,1,1,1,1
+
 
 
 

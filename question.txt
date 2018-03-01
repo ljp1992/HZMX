@@ -17,6 +17,11 @@
 。产品删除控制
 。product_id 去除父子关系
 
+
+技术：
+。不同权限组看到不同的记录。记录规则无法满足要求时，可以用计算性字段（添加search=''）作为domain条件，效率低，存在潜在风险；
+  在context添加内容，在search方法过滤比较合适。
+
 seller info:
 AKIAICI2QBFVUDSSTXOA
 FDQWrV3r+HBvfOSnPgsKX5Bx1bOmFI//lGrDe2CO

@@ -87,16 +87,6 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
         </record>
-        <!--<record id="bank_account_manager_rule" model="ir.rule">-->
-            <!--<field name="name">bank_account_manager_rule</field>-->
-            <!--<field name="model_id" ref="model_bank_account"/>-->
-            <!--<field name="domain_force">[]</field>-->
-            <!--<field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>-->
-            <!--<field name="perm_read" eval="True"/>-->
-            <!--<field name="perm_write" eval="True"/>-->
-            <!--<field name="perm_create" eval="True"/>-->
-            <!--<field name="perm_unlink" eval="True"/>-->
-        <!--</record>-->
 		
 		<!-- account_charge -->
 		<record id="account_charge_operator_rule" model="ir.rule">

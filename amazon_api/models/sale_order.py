@@ -185,7 +185,6 @@ class SaleOrder(models.Model):
 
     @api.model
     def _own_data_search(self, operator, value):
-        print '_own_data_search'
         user = self.env.user
         if user.user_type == 'operator':
             return [('shop_id', 'in', user.shop_ids.ids)]

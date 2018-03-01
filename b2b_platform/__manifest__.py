@@ -35,7 +35,6 @@
         'views/res_bank.xml',
         'views/bank_account.xml',
         'views/account_cash.xml',
-        'views/stock_loaction.xml',
         'views/invoice.xml',
     ],
     # only loaded in demonstration mode

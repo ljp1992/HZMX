@@ -39,6 +39,7 @@
         'views/sync_sale_order_log.xml',
         'views/purchase_order.xml',
         'views/stock_picking.xml',
+        'views/stock_location.xml',
         'views/logistics_company.xml',
         'wizard_views/shop_template_wizard.xml',
         'wizard_views/amazon_wizard.xml',

@@ -18,6 +18,7 @@
             <menuitem id="Logistics_manage_menu" parent="stock_menu_root" name="物流管理" sequence="1"/>
             <menuitem id="delivery_manage_menu" parent="stock_menu_root" name="发货管理" sequence="3"/>
             <menuitem id="stock_manage_menu" parent="stock_menu_root" name="库存管理" sequence="5"/>
+            <menuitem id="location_manage_menu" parent="stock_menu_root" name="库位管理" sequence="7"/>
 
         <menuitem id="b2b_acount_root" name="财务" sequence="7"/>
             <menuitem id="account_management_menu" parent="b2b_acount_root" name="财务管理" sequence="1"/>
