@@ -94,7 +94,7 @@
             <field name="act_window_id" ref="product_product_act"/>
         </record>
 
-        <menuitem id="product_product_menu" name="库存调整" parent="b2b_platform.stock_manage_parent_menu"
+        <menuitem id="product_product_menu" name="库存调整" parent="b2b_platform.stock_manage_menu"
 				  action="product_product_act" groups="b2b_platform.b2b_seller,b2b_platform.b2b_manager" sequence="5"/>
 	</data>
 </odoo>

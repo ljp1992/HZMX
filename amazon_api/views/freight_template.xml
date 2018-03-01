@@ -58,7 +58,7 @@
             <field name="act_window_id" ref="freight_template_act"/>
         </record>
 
-        <menuitem id="freight_template_menu" name="运费模板" parent="b2b_platform.account_authorized_menu" sequence="4"
+        <menuitem id="freight_template_menu" name="运费模板" parent="b2b_platform.Logistics_manage_menu" sequence="3"
                   action="freight_template_act"/>
 	</data>
 </odoo>

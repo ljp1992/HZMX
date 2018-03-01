@@ -26,7 +26,7 @@
             <field name="act_window_id" ref="logistic_company_act"/>
         </record>
 
-		<menuitem id="logistic_company_menu" name="物流公司" parent="b2b_platform.base_data_menu"
-                  sequence="8" action="logistic_company_act"/>
+		<menuitem id="logistic_company_menu" name="物流公司" parent="b2b_platform.Logistics_manage_menu"
+                  action="logistic_company_act" sequence="5"/>
 	</data>
 </odoo>

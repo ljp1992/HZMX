@@ -95,7 +95,7 @@
             <field name="act_window_id" ref="stock_picking_act"/>
         </record>
 
-        <menuitem id="stock_picking_menu" name="待发货" parent="b2b_platform.stock_parent_menu" sequence="1"
+        <menuitem id="stock_picking_menu" name="待发货" parent="b2b_platform.delivery_manage_menu" sequence="1"
                   action="stock_picking_act"/>
 
         <record id="stock_picking_act2" model="ir.actions.act_window">
@@ -120,7 +120,7 @@
             <field name="act_window_id" ref="stock_picking_act2"/>
         </record>
 
-        <menuitem id="stock_picking_menu2" name="已发货" parent="b2b_platform.stock_parent_menu" sequence="2"
+        <menuitem id="stock_picking_menu2" name="已发货" parent="b2b_platform.delivery_manage_menu" sequence="2"
                   action="stock_picking_act2"/>
 	</data>
 </odoo>
