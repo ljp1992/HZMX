@@ -17,14 +17,14 @@ class AccountCharge(models.Model):
 
     own_my_data = fields.Boolean(search='_own_my_data', store=False)
 
-    date = fields.Date(string=u'日期', required=True)
+    date = fields.Date(string=u'日期', default=lambda self: fields.Date.today(), required=True)
 
-    proof = fields.Binary(string=u'付款凭证', required=True)
+    proof = fields.Binary(string=u'付款凭证')
 
     merchant_id = fields.Many2one('res.users', string=u'经销商', required=True, readonly=True,
                                   default=lambda self: self.env.user, domain=[('user_type', '=', 'merchant')])
-    bank_id = fields.Many2one('res.bank',u'银行', required=True)
-    account_id = fields.Many2one('bank.account', required=True, string=u'银行账号')
+    bank_id = fields.Many2one('res.bank', domain=[('platform', '=', True)], string=u'银行', required=True)
+    account_id = fields.Many2one('bank.account', domain=[('platform', '=', True)], required=True, string=u'银行账号')
 
     state = fields.Selection([
         ('draft', u'新建'),

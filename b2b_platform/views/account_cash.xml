@@ -40,7 +40,9 @@
                                 <field name="merchant_id" readonly="True"/>
                                 <field name="date" attrs="{'readonly':[('state','!=','draft')]}"/>
                                 <!--<field name="file_name"/>-->
-                                <field name="proof" attrs="{'readonly':[('state','!=','draft')]}"/>
+                                <field name="proof" attrs="{'invisible':[('state','=','draft')],
+                                    'readonly':[('state','!=','paltform_confirm')],
+                                    'required': [('state', '=', 'paltform_confirm')]}"/>
                             </group>
                             <group>
                                 <field name="available_cash" readonly="1"
@@ -61,7 +63,7 @@
         </record>
 
         <record id="account_cash_act" model="ir.actions.act_window">
-            <field name="name">账户充值</field>
+            <field name="name">提现</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">account.cash</field>
             <field name="view_type">form</field>

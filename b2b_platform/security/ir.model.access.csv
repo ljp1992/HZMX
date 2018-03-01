@@ -7,7 +7,7 @@ res_bank_operator_id,res_bank,base.model_res_bank,b2b_platform.b2b_shop_operator
 res_bank_merchant_id,res_bank,base.model_res_bank,b2b_platform.b2b_seller,1,1,1,1
 res_bank_manager_id,res_bank,base.model_res_bank,b2b_platform.b2b_manager,1,1,1,1
 
-bank_account_operator_id,bank_account,model_bank_account,b2b_platform.b2b_shop_operator,1,0,0,0
+bank_account_operator_id,bank_account,model_bank_account,b2b_platform.b2b_shop_operator,1,1,1,1
 bank_account_merchant_id,bank_account,model_bank_account,b2b_platform.b2b_seller,1,1,1,1
 bank_account_manager_id,bank_account,model_bank_account,b2b_platform.b2b_manager,1,1,1,1
 

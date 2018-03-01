@@ -12,6 +12,17 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
+        <record id="res_bank_operator_rule2" model="ir.rule">
+            <field name="name">res_bank_operator_rule</field>
+            <field name="model_id" ref="model_res_bank"/>
+            <field name="domain_force">[('platform', '=', True)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
         <record id="res_bank_merchant_rule" model="ir.rule">
             <field name="name">res_bank_merchant_rule</field>
             <field name="model_id" ref="model_res_bank"/>
@@ -22,16 +33,17 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
-        <record id="res_bank_manager_rule" model="ir.rule">
-            <field name="name">res_bank_manager_rule</field>
+        <record id="res_bank_merchant_rule2" model="ir.rule">
+            <field name="name">res_bank_merchant_rule</field>
             <field name="model_id" ref="model_res_bank"/>
-            <field name="domain_force">[]</field>
-            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="domain_force">[('platform', '=', True)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
             <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
         </record>
+
 		
 		<!-- bank_account -->
 		<record id="bank_account_operator_rule" model="ir.rule">
@@ -44,6 +56,17 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
+        <record id="bank_account_operator_rule2" model="ir.rule">
+            <field name="name">bank_account_operator_rule</field>
+            <field name="model_id" ref="model_bank_account"/>
+            <field name="domain_force">[('platform', '=', True)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_shop_operator')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
         <record id="bank_account_merchant_rule" model="ir.rule">
             <field name="name">bank_account_merchant_rule</field>
             <field name="model_id" ref="model_bank_account"/>
@@ -54,16 +77,26 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
-        <record id="bank_account_manager_rule" model="ir.rule">
-            <field name="name">bank_account_manager_rule</field>
+        <record id="bank_account_merchant_rule2" model="ir.rule">
+            <field name="name">bank_account_merchant_rule</field>
             <field name="model_id" ref="model_bank_account"/>
-            <field name="domain_force">[]</field>
-            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="domain_force">[('platform', '=', True)]</field>
+            <field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_seller')])]"/>
             <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
         </record>
+        <!--<record id="bank_account_manager_rule" model="ir.rule">-->
+            <!--<field name="name">bank_account_manager_rule</field>-->
+            <!--<field name="model_id" ref="model_bank_account"/>-->
+            <!--<field name="domain_force">[]</field>-->
+            <!--<field name="groups" eval="[(6, False, [ref('b2b_platform.b2b_manager')])]"/>-->
+            <!--<field name="perm_read" eval="True"/>-->
+            <!--<field name="perm_write" eval="True"/>-->
+            <!--<field name="perm_create" eval="True"/>-->
+            <!--<field name="perm_unlink" eval="True"/>-->
+        <!--</record>-->
 		
 		<!-- account_charge -->
 		<record id="account_charge_operator_rule" model="ir.rule">
