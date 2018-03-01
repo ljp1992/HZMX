@@ -12,10 +12,11 @@
 					<sheet>
 						<group>
 							<group>
-								<field name="template_id" required="True" options="{'no_create':True}"/>
+								<field name="shop_id" required="True" options="{'no_create':True}"/>
 							</group>
                             <group>
-								<field name="shop_id" required="True" options="{'no_create':True}"/>
+								<field name="template_id" domain="[('shop_id', '=', shop_id)]" required="True"
+									   options="{'no_create':True}"/>
 							</group>
 						</group>
                         <group>

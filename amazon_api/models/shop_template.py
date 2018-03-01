@@ -21,5 +21,6 @@ class ShopTemplate(models.Model):
     browse_node_id = fields.Many2one('amazon.browse.node', string=u'商品类别')
     categ_id = fields.Many2one('amazon.category', string=u'亚马逊模板')
     brand_id = fields.Many2one('product.brand', string=u'品牌')
+    shop_id = fields.Many2one('amazon.shop', string=u'店铺')
 
 
