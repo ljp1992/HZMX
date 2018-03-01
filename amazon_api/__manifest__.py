@@ -41,6 +41,7 @@
         'views/stock_picking.xml',
         'views/stock_location.xml',
         'views/logistics_company.xml',
+        'views/stock_pack_operation.xml',
         'wizard_views/shop_template_wizard.xml',
         'wizard_views/amazon_wizard.xml',
         'wizard_views/stock_adjust.xml',
