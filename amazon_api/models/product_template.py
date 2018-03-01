@@ -39,7 +39,7 @@ class ProductTemplate(models.Model):
     seller_price = fields.Monetary(inverse='_set_shop_price_cny', string=u'经销商价格')
     shop_price_cny = fields.Monetary(inverse='_set_tmpl_state', string=u'店铺价格')
     shop_price = fields.Float(compute='_compute_shop_price',  store=False, readonly=True, string=u'店铺价格')
-    declare_price = fields.Monetary(string=u'申报单价')
+    declare_price = fields.Float(string=u'申报单价')
     pack_weight = fields.Float(string=u'包装重量')
     freight = fields.Float(compute='_compute_freight', string=u'运费')
 

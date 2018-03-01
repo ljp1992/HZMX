@@ -38,8 +38,8 @@
                                 <field name="upc"/>
                             </group>
 							<group>
-								<field name="volume"/>
-                                <field name="weight"/>
+								<field name="volume" string="体积(m³)"/>
+                                <field name="weight" string="重量(kg)"/>
                             </group>
                         </group>
 						<group>
