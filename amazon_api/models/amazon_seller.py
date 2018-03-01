@@ -66,11 +66,14 @@ class AmazonSeller(models.Model):
                     raise UserError(str(e))
                 next_token = result.parsed.get('NextToken', {}).get('value')
             marketplace_ids = []
+            print marketplaces
             for marketplace in marketplaces:
+                print marketplace
                 for item in marketplace.get('ListMarketplaces', {}).get('Marketplace', []):
                     marketplace_id = item.get('MarketplaceId', {}).get('value', '')
                     marketplace = marketplace_obj.search([('marketplace_id', '=', marketplace_id)])
                     if not marketplace:
+                        continue
                         raise UserError(u'Not found marketplace_id %s in amazon.marketplace model!' % marketplace_id)
                     if marketplace:
                         marketplace_ids.append(marketplace.id)

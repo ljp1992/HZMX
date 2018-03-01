@@ -12,14 +12,13 @@ class StockLocation(models.Model):
         # print 'name_search stock.location'
         args = args or []
         if name:
-            args += ('name', operator, name)
+            args += [('name', operator, name)]
         result = self.search(args, limit=limit)
         return result.name_get()
 
 
     @api.model
     def search(self, args, offset=0, limit=None, order=None, count=False):
-        # print args,offset,limit,order,count,self.env.context
         context = self.env.context or {}
         if context.get('view_own_data'):
             if self.user_has_groups('b2b_platform.b2b_shop_operator'):

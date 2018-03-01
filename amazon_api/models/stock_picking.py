@@ -23,7 +23,7 @@ class StockPicking(models.Model):
 
     delivery_date = fields.Datetime(string=u'发货时间')
 
-    own_data = fields.Boolean(search='_own_data_search', store=False)
+    # own_data = fields.Boolean(search='_own_data_search', store=False)
 
     merchant_id = fields.Many2one('res.users', string=u'商户')
     country_id = fields.Many2one('amazon.country', string=u'国家')
@@ -34,7 +34,18 @@ class StockPicking(models.Model):
 
     b2b_state = fields.Selection([
         ('wait_delivery', u'代发货'),
-        ('done', u'已发货')], default='wait_delivery', string=u'发货状态')
+        ('done', u'已发货'),
+    ], default='wait_delivery', string=u'发货状态')
+    b2b_type = fields.Selection([
+        ('incoming', u'入库'),
+        ('outgoing', u'出库'),
+        ('internal', u'调拨')
+    ], default='outgoing', string=u'类型')
+    transfer_state = fields.Selection([
+        ('draft', u'新建'),
+        ('out_warehouse', u'已出库'),
+        ('done', u'完成'),
+    ], default='draft', string=u'调拨单状态')
 
     def _hide_delivery_button(self):
         for record in self:
@@ -44,14 +55,36 @@ class StockPicking(models.Model):
                 record.hide_delivery_button = True
 
     @api.model
-    def _own_data_search(self, operator, value):
-        user = self.env.user
-        if user.user_type == 'operator':
-            return [('id', '=', 0)]
-        elif user.user_type == 'merchant':
-            return [('partner_id', '=', user.partner_id.id)]
-        else:
-            return []
+    def name_search(self, name, args=None, operator='ilike', limit=100):
+        args = args or []
+        if name:
+            args += [('name', operator, name)]
+        result = self.search(args, limit=limit)
+        return result.name_get()
+
+    @api.model
+    def search(self, args, offset=0, limit=None, order=None, count=False):
+        context = self.env.context or {}
+        if context.get('view_own_picking'):
+            if self.user_has_groups('b2b_platform.b2b_shop_operator'):
+                args += [('partner_id', '=', self.env.user.merchant_id.partner_id.id)]
+            elif self.user_has_groups('b2b_platform.b2b_seller'):
+                args += [('partner_id', '=', self.env.user.partner_id.id)]
+            elif self.user_has_groups('b2b_platform.b2b_manager'):
+                pass
+            else:
+                pass
+        return super(StockPicking, self).search(args, offset, limit, order, count=count)
+
+    # @api.model
+    # def _own_data_search(self, operator, value):
+    #     user = self.env.user
+    #     if user.user_type == 'operator':
+    #         return [('id', '=', 0)]
+    #     elif user.user_type == 'merchant':
+    #         return [('partner_id', '=', user.partner_id.id)]
+    #     else:
+    #         return []
 
     @api.multi
     def create_delivery_info(self):
@@ -83,25 +116,25 @@ class StockPicking(models.Model):
     #             args += [('shop_id', 'in', shop_ids)]
     #     return super(StockPicking, self).search(args, offset, limit, order, count=count)
 
-    @api.multi
-    def do_new_transfer(self):
-        self.ensure_one()
-        result = super(StockPicking, self).do_new_transfer()
-        self.create_delivery_info()
-        self.write({
-            'b2b_state': 'done',
-            'delivery_date': datetime.datetime.now(),
-        })
-        self.purchase_order_id.platform_purchase_state = 'done'
-        self.sale_order_id.sudo().b2b_invoice_ids.invoice_confirm()
-        self.purchase_order_id.sudo().b2b_invoice_ids.invoice_confirm()
-        done = True
-        for purchase in self.sale_order_id.purchase_orders:
-            if purchase.platform_purchase_state != 'done':
-                done = False
-        if done:
-            self.sale_order_id.b2b_state = 'delivered'
-        return result
+    # @api.multi
+    # def do_new_transfer(self):
+    #     self.ensure_one()
+    #     result = super(StockPicking, self).do_new_transfer()
+    #     self.create_delivery_info()
+    #     self.write({
+    #         'b2b_state': 'done',
+    #         'delivery_date': datetime.datetime.now(),
+    #     })
+    #     self.purchase_order_id.platform_purchase_state = 'done'
+    #     self.sale_order_id.sudo().b2b_invoice_ids.invoice_confirm()
+    #     self.purchase_order_id.sudo().b2b_invoice_ids.invoice_confirm()
+    #     done = True
+    #     for purchase in self.sale_order_id.purchase_orders:
+    #         if purchase.platform_purchase_state != 'done':
+    #             done = False
+    #     if done:
+    #         self.sale_order_id.b2b_state = 'delivered'
+    #     return result
 
     @api.multi
     def upload_delivery_info(self):

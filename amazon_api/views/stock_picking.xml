@@ -78,23 +78,21 @@
             <field name="res_model">stock.picking</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
-            <field name="domain">[('own_data', '=', True), ('b2b_state', '=', 'wait_delivery')]</field>
+            <field name="domain">[('b2b_state', '=', 'wait_delivery')]</field>
+            <field name="context">{'view_own_picking': True}</field>
         </record>
-
         <record id="stock_picking_act_tree" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="stock_picking_tree"/>
             <field name="act_window_id" ref="stock_picking_act"/>
         </record>
-
         <record id="stock_picking_act_form" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
             <field name="view_id" ref="stock_picking_form"/>
             <field name="act_window_id" ref="stock_picking_act"/>
         </record>
-
         <menuitem id="stock_picking_menu" name="待发货" parent="b2b_platform.delivery_manage_menu" sequence="1"
                   action="stock_picking_act"/>
 
@@ -103,24 +101,86 @@
             <field name="res_model">stock.picking</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
-            <field name="domain">[('own_data', '=', True), ('b2b_state', '=', 'done')]</field>
+            <field name="domain">[('b2b_state', '=', 'done')]</field>
+            <field name="context">{'view_own_picking': True}</field>
         </record>
-
         <record id="stock_picking_act_tree2" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="stock_picking_tree"/>
             <field name="act_window_id" ref="stock_picking_act2"/>
         </record>
-
         <record id="stock_picking_act_form2" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
             <field name="view_id" ref="stock_picking_form"/>
             <field name="act_window_id" ref="stock_picking_act2"/>
         </record>
-
         <menuitem id="stock_picking_menu2" name="已发货" parent="b2b_platform.delivery_manage_menu" sequence="2"
                   action="stock_picking_act2"/>
+
+        <record id="stock_picking_form3" model="ir.ui.view">
+			<field name="name">stock_picking_form3</field>
+			<field name="model">stock.picking</field>
+			<field name="arch" type="xml">
+				<form>
+                    <field name="state" invisible="1"/>
+                    <field name="transfer_state" invisible="1"/>
+                    <header>
+                        <button name="do_new_transfer" string="调拨" type="object" class="oe_highlight"/>
+                        <field name="transfer_state" widget="statusbar"
+                               statusbar_visible="draft,out_warehouse,done"/>
+                    </header>
+					<sheet>
+                        <group>
+                            <group>
+                                <field name="partner_id"/>
+                                <field name="location_id"/>
+                                <field name="location_dest_id"/>
+                                <field name="move_type"/>
+                                <field name="picking_type_id"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="明细">
+                                <field name="pack_operation_product_ids">
+                                    <tree editable="bottom">
+                                        <field name="product_id"/>
+                                        <field name="product_uom_id"/>
+                                        <field name="location_id"/>
+                                        <field name="location_dest_id"/>
+                                        <field name="product_qty"/>
+                                        <field name="qty_done"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+				</form>
+			</field>
+		</record>
+
+        <record id="stock_picking_act3" model="ir.actions.act_window">
+            <field name="name">调拨单</field>
+            <field name="res_model">stock.picking</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_type">form</field>
+            <field name="domain">[]</field>
+            <field name="context">{'default_picking_type_id': 5, 'b2b_type': 'internal'}</field>
+        </record>
+        <record id="stock_picking_act_tree3" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="stock_picking_tree"/>
+            <field name="act_window_id" ref="stock_picking_act3"/>
+        </record>
+        <record id="stock_picking_act_form3" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="stock_picking_form3"/>
+            <field name="act_window_id" ref="stock_picking_act3"/>
+        </record>
+        <menuitem id="stock_picking_menu3" name="调拨单" parent="b2b_platform.stock_manage_menu" sequence="3"
+                  action="stock_picking_act3"/>
 	</data>
 </odoo>

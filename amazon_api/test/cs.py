@@ -1,25 +1,9 @@
 # -*- coding: utf-8 -*-
 
 a = [
-    ['red','blue'],
-    ['L','M'],
-    [u'皮质',u'非皮质'],
-]
-m = {}.fromkeys(range(len(a)), 0)
-# print m
-b = []
-result = []
-for i in range(8):
-    item = set()
-    for row in range(len(a)):
-        print m
-        item.add(a[row][m[row]])
-        if row + 1 == len(a):
-            m[row] += 1
-            if m[row] + 1 > len(a[row]):
-                m[row] = 0
-                if row >= 1:
-                    m[row-1] += 1
-    result.append(item)
-print result
+    {
+        'ListParticipations': {'Participation': [{'HasSellerSuspendedListings': {'value': 'No'}, 'SellerId': {'value': 'AU3KSTW4DW2XE'}, 'value': '\n        ', 'MarketplaceId': {'value': 'A1MQXOICRS2Z7M'}}, {'HasSellerSuspendedListings': {'value': 'No'}, 'SellerId': {'value': 'AU3KSTW4DW2XE'}, 'value': '\n        ', 'MarketplaceId': {'value': 'A2EUQ1WTGCTBG2'}}, {'HasSellerSuspendedListings': {'value': 'No'}, 'SellerId': {'value': 'AU3KSTW4DW2XE'}, 'value': '\n        ', 'MarketplaceId': {'value': 'A2ZV50J4W1RKNI'}}], 'value': '\n      '}, 'ListMarketplaces': {'Marketplace': [{'DefaultCountryCode': {'value': 'CA'}, 'Name': {'value': 'SI CA Prod Marketplace'}, 'DomainName': {'value': 'siprod.stores.amazon.ca'}, 'DefaultLanguageCode': {'value': 'en_CA'}, 'value': '\n        ', 'DefaultCurrencyCode': {'value': 'CAD'}, 'MarketplaceId': {'value': 'A1MQXOICRS2Z7M'}}, {'DefaultCountryCode': {'value': 'CA'}, 'Name': {'value': 'Amazon.ca'}, 'DomainName': {'value': 'www.amazon.ca'}, 'DefaultLanguageCode': {'value': 'en_CA'}, 'value': '\n        ', 'DefaultCurrencyCode': {'value': 'CAD'}, 'MarketplaceId': {'value': 'A2EUQ1WTGCTBG2'}}, {'DefaultCountryCode': {'value': 'US'}, 'Name': {'value': 'Non-Amazon'}, 'DomainName': {'value': 'sim1.stores.amazon.com'}, 'DefaultLanguageCode': {'value': 'en_US'}, 'value': '\n        ', 'DefaultCurrencyCode': {'value': 'USD'}, 'MarketplaceId': {'value': 'A2ZV50J4W1RKNI'}}], 'value': '\n      '}, 'value': '\n    '}]
 
+for item in a:
+    for it in item.get('ListMarketplaces', {}).get('Marketplace', []):
+        print it
