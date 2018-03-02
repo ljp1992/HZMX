@@ -88,7 +88,15 @@
             <field name="act_window_id" ref="product_attribute_act"/>
         </record>
 
-        <menuitem id="product_attribute_menu" name="属性" parent="b2b_platform.base_data_menu" sequence="4"
-                  action="amazon_api.product_attribute_act" groups="b2b_platform.b2b_manager"/>
+        <!--<menuitem id="product_attribute_menu" name="属性" parent="b2b_platform.base_data_menu" sequence="4"-->
+                  <!--action="amazon_api.product_attribute_act"/>-->
+
+		<record model="ir.ui.menu" id="product_attribute_menu">
+            <field name="name" >属性</field>
+			<field name="parent_id" ref="b2b_platform.base_data_menu"/>
+			<field name="action" ref="amazon_api.product_attribute_act"/>
+            <field name="groups_id" eval="[(6,0,[])]"/>
+            <field name="sequence">4</field>
+        </record>
 	</data>
 </odoo>
