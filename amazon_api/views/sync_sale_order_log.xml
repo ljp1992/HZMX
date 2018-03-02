@@ -29,7 +29,7 @@
 							</group>
 						</group>
                         <notebook>
-                            <page string="错误明细">
+                            <page string="明细">
                                 <field name="order_line">
                                     <tree editable="bottom">
                                         <field name="order_num"/>

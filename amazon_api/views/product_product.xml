@@ -59,13 +59,14 @@
                         </group>
 						<notebook>
 							<page string="图片">
-                                <field name="main_images">
+								<field name="product_tmpl_id" invisible="1"/>
+                                <field name="main_images" domain="[('product_tmpl_id','=',product_tmpl_id)]">
                                     <tree>
                                         <field name="name"/>
                                         <field name="url" widget="image" string="主图"/>
                                     </tree>
                                 </field>
-                                <field name="other_images">
+                                <field name="other_images" domain="[('product_tmpl_id','=',product_tmpl_id)]">
                                     <tree>
                                         <field name="name"/>
                                         <field name="url" widget="image" string="副图"/>

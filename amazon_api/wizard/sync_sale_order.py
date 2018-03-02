@@ -75,7 +75,6 @@ class SyncSaleOrder(models.TransientModel):
             orders = result.parsed.get('Orders', {}).get('Order', {})
             if type(orders) is not list:
                 orders = [orders]
-            # print len(orders)
             for order in orders:
                 e_order = order.get('AmazonOrderId', {}).get('value', '')
                 if sale_order_obj.search([('e_order', '=', e_order)]):

@@ -150,6 +150,7 @@ class SaleOrder(models.Model):
                 if line.own_product:
                     order.hide_myself_delivery_button = False
 
+
     @api.multi
     def false_delivery(self):
         '''假发货'''
@@ -163,6 +164,30 @@ class SaleOrder(models.Model):
             'views': [(self.env.ref('amazon_api.false_delivery_wizard').id, 'form')],
             'target': 'new',
         }
+
+    @api.multi
+    def b2b_action_confirm(self):
+        self.ensure_one()
+        # stock_picking_obj = self.env['stock.picking']
+        # location_dest_id = self.env.ref('stock.stock_location_customers').id
+        # delivery_info = {
+        #     'partner_id': self.partner_id.id,
+        #     'merchant_id': self.env.user.merchant_id.id or self.env.user.id,
+        #     'location_id': location_id,
+        #     'location_dest_id': location_dest_id,
+        #     'picking_type_id': 3,
+        #     'sale_order_id': self.id,
+        #     'move_lines': [],
+        # }
+        # for pur_line in self.order_line:
+        #     delivery_info['move_lines'].append((0, 0, {
+        #         'product_id': pur_line.product_id.id,
+        #         'name': pur_line.product_id.name,
+        #         'product_uom_qty': pur_line.product_qty,
+        #         'product_uom': pur_line.product_uom.id,
+        #     }))
+        # delivery = stock_picking_obj.create(delivery_info)
+        # return
 
     # @api.multi
     # def _get_own_data(self):
@@ -211,14 +236,15 @@ class SaleOrder(models.Model):
             if self.user_has_groups('b2b_platform.b2b_shop_operator'):
                 args += [('shop_id', 'in', self.env.user.shop_ids.ids)]
             elif self.user_has_groups('b2b_platform.b2b_seller'):
-                shop_ids = []
-                for operator in self.env.user.operator_ids:
-                    shop_ids += operator.shop_ids.ids
+                seller_ids = self.env['amazon.seller'].search([('merchant_id', '=', self.env.user.id)]).ids
+                shop_ids = self.env['amazon.shop'].search([('seller_id', 'in', seller_ids)]).ids
+                print shop_ids
                 args += [('shop_id', 'in', shop_ids)]
             elif self.user_has_groups('b2b_platform.b2b_manager'):
                 pass
             else:
                 pass
+        print args
         return super(SaleOrder, self).search(args, offset, limit, order, count=count)
 
     @api.multi
