@@ -27,9 +27,9 @@ class AmazonWizard(models.TransientModel):
             seller = shop.seller_id
             marketplaceids = [shop.marketplace_id.marketplace_id]
             AmazonOrderID = order.e_order
-            delivery_time = self.delivery_time - datetime.timedelta(minutes=5)
-            FulfillmentDate = datetime.datetime.strptime(delivery_time, '%Y-%m-%d %H:%M:%S').\
-                                  strftime('%Y-%m-%dT%H:%M:%S') + '-00:00'
+            delivery_time = datetime.datetime.strptime(self.delivery_time, '%Y-%m-%d %H:%M:%S') - \
+                            datetime.timedelta(minutes=5)
+            FulfillmentDate = delivery_time.strftime('%Y-%m-%dT%H:%M:%S') + '-00:00'
             message_id = 0
             message_info = ''
             for line in order.order_line:
