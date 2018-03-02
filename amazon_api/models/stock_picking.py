@@ -138,6 +138,20 @@ class StockPicking(models.Model):
                 'target': 'new',
             }
         result = super(StockPicking, self).do_new_transfer()
+        self.create_delivery_info()
+        self.write({
+            'b2b_state': 'done',
+            'delivery_date': datetime.datetime.now(),
+        })
+        self.purchase_order_id.platform_purchase_state = 'done'
+        self.sale_order_id.sudo().b2b_invoice_ids.invoice_confirm()
+        self.purchase_order_id.sudo().b2b_invoice_ids.invoice_confirm()
+        done = True
+        for purchase in self.sale_order_id.purchase_orders:
+            if purchase.platform_purchase_state != 'done':
+                done = False
+        if done:
+            self.sale_order_id.b2b_state = 'delivered'
         return result
 
     @api.multi
@@ -147,26 +161,6 @@ class StockPicking(models.Model):
                 record.pack_operation_product_ids.unlink()
         result = super(StockPicking, self).unlink()
         return result
-
-    # @api.multi
-    # def do_new_transfer(self):
-    #     self.ensure_one()
-    #     result = super(StockPicking, self).do_new_transfer()
-    #     self.create_delivery_info()
-    #     self.write({
-    #         'b2b_state': 'done',
-    #         'delivery_date': datetime.datetime.now(),
-    #     })
-    #     self.purchase_order_id.platform_purchase_state = 'done'
-    #     self.sale_order_id.sudo().b2b_invoice_ids.invoice_confirm()
-    #     self.purchase_order_id.sudo().b2b_invoice_ids.invoice_confirm()
-    #     done = True
-    #     for purchase in self.sale_order_id.purchase_orders:
-    #         if purchase.platform_purchase_state != 'done':
-    #             done = False
-    #     if done:
-    #         self.sale_order_id.b2b_state = 'delivered'
-    #     return result
 
     @api.multi
     def upload_delivery_info(self):

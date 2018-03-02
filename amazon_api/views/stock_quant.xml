@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="stock_quant_tree" model="ir.ui.view">
+			<field name="name">stock_quant_tree</field>
+			<field name="model">stock.quant</field>
+			<field name="arch" type="xml">
+				<tree create="0" delete="0">
+					<field name="product_id"/>
+                    <field name="qty"/>
+                    <field name="location_id"/>
+				</tree>
+			</field>
+		</record>
+
+		<!--<record id="stock_quant_form" model="ir.ui.view">-->
+			<!--<field name="name">stock_quant_form</field>-->
+			<!--<field name="model">stock.quant</field>-->
+			<!--<field name="arch" type="xml">-->
+				<!--<form create="0" edit="0" delete="0">-->
+					<!--<sheet>-->
+						<!--<group>-->
+							<!--<group>-->
+								<!--<field name="name"/>-->
+								<!--<field name="partner_id" required="1" string="所属商户" options="{'no_create': True}"/>-->
+							<!--</group>-->
+							<!--<group>-->
+								<!--<field name="quant_id" options="{'no_create': True}"/>-->
+							<!--</group>-->
+						<!--</group>-->
+					<!--</sheet>-->
+				<!--</form>-->
+			<!--</field>-->
+		<!--</record>-->
+
+		<record id="stock_quant_search" model="ir.ui.view">
+			<field name="name">stock_quant_search</field>
+			<field name="model">stock.quant</field>
+			<field name="arch" type="xml">
+				<search string="">
+					<field name="name"/>
+                    <group>
+                        <filter string="库位" name="locationgroup" context="{'group_by': 'location_id'}"/>
+                        <filter string="产品" name="productgroup" context="{'group_by': 'product_id'}"/>
+                   </group>
+				</search>
+			</field>
+		</record>
+
+        <record id="stock_quant_act" model="ir.actions.act_window">
+			<field name="name">实时库存</field>
+			<field name="res_model">stock.quant</field>
+            <field name="view_mode">tree</field>
+			<field name="view_type">form</field>
+			<field name="search_view_id" ref="stock_quant_search"/>
+			<field name="context">{'view_own_quant': True, 'search_default_locationgroup': 1}</field>
+		</record>
+
+        <record id="stock_quant_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="stock_quant_tree"/>
+            <field name="act_window_id" ref="stock_quant_act"/>
+        </record>
+
+		<!--<record id="stock_quant_act_form" model="ir.actions.act_window.view">-->
+            <!--<field name="sequence" eval="1"/>-->
+            <!--<field name="view_mode">form</field>-->
+            <!--<field name="view_id" ref="stock_quant_form"/>-->
+            <!--<field name="act_window_id" ref="stock_quant_act"/>-->
+        <!--</record>-->
+
+        <menuitem id="stock_quant_menu" name="实时库存" parent="b2b_platform.stock_manage_menu" sequence="2"
+                  action="stock_quant_act"/>
+	</data>
+</odoo>

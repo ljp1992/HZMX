@@ -21,7 +21,7 @@ class SubmissionHistory(models.Model):
     feed_time = fields.Datetime(string=u'提交时间')
     return_time = fields.Datetime(string=u'获得结果时间')
 
-    shop_id = fields.Many2one('amazon.shop')
+    shop_id = fields.Many2one('amazon.shop', string=u'店铺')
     merchant_id = fields.Many2one('res.users', default=lambda self: self.env.user.merchant_id or self.env.user)
 
     state = fields.Selection([
@@ -35,7 +35,6 @@ class SubmissionHistory(models.Model):
         ('price_update', u'价格'),
         ('stock_update', u'库存'),
         ('delivery_upload', u'发货信息'),], string=u'上传信息')
-
 
     @api.multi
     def get_result_xml(self):
@@ -57,34 +56,38 @@ class SubmissionHistory(models.Model):
         data = DictWrapper(result, '').parsed
         error_info = data.get('Message', {}).get('ProcessingReport', {}).get('ProcessingSummary', {})\
             .get('MessagesWithError', {}).get('value', '')
+        record = self.env[self.model].search([('id', '=', self.record_id)], limit=1)
         if error_info == '0':
             self.state = 'success'
-            self.env[self.model].browse(self.record_id).write({
+            if record:
+                record.write({
                 self.type: 'done'
             })
         else:
             self.state = 'fail'
-            self.env[self.model].browse(self.record_id).write({
+            if record:
+                record.write({
                 self.type: 'failed'
             })
 
     @api.model
     def get_feed_result_bacdstage(self):
         '''后台执行获取上传结果'''
-        records = self.env['submission.history'].search([('result_xml', '=', False)])
+        records = self.env['submission.history'].search([('state', '=', 'uploading')])
         for record in records:
             record.get_result_xml()
 
-    # @api.model
-    # def search(self, args, offset=0, limit=None, order=None, count=False):
-    #     user = self.env.user
-    #     shop_obj = self.env['amazon.shop']
-    #     if user.user_type == 'operator':
-    #         shops = shop_obj.search([('operator_id', '=', user.id)])
-    #         args += [('shop_id', 'in', shops.ids)]
-    #     elif user.user_type == 'merchant':
-    #         shops = shop_obj.search([('merchant_id', '=', user.id)])
-    #         args += [('shop_id', 'in', shops.ids)]
-    #     return super(SubmissionHistory, self).search(args, offset, limit, order, count=count)
+    @api.model
+    def search(self, args, offset=0, limit=None, order=None, count=False):
+        print args
+        # user = self.env.user
+        # shop_obj = self.env['amazon.shop']
+        # if user.user_type == 'operator':
+        #     shops = shop_obj.search([('operator_id', '=', user.id)])
+        #     args += [('shop_id', 'in', shops.ids)]
+        # elif user.user_type == 'merchant':
+        #     shops = shop_obj.search([('merchant_id', '=', user.id)])
+        #     args += [('shop_id', 'in', shops.ids)]
+        return super(SubmissionHistory, self).search(args, offset, limit, order, count=count)
 
 

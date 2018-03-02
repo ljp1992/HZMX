@@ -9,5 +9,17 @@
             <field name="function">initial_data</field>
             <field name="args" eval="False"/>
         </record>
+
+        <record id="get_feed_result" model="ir.cron">
+            <field name="name">获取变体、图片、价格、库存、发货信息的上传结果</field>
+            <field name="user_id">1</field>
+            <field name="active" eval="True"/>
+            <field name="model">submission.history</field>
+            <field name="function">get_feed_result_bacdstage</field>
+            <field name="interval_number">3</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="args" eval="False"/>
+        </record>
     </data>
 </odoo>
