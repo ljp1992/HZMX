@@ -142,7 +142,24 @@ class ProductTemplate(models.Model):
             if tmpl.amazon_categ_id.parent_id:
                 theme_ids += theme_obj.search([('categ_id', '=', tmpl.amazon_categ_id.parent_id.id)]).ids
             if theme_ids:
-                tmpl.variation_theme_id = theme_ids[0]
+                if len(theme_ids) > 1:
+                    theme_obj = self.env['variation.theme']
+                    result = []
+                    for theme in theme_obj.browse(theme_ids):
+                        i = 0
+                        for line in tmpl.attribute_line_ids:
+                            if line.attribute_id.english_name in theme.name:
+                                i += 1
+                        result.append((i, theme))
+                    result = sorted(result, key=lambda r: r[0], reverse=True)
+                    if result[0][0] == result[1][0]:
+                        if len(result[0][1].name) < len(result[1][1].name):
+                            tmpl.variation_theme_id = result[0][1].id
+                        else:
+                            tmpl.variation_theme_id = result[1][1].id
+                else:
+                    tmpl.variation_theme_id = theme_ids[0]
+
 
     @api.multi
     def _set_tmpl_state(self):
@@ -154,6 +171,10 @@ class ProductTemplate(models.Model):
         context = self.env.context
         templates = self.env['product.template'].browse(context.get('active_ids'))
         for template in templates:
+            if not template.amazon_categ_id:
+                raise UserError(u'产品%s模板信息为空' % (template.name))
+            if not template.variation_theme_id:
+                raise UserError(u'产品%svariation_theme为空!' % (template.name))
             template.upload_variant_message()
             template.write({
                 'product_update': 'updating',

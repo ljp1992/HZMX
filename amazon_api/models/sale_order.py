@@ -196,20 +196,30 @@ class SaleOrder(models.Model):
         else:
             return []
 
-    # @api.model
-    # def search(self, args, offset=0, limit=None, order=None, count=False):
-    #     context = self.env.context
-    #     if context.get('view_own_data'):
-    #         user = self.env.user
-    #         if user.user_type == 'operator':
-    #             shop_ids = user.shop_ids.ids
-    #             args += [('shop_id', 'in', shop_ids)]
-    #         elif user.user_type == 'merchant':
-    #             shop_ids = []
-    #             for operator in user.operator_ids:
-    #                 shop_ids += operator.shop_ids.ids
-    #             args += [('shop_id', 'in', shop_ids)]
-    #     return super(SaleOrder, self).search(args, offset, limit, order, count=count)
+    @api.model
+    def name_search(self, name, args=None, operator='ilike', limit=100):
+        args = args or []
+        if name:
+            args += [('name', operator, name)]
+        result = self.search(args, limit=limit)
+        return result.name_get()
+
+    @api.model
+    def search(self, args, offset=0, limit=None, order=None, count=False):
+        context = self.env.context or {}
+        if context.get('view_own_sale_order'):
+            if self.user_has_groups('b2b_platform.b2b_shop_operator'):
+                args += [('shop_id', 'in', self.env.user.shop_ids.ids)]
+            elif self.user_has_groups('b2b_platform.b2b_seller'):
+                shop_ids = []
+                for operator in self.env.user.operator_ids:
+                    shop_ids += operator.shop_ids.ids
+                args += [('shop_id', 'in', shop_ids)]
+            elif self.user_has_groups('b2b_platform.b2b_manager'):
+                pass
+            else:
+                pass
+        return super(SaleOrder, self).search(args, offset, limit, order, count=count)
 
     @api.multi
     def platform_purchase(self):
