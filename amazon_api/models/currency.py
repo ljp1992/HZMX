@@ -17,3 +17,15 @@ class AmazonCurrency(models.Model):
             currency = self.env['res.currency'].search([('name', '=', record.name)], limit=1)
             if currency:
                 record.rate = currency.rate
+
+class CurrencyRateUpdateService(models.Model):
+    _inherit = "currency.rate.update.service"
+
+    def refresh_currency(self):
+        result = super(CurrencyRateUpdateService, self).refresh_currency()
+        amazon_currencys = self.env['amazon.currency'].search([])
+        for amazon_currency in amazon_currencys:
+            currency = self.env['res.currency'].search([('name', '=', amazon_currency.name)], limit=1)
+            if currency:
+                amazon_currency.rate = currency.rate
+        return result

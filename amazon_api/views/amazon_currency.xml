@@ -8,7 +8,7 @@
 				<tree editable="top">
 					<field name="name"/>
                     <field name="symbol"/>
-                    <field name="rate"/>
+                    <field name="rate" readonly="0"/>
 				</tree>
 			</field>
 		</record>
