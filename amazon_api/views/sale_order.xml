@@ -27,6 +27,7 @@
                     <header>
                         <field name="hide_platform_purchase_button" invisible="1"/>
                         <field name="hide_myself_delivery_button" invisible="1"/>
+                        <button name="false_delivery" type="object" string="假发货" class="btn-primary"/>
                         <!--<button name="b2b_action_confirm" type="object" string="自有发货" class="btn-primary"/>-->
                         <!--<button name="action_confirm" string="自有发货" class="btn-primary o_sale_confirm"-->
                                 <!--attrs="{'invisible': [('hide_myself_delivery_button', '=', True)]}" type="object"/>-->

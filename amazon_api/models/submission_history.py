@@ -34,7 +34,7 @@ class SubmissionHistory(models.Model):
         ('image_update', u'图片'),
         ('price_update', u'价格'),
         ('stock_update', u'库存'),
-        ('delivery_upload', u'发货信息'),], string=u'上传信息')
+        ('delivery_upload_state', u'发货信息'),], string=u'上传信息')
 
     @api.multi
     def get_result_xml(self):

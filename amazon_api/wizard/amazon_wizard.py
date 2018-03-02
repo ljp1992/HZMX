@@ -76,5 +76,5 @@ class AmazonWizard(models.TransientModel):
                     'feed_time': datetime.datetime.now(),
                     'feed_xml': head,
                     'shop_id': shop.id,
-                    'type': 'delivery_upload'
+                    'type': 'delivery_upload_state'
                 })
