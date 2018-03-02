@@ -157,9 +157,10 @@ class ProductTemplate(models.Model):
                             tmpl.variation_theme_id = result[0][1].id
                         else:
                             tmpl.variation_theme_id = result[1][1].id
+                    else:
+                        tmpl.variation_theme_id = result[0][1].id
                 else:
                     tmpl.variation_theme_id = theme_ids[0]
-
 
     @api.multi
     def _set_tmpl_state(self):
