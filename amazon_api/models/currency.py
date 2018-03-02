@@ -9,7 +9,7 @@ class AmazonCurrency(models.Model):
     symbol = fields.Char(string=u'符号')
 
     # rate = fields.Float(digits=(16,6), string=u'当前汇率')
-    rate = fields.Float(compute='_compute_rate', digits=(16,6), store=False, string=u'当前汇率')
+    rate = fields.Float(compute='_compute_rate', digits=(16,6), store=True, string=u'当前汇率')
 
     @api.multi
     def _compute_rate(self):

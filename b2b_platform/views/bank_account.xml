@@ -35,7 +35,7 @@
             <field name="name" >银行账号</field>
 			<field name="parent_id" ref="account_configuration_menu"/>
 			<field name="action" ref="b2b_bank_account_act"/>
-            <field name="groups_id" eval="[(6,0,[ref('b2b_platform.b2b_seller'),ref('b2b_platform.b2b_manager')])]"/>
+            <field name="groups_id" eval="[(6,0,[])]"/>
             <field name="sequence">2</field>
         </record>
 	</data>

@@ -20,7 +20,12 @@
             <menuitem id="stock_manage_menu" parent="stock_menu_root" name="库存管理" sequence="5"/>
             <menuitem id="location_manage_menu" parent="stock_menu_root" name="库位管理" sequence="7"/>
 
-        <menuitem id="b2b_acount_root" name="财务" sequence="7"/>
+        <record model="ir.ui.menu" id="b2b_acount_root">
+            <field name="name" >财务</field>
+            <field name="groups_id" eval="[(6,0,[ref('b2b_platform.b2b_seller'),ref('b2b_platform.b2b_manager')])]"/>
+            <field name="sequence">7</field>
+        </record>
+        <!--<menuitem id="b2b_acount_root" name="财务" sequence="7"/>-->
             <menuitem id="account_management_menu" parent="b2b_acount_root" name="财务管理" sequence="1"/>
             <menuitem id="account_close_menu" parent="b2b_acount_root" name="结算管理" sequence="2"/>
             <menuitem id="account_configuration_menu" parent="b2b_acount_root" name="配置" sequence="3"/>
