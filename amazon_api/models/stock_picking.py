@@ -25,6 +25,7 @@ class StockPicking(models.Model):
 
     # own_data = fields.Boolean(search='_own_data_search', store=False)
 
+    partner_id = fields.Many2one(default=lambda self: self.env.user)
     merchant_id = fields.Many2one('res.users', string=u'商户')
     country_id = fields.Many2one('amazon.country', string=u'国家')
     logistics_company_id = fields.Many2one('logistics.company', string=u'物流公司')
@@ -46,6 +47,12 @@ class StockPicking(models.Model):
         ('out_warehouse', u'已出库'),
         ('done', u'完成'),
     ], default='draft', string=u'调拨单状态')
+
+    @api.onchange('location_id', 'location_dest_id')
+    def b2b_onchange_location_id(self):
+        for line in self.pack_operation_product_ids:
+            line.location_id = self.location_id.id
+            line.location_dest_id = self.location_dest_id.id
 
     def _hide_delivery_button(self):
         for record in self:
@@ -115,6 +122,31 @@ class StockPicking(models.Model):
     #                 shop_ids += operator.shop_ids.ids
     #             args += [('shop_id', 'in', shop_ids)]
     #     return super(StockPicking, self).search(args, offset, limit, order, count=count)
+
+    @api.multi
+    def do_new_transfer(self):
+        self.ensure_one()
+        print self.b2b_type
+        if self.b2b_type == 'internal':
+            return {
+                'name': u'调拨',
+                'type': 'ir.actions.act_window',
+                'res_model': 'stock.immediate.transfer',
+                'view_mode': 'form',
+                'view_type': 'form',
+                'views': [(self.env.ref('amazon_api.b2b_stock_immediate_transfer_form').id, 'form')],
+                'target': 'new',
+            }
+        result = super(StockPicking, self).do_new_transfer()
+        return result
+
+    @api.multi
+    def unlink(self):
+        for record in self:
+            if record.pack_operation_product_ids:
+                record.pack_operation_product_ids.unlink()
+        result = super(StockPicking, self).unlink()
+        return result
 
     # @api.multi
     # def do_new_transfer(self):

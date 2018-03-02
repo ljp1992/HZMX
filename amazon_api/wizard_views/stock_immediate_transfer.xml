@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<!--库存调整-->
+		<record id="b2b_stock_immediate_transfer_form" model="ir.ui.view">
+			<field name="name">stock_immediate_transfer_form</field>
+			<field name="model">stock.immediate.transfer</field>
+			<field name="arch" type="xml">
+				<form>
+                    <group>
+                        <p>
+                            提示：请仔细核查单据信息！
+                        </p>
+                    </group>
+                    <footer>
+                        <button name="process" string="调拨" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+			</field>
+		</record>
+	</data>
+</odoo>

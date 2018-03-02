@@ -46,6 +46,7 @@
         'wizard_views/amazon_wizard.xml',
         'wizard_views/stock_adjust.xml',
         'wizard_views/sync_sale_order.xml',
+        'wizard_views/stock_immediate_transfer.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

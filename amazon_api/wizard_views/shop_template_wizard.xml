@@ -21,7 +21,7 @@
 						</group>
                         <group>
                             <group>
-                                <field name="brand_id" options="{'no_create':True}"/>
+                                <field name="brand_id" options="{'no_create':True}" required="1"/>
 								<field name="manufacturer" readonly="1"/>
 							</group>
                             <group>

@@ -18,6 +18,7 @@ class ProductProduct(models.Model):
     shop_price_cny = fields.Monetary(string=u'店铺价格')
     shop_price = fields.Float(compute='_compute_shop_price', store=True, string=u'店铺价格')
 
+    merchant_id = fields.Many2one('res.users', related='product_tmpl_id.merchant_id', string=u'商户')
     platform_product_id = fields.Many2one('product.product', compute='_get_platform_product', store=False,
                                           string=u'平台产品')
     seller_product_id = fields.Many2one('product.product', compute='_get_merchant_product', store=False,
@@ -30,6 +31,11 @@ class ProductProduct(models.Model):
     main_images = fields.Many2many('product.image', 'product_main_image_rel', 'product_id', 'image_id', string=u'主图')
     other_images = fields.Many2many('product.image', 'product_other_image_rel', 'product_id', 'image_id',
                                     string=u'副图')
+    state = fields.Selection([
+        ('platform_unpublished', u'平台未发布'),
+        ('platform_published', u'平台已发布'),
+        ('seller', u'经销商产品'),
+        ('shop', u'店铺产品'), ], related='product_tmpl_id.state', string=u'状态')
 
     @api.multi
     def _get_platform_product(self):
@@ -106,6 +112,15 @@ class ProductProduct(models.Model):
             if len(product.main_images) > 1:
                 raise UserError(u'只能选择一张主图！')
 
+
+    @api.model
+    def name_search(self, name, args=None, operator='ilike', limit=100):
+        args = args or []
+        if name:
+            args += [('name', operator, name)]
+        result = self.search(args, limit=limit)
+        return result.name_get()
+
     @api.model
     def search(self, args, offset=0, limit=None, order=None, count=False):
         context = self.env.context
@@ -113,4 +128,13 @@ class ProductProduct(models.Model):
             user = self.env.user
             if user.user_type == 'merchant':
                 args += [('merchant_id', '=', user.id)]
+        if context.get('view_own_published_product'):
+            if self.user_has_groups('b2b_platform.b2b_shop_operator'):
+                args += [('state', '=', 'platform_published'), ('merchant_id', '=', self.env.user.merchant_id.id)]
+            elif self.user_has_groups('b2b_platform.b2b_seller'):
+                args += [('state', '=', 'platform_published'), ('merchant_id', '=', self.env.user.id)]
+            elif self.user_has_groups('b2b_platform.b2b_manager'):
+                pass
+            else:
+                pass
         return super(ProductProduct, self).search(args, offset, limit, order, count=count)

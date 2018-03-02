@@ -32,7 +32,7 @@
                   <!--action="b2b_platform.b2b_res_bank_act"/>-->
 		<record model="ir.ui.menu" id="b2b_res_bank_menu">
             <field name="name" >银行</field>
-			<field name="parent" ref="account_configuration_menu"/>
+			<field name="parent_id" ref="account_configuration_menu"/>
 			<field name="action" ref="b2b_res_bank_act"/>
             <field name="groups_id" eval="[(6,0,[])]"/>
             <field name="sequence">1</field>

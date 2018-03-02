@@ -35,3 +35,4 @@ from . import stock_picking
 from . import logistics_company
 from . import purchase_order
 from . import request_location
+from . import stock_pack_operation

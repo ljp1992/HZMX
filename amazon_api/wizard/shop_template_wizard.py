@@ -105,9 +105,10 @@ class ShopTemplateWizard(models.TransientModel):
             # description
             description_ids = []
             for description in template.description_ids:
+                title = (self.prefix or '') + description.title + (self.suffix or '')
                 description_ids.append((0, 0, {
                     'lang_id': description.lang_id.id,
-                    'title': self.prefix + description.title + self.suffix,
+                    'title': title,
                     'keyword': description.keyword,
                     'short_description': description.short_description,
                     'detail_description': description.detail_description,
@@ -157,13 +158,13 @@ class ShopTemplateWizard(models.TransientModel):
             # add upc
             upc_obj = self.env['upc.code']
             merchant = self.env.user.merchant_id or self.env.user
-            upc = upc_obj.search([('used', '=', False), ('merchant_id', '=', merchant.id)], limit=1)
+            upc = upc_obj.search([('used', '=', False), ('create_uid', '=', self.env.user.id)], limit=1)
             if not upc:
                 raise UserError('upc is not enough!')
             new_template.upc = upc.name
             upc.used = True
             for pro in new_template.product_variant_ids:
-                upc = upc_obj.search([('used', '=', False), ('merchant_id', '=', merchant.id)], limit=1)
+                upc = upc_obj.search([('used', '=', False), ('create_uid', '=', self.env.user.id)], limit=1)
                 if not upc:
                     raise UserError('upc is not enough!')
                 pro.upc = upc.name
