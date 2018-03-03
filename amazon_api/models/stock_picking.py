@@ -24,6 +24,7 @@ class StockPicking(models.Model):
     delivery_date = fields.Datetime(string=u'发货时间')
 
     # own_data = fields.Boolean(search='_own_data_search', store=False)
+    b2b_log_count = fields.Integer(compute='_b2b_log_count')
 
     partner_id = fields.Many2one(default=lambda self: self.env.user)
     merchant_id = fields.Many2one('res.users', string=u'商户')
@@ -33,20 +34,49 @@ class StockPicking(models.Model):
     purchase_order_id = fields.Many2one('purchase.order')
     # distributor_invoice_ids = fields.Many2one('invoice', related='sale_order_id.invoice_ids', string=u'经销商发票')
 
-    b2b_state = fields.Selection([
-        ('wait_delivery', u'代发货'),
-        ('done', u'已发货'),
-    ], default='wait_delivery', string=u'发货状态')
+    delivery_info_upload_state = fields.Selection([
+        ('no_upload', u'未上传'),
+        ('uploading', u'正在上传'),
+        ('done', u'上传成功'),
+        ('failed', u'上传失败'),
+    ], default='no_upload', string=u'发货信息上传状态')
     b2b_type = fields.Selection([
         ('incoming', u'入库'),
         ('outgoing', u'出库'),
         ('internal', u'调拨')
-    ], default='outgoing', string=u'类型')
-    transfer_state = fields.Selection([
+    ], string=u'类型')
+    b2b_state = fields.Selection([
         ('draft', u'新建'),
-        ('out_warehouse', u'已出库'),
         ('done', u'完成'),
-    ], default='draft', string=u'调拨单状态')
+    ], default='draft', string=u'状态')
+    origin_type = fields.Selection([
+        ('own_delivery', u'自有发货'),
+        ('agent_delivery', u'代发货'),
+    ], string=u'类型')
+
+    @api.multi
+    def _b2b_log_count(self):
+        for record in self:
+            logs = self.env['submission.history'].search([
+                ('model', '=', 'stock.picking'),
+                ('record_id', '=', record.id)])
+            record.b2b_log_count = len(logs)
+
+    @api.multi
+    def view_submission_history(self):
+        self.ensure_one()
+        return {
+            'name': u'上传日志',
+            'type': 'ir.actions.act_window',
+            'res_model': 'submission.history',
+            'view_mode': 'tree,form',
+            'view_type': 'form',
+            'views': [
+                (self.env.ref('amazon_api.submission_history_tree').id, 'tree'),
+                (self.env.ref('amazon_api.submission_history_form').id, 'form')],
+            'domain': [('model', '=', 'stock.picking'), ('record_id', '=', self.id)],
+            'target': 'current',
+        }
 
     @api.onchange('location_id', 'location_dest_id')
     def b2b_onchange_location_id(self):
@@ -69,19 +99,20 @@ class StockPicking(models.Model):
         result = self.search(args, limit=limit)
         return result.name_get()
 
-    @api.model
-    def search(self, args, offset=0, limit=None, order=None, count=False):
-        context = self.env.context or {}
-        if context.get('view_own_picking'):
-            if self.user_has_groups('b2b_platform.b2b_shop_operator'):
-                args += [('partner_id', '=', self.env.user.merchant_id.partner_id.id)]
-            elif self.user_has_groups('b2b_platform.b2b_seller'):
-                args += [('partner_id', '=', self.env.user.partner_id.id)]
-            elif self.user_has_groups('b2b_platform.b2b_manager'):
-                pass
-            else:
-                pass
-        return super(StockPicking, self).search(args, offset, limit, order, count=count)
+    # @api.model
+    # def search(self, args, offset=0, limit=None, order=None, count=False):
+    #     context = self.env.context or {}
+    #     if context.get('view_own_picking'):
+    #         if self.user_has_groups('b2b_platform.b2b_shop_operator'):
+    #             args += [('partner_id', '=', self.env.user.partner_id.id)]
+    #         elif self.user_has_groups('b2b_platform.b2b_seller'):
+    #             self.env.user
+    #             args += [('partner_id', '=', self.env.user.partner_id.id)]
+    #         elif self.user_has_groups('b2b_platform.b2b_manager'):
+    #             pass
+    #         else:
+    #             pass
+    #     return super(StockPicking, self).search(args, offset, limit, order, count=count)
 
     # @api.model
     # def _own_data_search(self, operator, value):
@@ -124,35 +155,52 @@ class StockPicking(models.Model):
     #     return super(StockPicking, self).search(args, offset, limit, order, count=count)
 
     @api.multi
-    def do_new_transfer(self):
+    def b2b_do_new_transfer(self):
+        '''移动'''
         self.ensure_one()
-        print self.b2b_type
-        if self.b2b_type == 'internal':
-            return {
-                'name': u'调拨',
-                'type': 'ir.actions.act_window',
-                'res_model': 'stock.immediate.transfer',
-                'view_mode': 'form',
-                'view_type': 'form',
-                'views': [(self.env.ref('amazon_api.b2b_stock_immediate_transfer_form').id, 'form')],
-                'target': 'new',
-            }
-        result = super(StockPicking, self).do_new_transfer()
-        self.create_delivery_info()
-        self.write({
-            'b2b_state': 'done',
-            'delivery_date': datetime.datetime.now(),
-        })
-        self.purchase_order_id.platform_purchase_state = 'done'
-        self.sale_order_id.sudo().b2b_invoice_ids.invoice_confirm()
-        self.purchase_order_id.sudo().b2b_invoice_ids.invoice_confirm()
-        done = True
-        for purchase in self.sale_order_id.purchase_orders:
-            if purchase.platform_purchase_state != 'done':
-                done = False
-        if done:
-            self.sale_order_id.b2b_state = 'delivered'
-        return result
+        if self.b2b_state == 'done':
+            raise UserError(u'已经移动完成，无需再次操作！')
+        return {
+            'name': u'移动',
+            'type': 'ir.actions.act_window',
+            'res_model': 'stock.immediate.transfer',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'views': [(self.env.ref('amazon_api.b2b_stock_immediate_transfer_form').id, 'form')],
+            'target': 'new',
+        }
+
+    # @api.multi
+    # def do_new_transfer(self):
+    #     self.ensure_one()
+    #     # print self.b2b_type
+    #     # if self.b2b_type == 'internal':
+    #     #     return {
+    #     #         'name': u'调拨',
+    #     #         'type': 'ir.actions.act_window',
+    #     #         'res_model': 'stock.immediate.transfer',
+    #     #         'view_mode': 'form',
+    #     #         'view_type': 'form',
+    #     #         'views': [(self.env.ref('amazon_api.b2b_stock_immediate_transfer_form').id, 'form')],
+    #     #         'target': 'new',
+    #     #     }
+    #     result = super(StockPicking, self).do_new_transfer()
+    #     return result
+    #     self.create_delivery_info()
+    #     self.write({
+    #         'b2b_state': 'done',
+    #         'delivery_date': datetime.datetime.now(),
+    #     })
+    #     self.purchase_order_id.platform_purchase_state = 'done'
+    #     self.sale_order_id.sudo().b2b_invoice_ids.invoice_confirm()
+    #     self.purchase_order_id.sudo().b2b_invoice_ids.invoice_confirm()
+    #     done = True
+    #     for purchase in self.sale_order_id.purchase_orders:
+    #         if purchase.platform_purchase_state != 'done':
+    #             done = False
+    #     if done:
+    #         self.sale_order_id.b2b_state = 'delivered'
+    #     return result
 
     @api.multi
     def unlink(self):
@@ -166,16 +214,21 @@ class StockPicking(models.Model):
     def upload_delivery_info(self):
         '''上传发货信息至亚马逊'''
         self.ensure_one()
-        order = self.sale_order_id
-        # order.delivery_upload_state = 'uploading'
-        shop = order.sudo().shop_id
+        if not self.logistics_company_id:
+            raise UserError(u'请填写物流公司！')
+        if not self.shippment_number:
+            raise UserError(u'请填写物流单号！')
+        sale_order = self.sudo().sale_order_id
+        shop = sale_order.sudo().shop_id
         seller = shop.seller_id
         marketplaceids = [shop.marketplace_id.marketplace_id]
-        AmazonOrderID = order.e_order
-        FulfillmentDate = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S') + '-00:00'
+        AmazonOrderID = sale_order.e_order
+        FulfillmentDate = (datetime.datetime.now() - datetime.timedelta(minutes=5)).strftime('%Y-%m-%dT%H:%M:%S') + \
+                          '-00:00'
         message_id = 0
         message_info = ''
-        for line in order.order_line:
+        for picking_line in self.pack_operation_product_ids:
+            sale_line = picking_line.b2b_sale_line_id
             message_id += 1
             message_info += """<Message>
                     <MessageID>%d</MessageID>
@@ -194,8 +247,8 @@ class StockPicking(models.Model):
                         </Item>
                     </OrderFulfillment>
                 </Message>""" % (message_id, AmazonOrderID, FulfillmentDate,
-                                 self.logistics_company_id.name, order.shipment_service_level_category,
-                                 self.shippment_number, line.order_item_id, int(line.product_uom_qty))
+                                 self.logistics_company_id.name, sale_order.shipment_service_level_category,
+                                 self.shippment_number, sale_line.order_item_id, int(picking_line.qty_done))
         head = """<?xml version="1.0" encoding="utf-8"?>
                 <AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
                     <Header>
@@ -220,5 +273,6 @@ class StockPicking(models.Model):
                 'feed_time': datetime.datetime.now(),
                 'feed_xml': head,
                 'shop_id': shop.id,
-                'type': 'delivery_upload'
+                'type': 'delivery_info_upload_state'
             })
+        self.delivery_info_upload_state = 'uploading'

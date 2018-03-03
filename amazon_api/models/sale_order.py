@@ -22,6 +22,7 @@ class SaleOrder(models.Model):
     sale_date = fields.Datetime(string=u'下单日期')
     confirm_date = fields.Datetime(string=u'确认日期')
 
+    b2b_delivery_count = fields.Integer(compute='_b2b_delivery_count')
     purchase_count = fields.Integer(compute='_purchase_count')
     invoice_count = fields.Integer(compute='_invoice_count')
 
@@ -30,6 +31,10 @@ class SaleOrder(models.Model):
     e_order_commission = fields.Float(compute='_e_order_commission', store=False, string=u'佣金')
 
     # own_data = fields.Boolean(compute='_get_own_data', search='_own_data_search')
+    have_own_product = fields.Boolean(compute='_have_own_product', default=False, help=u'单据是否有自有产品')
+    have_not_own_product = fields.Boolean(compute='_have_own_product', default=False, help=u'单据是否有非自有产品')
+    had_own_delivery = fields.Boolean(compute='_had_b2b_delivery', default=False, help=u'已经操作过自有发货了')
+    had_agent_delivery = fields.Boolean(compute='_had_b2b_delivery', default=False, help=u'已经操作过平台采购了')
     own_data = fields.Boolean(search='_own_data_search', store=False)
     hide_platform_purchase_button = fields.Boolean(compute='_hide_platform_purchase_button', string=u'隐藏平台采购按钮')
     hide_myself_delivery_button = fields.Boolean(compute='_hide_myself_delivery_button', string=u'隐藏自有发货按钮')
@@ -42,7 +47,16 @@ class SaleOrder(models.Model):
                                   string=u'商户')
 
     purchase_orders = fields.One2many('purchase.order', 'sale_order_id')
-    deliverys = fields.One2many('stock.picking', 'sale_order_id')
+    deliverys = fields.One2many('stock.picking', 'sale_order_id', domain=[('b2b_type', '=', 'outgoing')],
+                                string=u'发货单')
+    own_deliverys = fields.One2many('stock.picking', 'sale_order_id', domain=[
+        ('b2b_type', '=', 'outgoing'),
+        ('origin_type', '=', 'own_delivery')], string=u'自有发货单')
+    agent_deliverys = fields.One2many('stock.picking', 'sale_order_id', domain=[
+        ('b2b_type', '=', 'outgoing'),
+        ('origin_type', '=', 'agent_delivery')], string=u'代理发货单')
+    transfer_pickings = fields.One2many('stock.picking', 'sale_order_id', domain=[('b2b_type', '=', 'internal')],
+                                        string=u'调拨单')
     b2b_invoice_ids = fields.One2many('invoice', 'sale_order_id', string=u'发票')
 
     platform = fields.Selection([
@@ -77,10 +91,64 @@ class SaleOrder(models.Model):
         ('delivering', u'待发货'),
         ('delivered', u'已交付'),
         ('cancel', u'取消')], default='wait_handle', string=u'状态')
+    b2b_type = fields.Selection([
+        ('own_delivery', u'自有发货'),
+        ('agent_delivery', u'代发采购'),
+        ('own_and_agent_delivery', u'自有发货&代发采购')], string=u'类型')
+
+    @api.multi
+    def _had_b2b_delivery(self):
+        for record in self:
+            if record.own_deliverys:
+                record.had_own_delivery = True
+            if record.agent_deliverys:
+                record.had_agent_delivery = True
+
+    @api.multi
+    def _have_own_product(self):
+        for record in self:
+            for line in record.order_line:
+                if line.own_product:
+                    record.have_own_product = True
+                else:
+                    record.have_not_own_product = True
+
+    @api.multi
+    def judge_sale_order_type(self):
+        '''判断单据是自有发货、代发采购、还是既有自有发货又有代发采购'''
+        for record in self:
+            if record.have_own_product and record.have_not_own_product:
+                record.b2b_type = 'own_and_agent_delivery'
+            elif record.have_own_product:
+                record.b2b_type = 'own_delivery'
+            elif record.have_not_own_product:
+                record.b2b_type = 'agent_delivery'
+            else:
+                record.b2b_type = ''
+
+    @api.multi
+    def _b2b_delivery_count(self):
+        for record in self:
+            record.b2b_delivery_count = len(record.own_deliverys) + len(record.agent_deliverys)
 
     def _invoice_count(self):
         for record in self:
             record.invoice_count = len(record.b2b_invoice_ids)
+
+    @api.multi
+    def view_delivery_order(self):
+        self.ensure_one()
+        return {
+            'name': u'发货单',
+            'type': 'ir.actions.act_window',
+            'res_model': 'stock.picking',
+            'view_mode': 'tree,form',
+            'view_type': 'form',
+            'views': [(self.env.ref('amazon_api.stock_picking_tree').id, 'tree'),
+                      (self.env.ref('amazon_api.b2b_stock_picking_form').id, 'form')],
+            'domain': [('id', 'in', self.own_deliverys.ids + self.agent_deliverys.ids)],
+            'target': 'current',
+        }
 
     def view_invoice(self):
         self.ensure_one()
@@ -167,27 +235,59 @@ class SaleOrder(models.Model):
 
     @api.multi
     def b2b_action_confirm(self):
+        '''自有产品生成发货单'''
         self.ensure_one()
-        # stock_picking_obj = self.env['stock.picking']
-        # location_dest_id = self.env.ref('stock.stock_location_customers').id
-        # delivery_info = {
-        #     'partner_id': self.partner_id.id,
-        #     'merchant_id': self.env.user.merchant_id.id or self.env.user.id,
-        #     'location_id': location_id,
-        #     'location_dest_id': location_dest_id,
-        #     'picking_type_id': 3,
-        #     'sale_order_id': self.id,
-        #     'move_lines': [],
-        # }
-        # for pur_line in self.order_line:
-        #     delivery_info['move_lines'].append((0, 0, {
-        #         'product_id': pur_line.product_id.id,
-        #         'name': pur_line.product_id.name,
-        #         'product_uom_qty': pur_line.product_qty,
-        #         'product_uom': pur_line.product_uom.id,
-        #     }))
-        # delivery = stock_picking_obj.create(delivery_info)
-        # return
+        # if self.own_deliverys:
+        #     raise UserError(u'已经生成了发货单！')
+        stock_picking_obj = self.env['stock.picking']
+        loc_obj = self.env['stock.location']
+        merchant = self.env.user.merchant_id or self.env.user
+        location = loc_obj.search([
+            ('partner_id', '=', merchant.partner_id.id),
+            ('location_id', '=', self.env.ref('b2b_platform.third_warehouse').id)], limit=1)
+        if not location:
+            location = loc_obj.search([
+                ('partner_id', '=', merchant.partner_id.id),
+                ('location_id', '=', self.env.ref('b2b_platform.supplier_stock').id)], limit=1)
+        if not location:
+            raise UserError(u'Not found supplier b2b location!')
+        location_dest_id = self.env.ref('stock.stock_location_customers').id
+        val = {
+            'partner_id': merchant.partner_id.id,
+            'merchant_id': merchant.id,
+            'location_id': location.id,
+            'location_dest_id': location_dest_id,
+            'picking_type_id': 4,
+            'b2b_type': 'outgoing',
+            'origin_type': 'own_delivery',
+            'origin': self.name,
+            'sale_order_id': self.id,
+            'pack_operation_product_ids': [],
+        }
+        for line in self.order_line:
+            val['pack_operation_product_ids'].append((0, 0, {
+                'product_id': line.product_id.id,
+                'product_qty': line.product_uom_qty,
+                'qty_done': line.product_uom_qty,
+                'product_uom_id': line.product_uom.id,
+                'location_id': location.id,
+                'location_dest_id': location_dest_id,
+                'b2b_sale_line_id': line.id,
+            }))
+        delivery = stock_picking_obj.create(val)
+        delivery.create_delivery_info()
+        self.b2b_state = 'delivering'
+        return {
+            'name': u'自有产品发货',
+            'type': 'ir.actions.act_window',
+            'res_model': 'stock.picking',
+            'view_mode': 'tree,form',
+            'view_type': 'form',
+            'views': [(self.env.ref('amazon_api.stock_picking_tree').id, 'tree'),
+                      (self.env.ref('amazon_api.b2b_stock_picking_form').id, 'form')],
+            'domain': [('id', '=', delivery.id)],
+            'target': 'current',
+        }
 
     # @api.multi
     # def _get_own_data(self):

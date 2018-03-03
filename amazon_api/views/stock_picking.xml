@@ -6,70 +6,142 @@
 			<field name="model">stock.picking</field>
 			<field name="arch" type="xml">
 				<tree>
-					<field name="name"/>
-                    <field name="merchant_id"/>
+					<field name="name" string="单号"/>
+                    <field name="partner_id" string="创建人"/>
+                    <field name="create_date" string="创建时间"/>
+                    <field name="origin_type"/>
+                    <field name="delivery_info_upload_state"/>
+                    <field name="b2b_state" invisible="1"/>
                     <field name="state" invisible="1"/>
-                    <field name="create_date"/>
 				</tree>
 			</field>
 		</record>
 
-        <record id="stock_picking_form" model="ir.ui.view">
-			<field name="name">stock_picking_form</field>
-			<field name="model">stock.picking</field>
-            <field name="inherit_id" ref="stock.view_picking_form"/>
-			<field name="arch" type="xml">
-                <xpath expr="//header" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//header" position="after">
-                    <header>
-                        <button name="do_new_transfer" string="确认发货" type="object" class="oe_highlight"
-                                attrs="{'invisible': [('b2b_state', '!=', 'wait_delivery')]}"/>
-                        <button name="upload_delivery_info" string="上传发货信息" type="object" class="oe_highlight"/>
-                        <!--<button name="create_delivery_info" string="获取收件信息" type="object" class="oe_highlight"/>-->
-                        <field name="b2b_state" widget="statusbar" statusbar_visible="wait_delivery,done"/>
-                    </header>
-                </xpath>
-
-                <!--<xpath expr="//sheet" position="before">-->
+        <!--<record id="stock_picking_form" model="ir.ui.view">-->
+			<!--<field name="name">stock_picking_form</field>-->
+			<!--<field name="model">stock.picking</field>-->
+            <!--<field name="inherit_id" ref="stock.view_picking_form"/>-->
+			<!--<field name="arch" type="xml">-->
+                <!--<xpath expr="//header" position="attributes">-->
+                    <!--<attribute name="invisible">1</attribute>-->
+                <!--</xpath>-->
+                <!--<xpath expr="//header" position="after">-->
                     <!--<header>-->
-                        <!--<button name="upload_delivery_info" type="object" string="上传亚马逊"-->
-                                <!--class="btn-primary"/>-->
+                        <!--<button name="do_new_transfer" string="确认发货" type="object" class="oe_highlight"-->
+                                <!--attrs="{'invisible': [('b2b_state', '!=', 'wait_delivery')]}"/>-->
+                        <!--<button name="upload_delivery_info" string="上传发货信息" type="object" class="oe_highlight"/>-->
+                        <!--&lt;!&ndash;<button name="create_delivery_info" string="获取收件信息" type="object" class="oe_highlight"/>&ndash;&gt;-->
+                        <!--<field name="b2b_state" widget="statusbar" statusbar_visible="wait_delivery,done"/>-->
                     <!--</header>-->
                 <!--</xpath>-->
-                <xpath expr="//sheet/group" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//sheet/group" position="after">
-                    <group>
-                        <group>
-                            <field name="merchant_id" readonly="1"/>
-                            <field name="b2b_state" invisible="1"/>
-                        </group>
-                        <group>
-                            <field name="create_date" readonly="1"/>
-                            <field name="delivery_date" readonly="1"
-                                   attrs="{'invisible': [('b2b_state', '!=', 'done')]}"/>
-                        </group>
-                    </group>
-                </xpath>
-                <xpath expr="//page[position()=3]" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//page[position()=3]" position="after">
-                    <page string="收件信息">
+
+                <!--&lt;!&ndash;<xpath expr="//sheet" position="before">&ndash;&gt;-->
+                    <!--&lt;!&ndash;<header>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<button name="upload_delivery_info" type="object" string="上传亚马逊"&ndash;&gt;-->
+                                <!--&lt;!&ndash;class="btn-primary"/>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</header>&ndash;&gt;-->
+                <!--&lt;!&ndash;</xpath>&ndash;&gt;-->
+                <!--<xpath expr="//sheet/group" position="attributes">-->
+                    <!--<attribute name="invisible">1</attribute>-->
+                <!--</xpath>-->
+                <!--<xpath expr="//sheet/group" position="after">-->
+                    <!--<group>-->
+                        <!--<group>-->
+                            <!--<field name="merchant_id" readonly="1"/>-->
+                            <!--<field name="b2b_state" invisible="1"/>-->
+                        <!--</group>-->
+                        <!--<group>-->
+                            <!--<field name="create_date" readonly="1"/>-->
+                            <!--<field name="delivery_date" readonly="1"-->
+                                   <!--attrs="{'invisible': [('b2b_state', '!=', 'done')]}"/>-->
+                        <!--</group>-->
+                    <!--</group>-->
+                <!--</xpath>-->
+                <!--<xpath expr="//page[position()=3]" position="attributes">-->
+                    <!--<attribute name="invisible">1</attribute>-->
+                <!--</xpath>-->
+                <!--<xpath expr="//page[position()=3]" position="after">-->
+                    <!--<page string="收件信息">-->
+                        <!--<group>-->
+                            <!--<group>-->
+                                <!--<field name="logistics_company_id" options="{'no_create': True}"/>-->
+                                <!--<field name="shippment_number"/>-->
+                            <!--</group>-->
+                        <!--</group>-->
+                        <!--<group>-->
+                            <!--<field name="receiver_info"/>-->
+                        <!--</group>-->
+                    <!--</page>-->
+                <!--</xpath>-->
+			<!--</field>-->
+		<!--</record>-->
+
+        <record id="b2b_stock_picking_form" model="ir.ui.view">
+			<field name="name">stock_picking_form3</field>
+			<field name="model">stock.picking</field>
+			<field name="arch" type="xml">
+				<form>
+                    <field name="state" invisible="1"/>
+                    <field name="location_id" invisible="1"/>
+                    <field name="location_dest_id" invisible="1"/>
+                    <field name="move_type" invisible="1"/>
+                    <field name="picking_type_id" invisible="1"/>
+                    <field name="b2b_state" invisible="1"/>
+                    <field name="b2b_type" invisible="1"/>
+                    <header>
+                        <button name="b2b_do_new_transfer" string="移动" type="object" class="oe_highlight"
+                                attrs="{'invisible':[('b2b_state', '=', 'done')]}"/>
+                        <button name="upload_delivery_info" string="上传发货信息" type="object" class="oe_highlight"/>
+                        <field name="b2b_state" widget="statusbar" statusbar_visible="draft,done"/>
+                    </header>
+					<sheet>
+                        <div class="oe_button_box">
+                            <button name="view_submission_history" type="object" class="oe_stat_button"
+                                    icon="fa-pencil-square-o" attrs="{'invisible': [('b2b_log_count', '=', 0)]}">
+                                <field name="b2b_log_count" widget="statinfo" string="上传日志"/>
+                            </button>
+                        </div>
                         <group>
                             <group>
-                                <field name="logistics_company_id" options="{'no_create': True}"/>
-                                <field name="shippment_number"/>
+                                <field name="partner_id" string="创建人" readonly="1"/>
+                                <field name="create_date" string="创建时间" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="origin_type" readonly="1"/>
+                                <field name="delivery_info_upload_state" readonly="1"/>
+                                <field name="origin" string="来源" readonly="1"/>
                             </group>
                         </group>
-                        <group>
-                            <field name="receiver_info"/>
-                        </group>
-                    </page>
-                </xpath>
+                        <notebook>
+                            <page string="明细">
+                                <field name="pack_operation_product_ids">
+                                    <tree editable="bottom">
+                                        <field name="product_id" options="{'no_create':True}" readonly="1"
+                                               context="{'view_own_published_product': True}"/>
+                                        <field name="product_uom_id" options="{'no_create':True}" readonly="1"/>
+                                        <field name="location_id" options="{'no_create':True}"
+                                               context="{'view_own_data':True}"/>
+                                        <field name="location_dest_id" options="{'no_create':True}"
+                                               context="{'view_own_data':True}"/>
+                                        <field name="product_qty" invisible="1"/>
+                                        <field name="qty_done" string="数量"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="收件人信息">
+                                <group>
+                                    <group>
+                                        <field name="logistics_company_id" options="{'no_create': True}"/>
+                                        <field name="shippment_number"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <field name="receiver_info"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+				</form>
 			</field>
 		</record>
         
@@ -78,7 +150,7 @@
             <field name="res_model">stock.picking</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
-            <field name="domain">[('b2b_state', '=', 'wait_delivery')]</field>
+            <field name="domain">[('b2b_type', '=', 'outgoing'), ('b2b_state', '=', 'draft')]</field>
             <field name="context">{'view_own_picking': True}</field>
         </record>
         <record id="stock_picking_act_tree" model="ir.actions.act_window.view">
@@ -90,7 +162,7 @@
         <record id="stock_picking_act_form" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="stock_picking_form"/>
+            <field name="view_id" ref="b2b_stock_picking_form"/>
             <field name="act_window_id" ref="stock_picking_act"/>
         </record>
         <menuitem id="stock_picking_menu" name="待发货" parent="b2b_platform.delivery_manage_menu" sequence="1"
@@ -101,7 +173,7 @@
             <field name="res_model">stock.picking</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
-            <field name="domain">[('b2b_state', '=', 'done')]</field>
+            <field name="domain">[('b2b_type', '=', 'outgoing'), ('b2b_state', '=', 'done')]</field>
             <field name="context">{'view_own_picking': True}</field>
         </record>
         <record id="stock_picking_act_tree2" model="ir.actions.act_window.view">
@@ -113,62 +185,18 @@
         <record id="stock_picking_act_form2" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="stock_picking_form"/>
+            <field name="view_id" ref="b2b_stock_picking_form"/>
             <field name="act_window_id" ref="stock_picking_act2"/>
         </record>
         <menuitem id="stock_picking_menu2" name="已发货" parent="b2b_platform.delivery_manage_menu" sequence="2"
                   action="stock_picking_act2"/>
-
-        <record id="stock_picking_form3" model="ir.ui.view">
-			<field name="name">stock_picking_form3</field>
-			<field name="model">stock.picking</field>
-			<field name="arch" type="xml">
-				<form>
-                    <field name="state" invisible="1"/>
-                    <field name="transfer_state" invisible="1"/>
-                    <header>
-                        <button name="do_new_transfer" string="调拨" type="object" class="oe_highlight"/>
-                        <field name="transfer_state" widget="statusbar"
-                               statusbar_visible="draft,out_warehouse,done"/>
-                    </header>
-					<sheet>
-                        <group>
-                            <group>
-                                <field name="partner_id"/>
-                                <field name="location_id" invisible="1"/>
-                                <field name="location_dest_id" invisible="1"/>
-                                <field name="move_type" invisible="1"/>
-                                <field name="picking_type_id" invisible="1"/>
-                            </group>
-                        </group>
-                        <notebook>
-                            <page string="明细">
-                                <field name="pack_operation_product_ids">
-                                    <tree editable="bottom">
-                                        <field name="product_id" options="{'no_create':True}"
-                                               context="{'view_own_published_product': True}"/>
-                                        <field name="product_uom_id" options="{'no_create':True}" />
-                                        <field name="location_id" options="{'no_create':True}"
-                                               context="{'view_own_data':True}"/>
-                                        <field name="location_dest_id" options="{'no_create':True}"
-                                               context="{'view_own_data':True}"/>
-                                        <field name="product_qty" invisible="1"/>
-                                        <field name="qty_done" string="数量"/>
-                                    </tree>
-                                </field>
-                            </page>
-                        </notebook>
-                    </sheet>
-				</form>
-			</field>
-		</record>
 
         <record id="stock_picking_act3" model="ir.actions.act_window">
             <field name="name">调拨</field>
             <field name="res_model">stock.picking</field>
             <field name="view_mode">tree,form</field>
             <field name="view_type">form</field>
-            <field name="domain">[]</field>
+            <field name="domain">[('b2b_type', '=', 'internal')]</field>
             <field name="context">{'default_picking_type_id': 5, 'default_b2b_type': 'internal'}</field>
         </record>
         <record id="stock_picking_act_tree3" model="ir.actions.act_window.view">
@@ -180,7 +208,7 @@
         <record id="stock_picking_act_form3" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="stock_picking_form3"/>
+            <field name="view_id" ref="b2b_stock_picking_form"/>
             <field name="act_window_id" ref="stock_picking_act3"/>
         </record>
         <!--<menuitem id="stock_picking_menu3" name="调拨" parent="b2b_platform.stock_manage_menu" sequence="3"-->

@@ -9,12 +9,12 @@
 				<form>
                     <group>
                         <p>
-                            提示：请仔细核查单据信息！
+                            提示：确认之后，将无法修改单据信息，请仔细核查单据信息！
                         </p>
                     </group>
                     <footer>
-                        <button name="process" string="调拨" type="object" class="btn-primary"/>
-                        <button string="Cancel" class="btn-default" special="cancel"/>
+                        <button name="process" string="确认" type="object" class="btn-primary"/>
+                        <button string="取消" class="btn-default" special="cancel"/>
                     </footer>
                 </form>
 			</field>

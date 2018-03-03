@@ -152,7 +152,8 @@ class SyncSaleOrder(models.TransientModel):
                     order_lines.append((0, False, order_line))
                 order_val['order_line'] = order_lines
                 if exist_product:
-                    sale_order_obj.create(order_val)
+                    sale_order = sale_order_obj.create(order_val)
+                    sale_order.judge_sale_order_type()
         log_val['order_line'] = log_lines
         if log_lines:
             log_val['message'] = u'订单同步错误！'

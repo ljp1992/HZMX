@@ -512,6 +512,8 @@ class ProductTemplate(models.Model):
         context = self.env.context
         templates = self.env['product.template'].browse(context.get('active_ids'))
         for template in templates:
+            if template.handle_days <= 0:
+                raise UserError(u'处理天数必须大于0！')
             shop = template.shop_id
             seller = shop.seller_id
             message = ''
