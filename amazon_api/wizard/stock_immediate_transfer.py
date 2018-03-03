@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+import copy
 
 class StockImmediateTransfer(models.TransientModel):
     _inherit = "stock.immediate.transfer"
@@ -9,8 +10,8 @@ class StockImmediateTransfer(models.TransientModel):
     @api.multi
     def process(self):
         '''移动'''
-        print self.env.context
         result = super(StockImmediateTransfer, self).process()
+        loc_obj = self.env['stock.location']
         merchant = self.env.user.merchant_id or self.env.user
         context = self.env.context or {}
         pickings = self.env['stock.picking'].search([('id', 'in', context.get('active_ids'))])
@@ -26,11 +27,12 @@ class StockImmediateTransfer(models.TransientModel):
                         sale_order.b2b_state = 'delivered'
                 # invoice
                 invoice_obj = self.env['invoice']
-                if picking.origin_type == 'own_delivery':
+                if picking.origin_type == 'own_delivery': #自有产品平台发货，生成运费账单
                     invoice_val = {
                         'picking_id': picking.id,
                         'sale_order_id': sale_order.id,
                         'merchant_id': merchant.id,
+                        'origin': sale_order.name,
                         'type': 'distributor',
                         'state': 'paid',
                         'order_line': []
@@ -41,8 +43,8 @@ class StockImmediateTransfer(models.TransientModel):
                             'product_id': line.product_id.id,
                             'product_uom_qty': line.qty_done,
                             'product_uom': line.product_uom_id.id,
-                            'platform_price': line.product_id.platform_price,
-                            'freight': 0,
+                            'platform_price': 0,
+                            'freight': line.b2b_sale_line_id.supplier_freight,
                             'operation_line_id': line.id,
                         }))
                         if line.platform_location:
@@ -50,4 +52,51 @@ class StockImmediateTransfer(models.TransientModel):
                     if create_invoice:
                         invoice = invoice_obj.create(invoice_val)
                         invoice.invoice_confirm()
+                elif picking.origin_type == 'agent_delivery': #代发采购生成发票（供应商库位发货的发票，第三方仓库发货的发票）
+                    picking.purchase_order_id.b2b_state = 'done'
+                    third_loc = loc_obj.search([
+                        ('partner_id', '=', merchant.partner_id.id),
+                        ('location_id', '=', self.env.ref('b2b_platform.third_warehouse').id)], limit=1)
+                    supplier_loc = loc_obj.search([
+                            ('partner_id', '=', merchant.partner_id.id),
+                            ('location_id', '=', self.env.ref('b2b_platform.supplier_stock').id)], limit=1)
+                    third_loc_invoice = {
+                        'picking_id': picking.id,
+                        'sale_order_id': sale_order.id,
+                        'purchase_order_id': picking.purchase_order_id.id,
+                        'merchant_id': merchant.id,
+                        'type': 'supplier',
+                        'origin': picking.purchase_order_id.name,
+                        'state': 'paid',
+                        'order_line': []
+                    }
+                    supplier_loc_invoice = copy.deepcopy(third_loc_invoice)
+                    for line in picking.pack_operation_product_ids:
+                        if line.location_id == supplier_loc:
+                            supplier_loc_invoice['order_line'].append((0, 0, {
+                                'product_id': line.product_id.id,
+                                'product_uom_qty': line.qty_done,
+                                'product_uom': line.product_uom_id.id,
+                                'platform_price': line.product_id.supplier_price,
+                                'freight': line.b2b_sale_line_id.supplier_freight,
+                                'operation_line_id': line.id,
+                            }))
+                        elif line.location_id == third_loc:
+                            third_loc_invoice['order_line'].append((0, 0, {
+                                'product_id': line.product_id.id,
+                                'product_uom_qty': line.qty_done,
+                                'product_uom': line.product_uom_id.id,
+                                'platform_price': line.product_id.supplier_price,
+                                'freight': 0,
+                                'operation_line_id': line.id,
+                            }))
+                    if supplier_loc_invoice.get('order_line'):
+                        invoice = invoice_obj.create(supplier_loc_invoice)
+                        invoice.invoice_confirm()
+                    if third_loc_invoice.get('order_line'):
+                        invoice = invoice_obj.create(third_loc_invoice)
+                        invoice.invoice_confirm()
+                    picking.sudo().sale_order_id.b2b_invoice_ids.invoice_confirm()
+                    # print picking.sale_order_id,picking.sudo().sale_order_id.b2b_invoice_ids
+                    # raise UserError(u'ljp')
         return result

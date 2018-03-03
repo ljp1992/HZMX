@@ -20,6 +20,7 @@ class StockPicking(models.Model):
     receiver_info = fields.Text(string=u'收件信息')
 
     hide_delivery_button = fields.Boolean(compute='_hide_delivery_button')
+    own_record = fields.Boolean(compute='_own_record')
 
     delivery_date = fields.Datetime(string=u'发货时间')
 
@@ -151,16 +152,17 @@ class StockPicking(models.Model):
     def create_delivery_info(self):
         for record in self:
             sale_order = record.sale_order_id
-            receiver_info = u"国家:%s\n州／省:%s\n市:%s\n街道:%s\n邮编:%s\n姓名:%s\n电话:%s\ne-mail:%s" % (
-                sale_order.country_id.name or '',
-                sale_order.province or '',
-                sale_order.city or '',
-                sale_order.street or '',
-                sale_order.postal_code or '',
-                sale_order.partner_id.name or '',
-                sale_order.phone or '',
-                sale_order.e_mail or '')
-            record.receiver_info = receiver_info
+            if sale_order:
+                receiver_info = u"国家:%s\n州／省:%s\n市:%s\n街道:%s\n邮编:%s\n姓名:%s\n电话:%s\ne-mail:%s" % (
+                    sale_order.country_id.name or '',
+                    sale_order.province or '',
+                    sale_order.city or '',
+                    sale_order.street or '',
+                    sale_order.postal_code or '',
+                    sale_order.partner_id.name or '',
+                    sale_order.phone or '',
+                    sale_order.e_mail or '')
+                record.receiver_info = receiver_info
 
     # @api.model
     # def search(self, args, offset=0, limit=None, order=None, count=False):
@@ -299,3 +301,35 @@ class StockPicking(models.Model):
                 'type': 'delivery_info_upload_state'
             })
         self.delivery_info_upload_state = 'uploading'
+
+    @api.model
+    def name_search(self, name, args=None, operator='ilike', limit=100):
+        args = args or []
+        if name:
+            args += [('name', operator, name)]
+        result = self.search(args, limit=limit)
+        return result.name_get()
+
+    @api.model
+    def search(self, args, offset=0, limit=None, order=None, count=False):
+        context = self.env.context or {}
+        if context.get('view_own_picking'):
+            merchant_id = self.env.user.merchant_id or self.env.user
+            if self.user_has_groups('b2b_platform.b2b_shop_operator'):
+                args += [('partner_id', '=', merchant_id.partner_id.id)]
+            elif self.user_has_groups('b2b_platform.b2b_seller'):
+                args += [('partner_id', '=', merchant_id.partner_id.id)]
+            elif self.user_has_groups('b2b_platform.b2b_manager'):
+                pass
+            else:
+                pass
+        return super(StockPicking, self).search(args, offset, limit, order, count=count)
+
+    @api.multi
+    def _own_record(self):
+        merchant = self.env.user.merchant_id or self.env.user
+        for record in self:
+            if record.partner_id == merchant.partner_id:
+                record.own_record = True
+            else:
+                record.own_record = False

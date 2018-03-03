@@ -11,9 +11,11 @@ class SaleOrderLine(models.Model):
 
     e_price_unit = fields.Float(string=u'单价')
     e_freight = fields.Float(string=u'运费')
+    supplier_freight = fields.Float(compute='_supplier_freight', string=u'供应商运费')
 
     shop_product_id = fields.Many2one('product.product', string=u'商品')
     e_currency_id = fields.Many2one('amazon.currency', related='order_id.e_currency_id', string=u'币种')
+
 
     b2b_state = fields.Selection([
         ('wait_handle', u'待处理'),
@@ -30,4 +32,14 @@ class SaleOrderLine(models.Model):
             else:
                 line.own_product = False
 
+    @api.multi
+    def _supplier_freight(self):
+        for record in self:
+            tmpl = record.product_id.product_tmpl_id
+            country = record.order_id.country_id
+            freight_obj = tmpl.freight_lines.filtered(lambda r: r.country_id == country)
+            if freight_obj:
+                record.supplier_freight = freight_obj.freight
+            else:
+                record.supplier_freight = 0
 

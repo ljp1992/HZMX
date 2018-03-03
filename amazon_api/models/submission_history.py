@@ -61,8 +61,8 @@ class SubmissionHistory(models.Model):
             self.state = 'success'
             if record:
                 record.write({
-                self.type: 'done'
-            })
+                    self.type: 'done'
+                })
         else:
             self.state = 'fail'
             if record:

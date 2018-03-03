@@ -10,12 +10,13 @@ class Invoice(models.Model):
     name = fields.Char(string=u'单号')
 
     note = fields.Text(string=u'备注')
+    origin = fields.Char(string=u'来源')
 
     total = fields.Float(compute='_compute_total', store=True, string=u'金额')
 
     date = fields.Date(string=u'日期', required=True, default=lambda self: fields.Date.today())
 
-    merchant_id = fields.Many2one('res.users', string=u'经销商', required=True, readonly=True,
+    merchant_id = fields.Many2one('res.users', string=u'商户', required=True, readonly=True,
                                   default=lambda self: self.env.user, domain=[('user_type', '=', 'merchant')])
     sale_order_id = fields.Many2one('sale.order', string=u'销售订单')
     purchase_order_id = fields.Many2one('purchase.order', string=u'采购单')
@@ -49,13 +50,34 @@ class Invoice(models.Model):
     @api.multi
     def invoice_confirm(self):
         for record in self:
-            print record.merchant_id.name
-            print record.type
             record.state = 'paid'
             if record.type == 'distributor':
                 record.merchant_id.account_amount -= record.total
             elif record.type == 'supplier':
                 record.merchant_id.account_amount += record.total
+
+    @api.model
+    def name_search(self, name, args=None, operator='ilike', limit=100):
+        args = args or []
+        if name:
+            args += [('name', operator, name)]
+        result = self.search(args, limit=limit)
+        return result.name_get()
+
+    @api.model
+    def search(self, args, offset=0, limit=None, order=None, count=False):
+        context = self.env.context or {}
+        if context.get('view_own_invoice'):
+            merchant_id = self.env.user.merchant_id or self.env.user
+            if self.user_has_groups('b2b_platform.b2b_shop_operator'):
+                args += [('merchant_id', '=', merchant_id.id)]
+            elif self.user_has_groups('b2b_platform.b2b_seller'):
+                args += [('merchant_id', '=', merchant_id.id)]
+            elif self.user_has_groups('b2b_platform.b2b_manager'):
+                pass
+            else:
+                pass
+        return super(Invoice, self).search(args, offset, limit, order, count=count)
 
 class InvoiceLine(models.Model):
     _name = 'invoice.line'

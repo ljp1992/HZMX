@@ -22,7 +22,7 @@ class AmazonWizard(models.TransientModel):
         active_ids = self.env.context.get('active_ids')
         sale_orders = self.env['sale.order'].browse(active_ids)
         for order in sale_orders:
-            order.delivery_upload_state = 'uploading'
+            order.delivery_info_upload_state = 'uploading'
             shop = order.shop_id
             seller = shop.seller_id
             marketplaceids = [shop.marketplace_id.marketplace_id]
@@ -77,5 +77,5 @@ class AmazonWizard(models.TransientModel):
                     'feed_time': datetime.datetime.now(),
                     'feed_xml': head,
                     'shop_id': shop.id,
-                    'type': 'delivery_upload_state'
+                    'type': 'delivery_info_upload_state'
                 })

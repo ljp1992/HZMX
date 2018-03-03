@@ -16,142 +16,6 @@
 			</field>
 		</record>
 
-        <!--<record id="b2b_sale_order_form" model="ir.ui.view">-->
-			<!--<field name="name">b2b_sale_order_form</field>-->
-			<!--<field name="model">sale.order</field>-->
-            <!--<field name="inherit_id" ref="sale.view_order_form"/>-->
-			<!--<field name="arch" type="xml">-->
-                <!--<xpath expr="//header" position="attributes">-->
-                    <!--<attribute name="invisible">1</attribute>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//sheet" position="before">-->
-                    <!--<header>-->
-                        <!--<field name="hide_platform_purchase_button" invisible="1"/>-->
-                        <!--<field name="hide_myself_delivery_button" invisible="1"/>-->
-                        <!--<button name="false_delivery" type="object" string="假发货" class="btn-primary"/>-->
-                        <!--<button name="b2b_action_confirm" type="object" string="自有发货" class="btn-primary"/>-->
-                        <!--&lt;!&ndash;<button name="action_confirm" string="自有发货" class="btn-primary o_sale_confirm"&ndash;&gt;-->
-                                <!--&lt;!&ndash;attrs="{'invisible': [('hide_myself_delivery_button', '=', True)]}" type="object"/>&ndash;&gt;-->
-                        <!--<button name="platform_purchase" type="object" string="平台采购" class="btn-primary"-->
-                                <!--attrs="{'invisible': [('hide_platform_purchase_button', '=', True)]}"/>-->
-                        <!--<field name="b2b_state" widget="statusbar"-->
-                               <!--statusbar_visible="wait_handle,delivering,delivered"/>-->
-                    <!--</header>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//sheet/div[@name='button_box']" position="attributes">-->
-                    <!--<attribute name="invisible">1</attribute>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//sheet/div[@name='button_box']" position="after">-->
-                    <!--<div class="oe_button_box" name="button_box_ljp">-->
-                        <!--<field name="purchase_count" invisible="1"/>-->
-                        <!--<field name="invoice_count" invisible="1"/>-->
-                        <!--<button name="view_purchase_order" type="object" class="oe_stat_button" icon="fa-pencil-square-o"-->
-                                <!--attrs="{'invisible': [('purchase_count', '=', 0)]}">-->
-                            <!--<field name="purchase_count" widget="statinfo" string="采购单"/>-->
-                        <!--</button>-->
-                        <!--<button name="view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"-->
-                                <!--attrs="{'invisible': [('invoice_count', '=', 0)]}">-->
-                            <!--<field name="invoice_count" widget="statinfo" string="发票"/>-->
-                        <!--</button>-->
-                    <!--</div>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//sheet/group" position="attributes">-->
-                    <!--<attribute name="invisible">1</attribute>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//sheet/group[position()=1]" position="after">-->
-                    <!--<group>-->
-                        <!--<group>-->
-                            <!--<field name="shop_id" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                            <!--<field name="e_order" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                            <!--<field name="sale_date" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                            <!--<field name="delivery_mode" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                            <!--<field name="amazon_state" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                            <!--<field name="shipment_service_level_category"-->
-                                   <!--attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                            <!--<label for="e_order_amount"/>-->
-                                <!--<div class="o_row">-->
-                                    <!--<field name="e_order_amount" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                                    <!--<field name="e_currency_id1" nolabel="1" readonly="True"/>-->
-                                <!--</div>-->
-                            <!--<label for="e_order_freight"/>-->
-                                <!--<div class="o_row">-->
-                                    <!--<field name="e_order_freight" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                                    <!--<field name="e_currency_id2" nolabel="1" readonly="True"/>-->
-                                <!--</div>-->
-                            <!--<label for="e_order_commission"/>-->
-                                <!--<div class="o_row">-->
-                                    <!--<field name="e_order_commission" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                                    <!--<field name="e_currency_id3" nolabel="1" readonly="True"/>-->
-                                <!--</div>-->
-                        <!--</group>-->
-                        <!--<group>-->
-                            <!--<field name="partner_id" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                            <!--<field name="country_id" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                            <!--<field name="province" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                            <!--<field name="city" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                            <!--<field name="street" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                            <!--<field name="postal_code" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                            <!--<field name="phone" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                            <!--&lt;!&ndash;<field name="e_mail"/>&ndash;&gt;-->
-                        <!--</group>-->
-                    <!--</group>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//group[@name='sale_total']" position="attributes">-->
-                    <!--<attribute name="invisible">1</attribute>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//page[position()=2]" position="attributes">-->
-                    <!--<attribute name="invisible">1</attribute>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//field[@name='order_line']/tree/field[@name='sequence']" position="before">-->
-                    <!--<field name="b2b_state" invisible="1"/>-->
-                    <!--<field name="order_item_id" groups="base.group_no_one"-->
-                           <!--attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                    <!--<field name="shop_product_id" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                    <!--<field name="e_currency_id" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                    <!--<field name="e_price_unit" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                    <!--<field name="e_freight" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>-->
-                    <!--<field name="own_product" readonly="1"/>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//field[@name='order_line']/tree/field[@name='product_id']" position="attributes">-->
-                    <!--<attribute name="attrs">{'readonly': [('b2b_state', '!=', 'wait_handle')]}</attribute>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//field[@name='order_line']/tree/field[@name='product_uom_qty']" position="attributes">-->
-                    <!--<attribute name="attrs">{'readonly': [('b2b_state', '!=', 'wait_handle')]}</attribute>-->
-                <!--</xpath>-->
-                <!--&lt;!&ndash;<xpath expr="//field[@name='order_line']/tree/field[@name='product_uom']" position="attributes">&ndash;&gt;-->
-                    <!--&lt;!&ndash;<attribute name="attrs">{'readonly': [('b2b_state', '!=', 'wait_handle')]}</attribute>&ndash;&gt;-->
-                <!--&lt;!&ndash;</xpath>&ndash;&gt;-->
-                <!--<xpath expr="//field[@name='order_line']/tree/field[@name='price_unit']" position="attributes">-->
-                    <!--<attribute name="attrs">{'readonly': [('b2b_state', '!=', 'wait_handle')]}</attribute>-->
-                <!--</xpath>-->
-
-                <!--<xpath expr="//field[@name='order_line']/tree/field[@name='price_subtotal']" position="attributes">-->
-                    <!--<attribute name="sum">1</attribute>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//field[@name='order_line']/tree/field[@name='price_total']" position="attributes">-->
-                    <!--<attribute name="sum">1</attribute>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//field[@name='order_line']/tree/field[@name='sequence']" position="attributes">-->
-                    <!--<attribute name="invisible">1</attribute>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//field[@name='order_line']/tree/field[@name='name']" position="attributes">-->
-                    <!--<attribute name="invisible">1</attribute>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//field[@name='order_line']/tree/field[@name='qty_delivered']" position="attributes">-->
-                    <!--<attribute name="invisible">1</attribute>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//field[@name='order_line']/tree/field[@name='qty_invoiced']" position="attributes">-->
-                    <!--<attribute name="invisible">1</attribute>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//field[@name='order_line']/tree/field[@name='analytic_tag_ids']" position="attributes">-->
-                    <!--<attribute name="invisible">1</attribute>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//field[@name='order_line']/tree/field[@name='tax_id']" position="attributes">-->
-                    <!--<attribute name="invisible">1</attribute>-->
-                <!--</xpath>-->
-			<!--</field>-->
-		<!--</record>-->
-
         <record id="b2b_sale_order_form" model="ir.ui.view">
 			<field name="name">b2b_sale_order_form</field>
 			<field name="model">sale.order</field>
@@ -159,21 +23,27 @@
                 <form>
                     <field name="state" invisible="1"/>
                     <field name="b2b_type" invisible="1"/>
-                    <field name="had_own_delivery" invisible="1"/>
-                    <field name="had_agent_delivery" invisible="1"/>
+                    <field name="b2b_own_delivery_count" invisible="1"/>
                     <header>
                         <button name="false_delivery" type="object" string="假发货" class="btn-primary"
                                 attrs="{'invisible':[('b2b_state','=','delivered')]}"/>
-                        <button name="b2b_action_confirm" type="object" string="自有发货" class="btn-primary"/>
-                        <!--<button name="b2b_action_confirm" type="object" string="自有发货" class="btn-primary"-->
-                                <!--attrs="{'invisible':['|',('b2b_type','=','agent_delivery'),('had_own_delivery','=',True)]}"/>-->
+                        <!--<button name="b2b_action_confirm" type="object" string="自有发货" class="btn-primary"/>-->
+                        <!--<button name="platform_purchase" type="object" string="平台采购" class="btn-primary"/>-->
+                        <button name="b2b_action_confirm" type="object" string="自有发货" class="btn-primary"
+                                attrs="{'invisible':['|', ('b2b_type', '!=', 'own_delivery'),
+                                ('b2b_own_delivery_count', '>', 0)]}"/>
                         <button name="platform_purchase" type="object" string="平台采购" class="btn-primary"
-                                attrs="{'invisible':['|',('b2b_type','=','own_delivery'),('had_agent_delivery','=',True)]}"/>
+                                attrs="{'invisible':['|', ('b2b_type', '!=', 'agent_delivery'),
+                                ('purchase_count', '>', 0)]}"/>
                         <field name="b2b_state" widget="statusbar"
                                statusbar_visible="wait_handle,delivering,delivered"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box">
+                            <button name="view_purchase_order" type="object" class="oe_stat_button" icon="fa-truck"
+                                    attrs="{'invisible': [('purchase_count', '=', 0)]}">
+                                <field name="purchase_count" widget="statinfo" string="采购单"/>
+                            </button>
                             <button name="view_delivery_order" type="object" class="oe_stat_button" icon="fa-truck"
                                     attrs="{'invisible': [('b2b_delivery_count', '=', 0)]}">
                                 <field name="b2b_delivery_count" widget="statinfo" string="发货单"/>

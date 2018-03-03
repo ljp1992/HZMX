@@ -7,91 +7,69 @@
 			<field name="arch" type="xml">
 				<tree>
 					<field name="name"/>
+                    <field name="partner_id"/>
                     <field name="date_order"/>
+                    <field name="b2b_state"/>
                     <field name="state" invisible="1"/>
-                    <field name="platform_purchase_state"/>
 				</tree>
 			</field>
 		</record>
 
-        <record id="purchase_order_form" model="ir.ui.view">
+        <record id="b2b_purchase_order_form" model="ir.ui.view">
 			<field name="name">purchase_order_form</field>
 			<field name="model">purchase.order</field>
-            <field name="inherit_id" ref="purchase.purchase_order_form"/>
 			<field name="arch" type="xml">
-                <xpath expr="//header" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//sheet" position="before">
+                <form>
+                    <field name="state" invisible="1"/>
+                    <field name="own_record" invisible="1"/>
                     <header>
-                        <field name="hide_delivery_button" invisible="1"/>
-                        <button name="confirm_purchase_ljp" type="object" string="确认"
-                                attrs="{'invisible': [('hide_delivery_button', '=', True)]}" class="btn-primary"/>
-                        <field name="platform_purchase_state" widget="statusbar" statusbar_visible="send,done"/>
+                        <button name="confirm_purchase_ljp" type="object" string="确认" class="btn-primary"
+                                attrs="{'invisible': ['|',('b2b_state', '!=', 'draft'),
+                                ('own_record', '=', False)]}"/>
+                        <field name="b2b_state" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
                     </header>
-                </xpath>
-                <xpath expr="//sheet/div[@name='button_box']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//sheet/div[@name='button_box']" position="after">
-                    <field name="b2b_delivery_count" invisible="1"/>
-                    <field name="b2b_invoice_count" invisible="1"/>
-                    <div class="oe_button_box">
-                        <button name="view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"
-                                attrs="{'invisible': [('b2b_invoice_count', '=', 0)]}">
-                            <field name="b2b_invoice_count" widget="statinfo" string="发票"/>
-                        </button>
-                        <button name="view_delivery_order" type="object" class="oe_stat_button" icon="fa-truck"
-                                attrs="{'invisible': [('b2b_delivery_count', '=', 0)]}">
-                            <field name="b2b_delivery_count" widget="statinfo" string="发货单"/>
-                        </button>
-                    </div>
-                </xpath>
-                <xpath expr="//sheet/div[@class='oe_title']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//sheet/div[@class='oe_title']" position="after">
-                    <div class="oe_title">
-                        <h1>
-                            <field name="name" readonly="1"/>
-                        </h1>
-                    </div>
-                </xpath>
-                <xpath expr="//sheet/group[position()=1]" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//sheet/group[position()=1]" position="after">
-                    <group>
+                    <sheet>
+                        <div class="oe_button_box">
+                            <button name="view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"
+                                    attrs="{'invisible': [('b2b_invoice_count', '=', 0)]}">
+                                <field name="b2b_invoice_count" widget="statinfo" string="发票"/>
+                            </button>
+                            <button name="view_delivery_order" type="object" class="oe_stat_button" icon="fa-truck"
+                                    attrs="{'invisible': [('b2b_delivery_count', '=', 0)]}">
+                                <field name="b2b_delivery_count" widget="statinfo" string="发货单"/>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
                         <group>
-                            <field name="partner_id"/>
-                            <field name="b2b_total"/>
+                            <group>
+                                <field name="partner_id"/>
+                                <field name="b2b_total"/>
+                            </group>
+                            <group>
+                                <field name="date_order"/>
+                                <field name="origin"/>
+                            </group>
                         </group>
-                        <group>
-                            <field name="date_order"/>
-                        </group>
-                    </group>
-                </xpath>
-
-                <xpath expr="//notebook" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-                <xpath expr="//notebook" position="after">
-                    <notebook>
-                        <page string="明细">
-                            <field name="order_line">
-                                <tree>
-                                    <field name="product_id"/>
-                                    <field name="price_unit"/>
-                                    <field name="product_qty"/>
-                                    <field name="product_uom"/>
-                                    <field name="freight"/>
-                                    <field name="b2b_total" sum="1"/>
-                                </tree>
-                            </field>
-                        </page>
-                    </notebook>
-                </xpath>
-
+                        <notebook>
+                            <page string="明细">
+                                <field name="order_line">
+                                    <tree>
+                                        <field name="product_id"/>
+                                        <field name="price_unit"/>
+                                        <field name="product_qty"/>
+                                        <field name="product_uom"/>
+                                        <field name="freight"/>
+                                        <field name="b2b_total" sum="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
             </field>
 		</record>
 
@@ -100,7 +78,8 @@
             <field name="res_model">purchase.order</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
-            <field name="domain">[('own_data', '=', True), ('platform_purchase_state', '=', 'send')]</field>
+            <field name="domain">[('b2b_state', 'in', ['draft', 'confirmed'])]</field>
+            <field name="context">{'view_own_purchase': True}</field>
         </record>
 
         <record id="purchase_order_act_tree" model="ir.actions.act_window.view">
@@ -113,11 +92,11 @@
         <record id="purchase_order_act_form" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="purchase.purchase_order_form"/>
+            <field name="view_id" ref="amazon_api.b2b_purchase_order_form"/>
             <field name="act_window_id" ref="purchase_order_act"/>
         </record>
 
-        <menuitem id="purchase_order_menu" name="代发货" parent="b2b_platform.purchase_parent_menu" sequence="1"
+        <menuitem id="purchase_order_menu" name="待发货" parent="b2b_platform.purchase_parent_menu" sequence="1"
                   action="purchase_order_act"/>
 
         <record id="deliveryed_purchase_order_act" model="ir.actions.act_window">
@@ -125,7 +104,8 @@
             <field name="res_model">purchase.order</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
-            <field name="domain">[('own_data', '=', True), ('platform_purchase_state', '=', 'done')]</field>
+            <field name="domain">[('b2b_state', '=', 'done')]</field>
+            <field name="context">{'view_own_purchase': True}</field>
         </record>
 
         <record id="purchase_order_act_tree1" model="ir.actions.act_window.view">
@@ -138,7 +118,7 @@
         <record id="purchase_order_act_form1" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="purchase.purchase_order_form"/>
+            <field name="view_id" ref="amazon_api.b2b_purchase_order_form"/>
             <field name="act_window_id" ref="deliveryed_purchase_order_act"/>
         </record>
 

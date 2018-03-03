@@ -17,65 +17,6 @@
 			</field>
 		</record>
 
-        <!--<record id="stock_picking_form" model="ir.ui.view">-->
-			<!--<field name="name">stock_picking_form</field>-->
-			<!--<field name="model">stock.picking</field>-->
-            <!--<field name="inherit_id" ref="stock.view_picking_form"/>-->
-			<!--<field name="arch" type="xml">-->
-                <!--<xpath expr="//header" position="attributes">-->
-                    <!--<attribute name="invisible">1</attribute>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//header" position="after">-->
-                    <!--<header>-->
-                        <!--<button name="do_new_transfer" string="确认发货" type="object" class="oe_highlight"-->
-                                <!--attrs="{'invisible': [('b2b_state', '!=', 'wait_delivery')]}"/>-->
-                        <!--<button name="upload_delivery_info" string="上传发货信息" type="object" class="oe_highlight"/>-->
-                        <!--&lt;!&ndash;<button name="create_delivery_info" string="获取收件信息" type="object" class="oe_highlight"/>&ndash;&gt;-->
-                        <!--<field name="b2b_state" widget="statusbar" statusbar_visible="wait_delivery,done"/>-->
-                    <!--</header>-->
-                <!--</xpath>-->
-
-                <!--&lt;!&ndash;<xpath expr="//sheet" position="before">&ndash;&gt;-->
-                    <!--&lt;!&ndash;<header>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<button name="upload_delivery_info" type="object" string="上传亚马逊"&ndash;&gt;-->
-                                <!--&lt;!&ndash;class="btn-primary"/>&ndash;&gt;-->
-                    <!--&lt;!&ndash;</header>&ndash;&gt;-->
-                <!--&lt;!&ndash;</xpath>&ndash;&gt;-->
-                <!--<xpath expr="//sheet/group" position="attributes">-->
-                    <!--<attribute name="invisible">1</attribute>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//sheet/group" position="after">-->
-                    <!--<group>-->
-                        <!--<group>-->
-                            <!--<field name="merchant_id" readonly="1"/>-->
-                            <!--<field name="b2b_state" invisible="1"/>-->
-                        <!--</group>-->
-                        <!--<group>-->
-                            <!--<field name="create_date" readonly="1"/>-->
-                            <!--<field name="delivery_date" readonly="1"-->
-                                   <!--attrs="{'invisible': [('b2b_state', '!=', 'done')]}"/>-->
-                        <!--</group>-->
-                    <!--</group>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//page[position()=3]" position="attributes">-->
-                    <!--<attribute name="invisible">1</attribute>-->
-                <!--</xpath>-->
-                <!--<xpath expr="//page[position()=3]" position="after">-->
-                    <!--<page string="收件信息">-->
-                        <!--<group>-->
-                            <!--<group>-->
-                                <!--<field name="logistics_company_id" options="{'no_create': True}"/>-->
-                                <!--<field name="shippment_number"/>-->
-                            <!--</group>-->
-                        <!--</group>-->
-                        <!--<group>-->
-                            <!--<field name="receiver_info"/>-->
-                        <!--</group>-->
-                    <!--</page>-->
-                <!--</xpath>-->
-			<!--</field>-->
-		<!--</record>-->
-
         <record id="b2b_stock_picking_form" model="ir.ui.view">
 			<field name="name">stock_picking_form3</field>
 			<field name="model">stock.picking</field>
@@ -88,10 +29,13 @@
                     <field name="picking_type_id" invisible="1"/>
                     <field name="b2b_state" invisible="1"/>
                     <field name="b2b_type" invisible="1"/>
+                    <field name="own_record" invisible="1"/>
                     <header>
-                        <button name="b2b_do_new_transfer" string="移动" type="object" class="oe_highlight"
-                                attrs="{'invisible':[('b2b_state', '=', 'done')]}"/>
-                        <button name="upload_delivery_info" string="上传发货信息" type="object" class="oe_highlight"/>
+                        <button name="b2b_do_new_transfer" string="移动" type="object" class="oe_highlight"/>
+                        <!--<button name="b2b_do_new_transfer" string="移动" type="object" class="oe_highlight"-->
+                                <!--attrs="{'invisible':['|',('b2b_state', '=', 'done'),('own_record', '=', False)]}"/>-->
+                        <button name="upload_delivery_info" string="上传发货信息" type="object" class="oe_highlight"
+                            attrs="{'invisible': [('own_record', '=', False)]}"/>
                         <field name="b2b_state" widget="statusbar" statusbar_visible="draft,done"/>
                     </header>
 					<sheet>
@@ -203,9 +147,9 @@
                     <field name="b2b_state" invisible="1"/>
                     <field name="b2b_type" invisible="1"/>
                     <header>
-                        <button name="b2b_do_new_transfer" string="移动" type="object" class="oe_highlight"/>
-                        <!--<button name="b2b_do_new_transfer" string="移动" type="object" class="oe_highlight"-->
-                                <!--attrs="{'invisible':[('b2b_state', '=', 'done')]}"/>-->
+                        <!--<button name="b2b_do_new_transfer" string="移动" type="object" class="oe_highlight"/>-->
+                        <button name="b2b_do_new_transfer" string="移动" type="object" class="oe_highlight"
+                                attrs="{'invisible':[('b2b_state', '=', 'done')]}"/>
                         <field name="b2b_state" widget="statusbar" statusbar_visible="draft,done"/>
                     </header>
 					<sheet>
@@ -250,7 +194,8 @@
             <field name="view_mode">tree,form</field>
             <field name="view_type">form</field>
             <field name="domain">[('b2b_type', '=', 'internal')]</field>
-            <field name="context">{'default_picking_type_id': 5, 'default_b2b_type': 'internal'}</field>
+            <field name="context">{'default_picking_type_id': 5, 'default_b2b_type': 'internal',
+                'view_own_picking':True}</field>
         </record>
         <record id="stock_picking_act_tree3" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>

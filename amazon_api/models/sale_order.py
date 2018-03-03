@@ -23,6 +23,7 @@ class SaleOrder(models.Model):
     confirm_date = fields.Datetime(string=u'确认日期')
 
     b2b_delivery_count = fields.Integer(compute='_b2b_delivery_count')
+    b2b_own_delivery_count = fields.Integer(compute='_b2b_delivery_count')
     purchase_count = fields.Integer(compute='_purchase_count')
     b2b_invoice_count = fields.Integer(compute='_b2b_invoice_count')
 
@@ -57,7 +58,8 @@ class SaleOrder(models.Model):
         ('origin_type', '=', 'agent_delivery')], string=u'代理发货单')
     transfer_pickings = fields.One2many('stock.picking', 'sale_order_id', domain=[('b2b_type', '=', 'internal')],
                                         string=u'调拨单')
-    b2b_invoice_ids = fields.One2many('invoice', 'sale_order_id', string=u'发票')
+    b2b_invoice_ids = fields.One2many('invoice', 'sale_order_id', domain=[('type', '=', 'distributor')],
+                                      string=u'经销商发票')
 
     platform = fields.Selection([
         ('amazon', u'亚马逊'),
@@ -81,7 +83,7 @@ class SaleOrder(models.Model):
         ('SecondDay', 'SecondDay'),
         ('Standard', 'Standard'),
         ('FreeEconomy', 'FreeEconomy')], string=u"货运服务等级", default='Standard')
-    delivery_upload_state = fields.Selection([
+    delivery_info_upload_state = fields.Selection([
         ('wait_upload', u'待上传'),
         ('uploading', u'正在上传'),
         ('done', u'完成'),
@@ -130,6 +132,7 @@ class SaleOrder(models.Model):
     def _b2b_delivery_count(self):
         for record in self:
             record.b2b_delivery_count = len(record.own_deliverys) + len(record.agent_deliverys)
+            record.b2b_own_delivery_count = len(record.own_deliverys)
 
     def _b2b_invoice_count(self):
         for record in self:
@@ -175,7 +178,7 @@ class SaleOrder(models.Model):
             'view_type': 'form',
             'views': [
                 (self.env.ref('amazon_api.purchase_order_tree').id, 'tree'),
-                (self.env.ref('purchase.purchase_order_form').id, 'form')],
+                (self.env.ref('amazon_api.b2b_purchase_order_form').id, 'form')],
             'domain': [('id', 'in', self.purchase_orders.ids)],
             'target': 'current',
         }
@@ -338,13 +341,11 @@ class SaleOrder(models.Model):
             elif self.user_has_groups('b2b_platform.b2b_seller'):
                 seller_ids = self.env['amazon.seller'].search([('merchant_id', '=', self.env.user.id)]).ids
                 shop_ids = self.env['amazon.shop'].search([('seller_id', 'in', seller_ids)]).ids
-                print shop_ids
                 args += [('shop_id', 'in', shop_ids)]
             elif self.user_has_groups('b2b_platform.b2b_manager'):
                 pass
             else:
                 pass
-        print args
         return super(SaleOrder, self).search(args, offset, limit, order, count=count)
 
     @api.multi
@@ -355,18 +356,21 @@ class SaleOrder(models.Model):
         purchase_obj = self.env['purchase.order']
         loc_obj = self.env['stock.location']
         stock_picking_obj = self.env['stock.picking']
+        merchant = self.env.user.merchant_id or self.env.user
         purchase_info = {}
-        invoice_data = {
+        distributor_invoice = {
             'type': 'distributor',
             'sale_order_id': self.id,
+            'origin': self.name,
             'order_line': [],
         }
         for sale_line in self.order_line:
-            invoice_data['order_line'].append((0, 0, {
+            distributor_invoice['order_line'].append((0, 0, {
                 'product_id': sale_line.product_id.id,
                 'platform_price': sale_line.product_id.platform_price,
                 'product_uom_qty': sale_line.product_uom_qty,
                 'product_uom': sale_line.product_uom.id,
+                'freight': 0,
             }))
             platform_pro_merchant = sale_line.sudo().product_id.product_tmpl_id.merchant_id
             supplier_id = platform_pro_merchant.partner_id.id
@@ -375,9 +379,12 @@ class SaleOrder(models.Model):
                     'product_id': sale_line.product_id.id,
                     'name': sale_line.product_id.name,
                     'price_unit': sale_line.product_id.supplier_price,
+                    'taxes_id': [(6, False, [])],
                     'product_qty': sale_line.product_uom_qty,
                     'product_uom': sale_line.product_uom.id,
                     'date_planned': datetime.datetime.now(),
+                    'freight': sale_line.supplier_freight,
+                    'b2b_sale_line_id': sale_line.id,
                 }))
             else:
                 purchase_info[supplier_id] = {
@@ -385,7 +392,7 @@ class SaleOrder(models.Model):
                     'merchant_id': platform_pro_merchant.id,
                     'partner_id': supplier_id,
                     'state': 'draft',
-                    'platform_purchase_state': 'send',
+                    'origin': self.name,
                     'currency_id': self.currency_id.id,
                     'date_order': datetime.datetime.now(),
                     'date_planned': datetime.datetime.now(),
@@ -397,24 +404,24 @@ class SaleOrder(models.Model):
                         'product_qty': sale_line.product_uom_qty,
                         'product_uom': sale_line.product_uom.id,
                         'date_planned': datetime.datetime.now(),
+                        'freight': sale_line.supplier_freight,
+                        'b2b_sale_line_id': sale_line.id,
                     })]
                 }
-        invoice = self.env['invoice'].create(invoice_data)
+        invoice = self.env['invoice'].create(distributor_invoice)
+        if merchant.account_amount < invoice.total:
+            raise UserError(u'账户余额不足，请充值！')
         for (supplier_id, val) in purchase_info.items():
             purchase_order = purchase_obj.create(val)
-            val = {
-                'type': 'supplier',
-                'merchant_id': purchase_order.merchant_id.id,
-                'purchase_order_id': purchase_order.id,
-                'order_line': [],
-            }
-            for line in purchase_order.order_line:
-                val['order_line'].append((0, 0, {
-                    'product_id': line.product_id.id,
-                    'platform_price': line.product_id.supplier_price,
-                    'product_uom_qty': line.product_qty,
-                    'product_uom': line.product_uom.id,
-                    'freight': line.freight,
-                }))
-            supplier_invoice = self.env['invoice'].sudo().create(val)
-        return
+        return {
+            'name': u'采购单',
+            'type': 'ir.actions.act_window',
+            'res_model': 'purchase.order',
+            'view_mode': 'tree,form',
+            'view_type': 'form',
+            'views': [
+                (self.env.ref('amazon_api.purchase_order_tree').id, 'tree'),
+                (self.env.ref('amazon_api.b2b_purchase_order_form').id, 'form')],
+            'domain': [('id', 'in', self.purchase_orders.ids)],
+            'target': 'current',
+        }
