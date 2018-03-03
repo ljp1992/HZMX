@@ -19,13 +19,14 @@ class Invoice(models.Model):
                                   default=lambda self: self.env.user, domain=[('user_type', '=', 'merchant')])
     sale_order_id = fields.Many2one('sale.order', string=u'销售订单')
     purchase_order_id = fields.Many2one('purchase.order', string=u'采购单')
+    picking_id = fields.Many2one('stock.picking')
 
     order_line = fields.One2many('invoice.line', 'order_id')
 
     state = fields.Selection([
         ('draft', u'新建'),
         ('paid', u'已付款'),
-        ('cancel', u'已取消')], string=u'状态', default='draft')
+        ('cancel', u'已取消')], default='draft', string=u'状态')
     type = fields.Selection([
         ('distributor', u'经销商'),
         ('supplier', u'供应商'),
@@ -63,6 +64,7 @@ class InvoiceLine(models.Model):
     order_id = fields.Many2one('invoice')
     product_id = fields.Many2one('product.product', string=u'产品')
     product_uom = fields.Many2one('product.uom', string=u'计量单位')
+    operation_line_id = fields.Many2one('stock.pack.operation')
 
     platform_price = fields.Float(string=u'价格')
     product_uom_qty = fields.Float(string=u'数量')

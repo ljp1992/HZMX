@@ -26,7 +26,9 @@ class StockPicking(models.Model):
     # own_data = fields.Boolean(search='_own_data_search', store=False)
     b2b_log_count = fields.Integer(compute='_b2b_log_count')
 
-    partner_id = fields.Many2one(default=lambda self: self.env.user)
+    location_id = fields.Many2one('stock.location', default=lambda self: self._b2b_location_id())
+    location_dest_id = fields.Many2one('stock.location', default=lambda self: self._b2b_location_dest_id())
+    partner_id = fields.Many2one(default=lambda self: self.env.user.partner_id)
     merchant_id = fields.Many2one('res.users', string=u'商户')
     country_id = fields.Many2one('amazon.country', string=u'国家')
     logistics_company_id = fields.Many2one('logistics.company', string=u'物流公司')
@@ -53,6 +55,27 @@ class StockPicking(models.Model):
         ('own_delivery', u'自有发货'),
         ('agent_delivery', u'代发货'),
     ], string=u'类型')
+
+    @api.model
+    def _b2b_location_id(self):
+        merchant = self.env.user.merchant_id or self.env.user
+        supplier_loc = self.env.ref('b2b_platform.supplier_stock').id
+        loc = self.env['stock.location'].search([
+            ('partner_id', '=', merchant.partner_id.id),
+            ('location_id', '=', supplier_loc)])
+        print loc
+        if loc:
+            return loc
+
+    @api.model
+    def _b2b_location_dest_id(self):
+        merchant = self.env.user.merchant_id or self.env.user
+        third_warehouse = self.env.ref('b2b_platform.third_warehouse').id
+        loc = self.env['stock.location'].search([
+            ('partner_id', '=', merchant.partner_id.id),
+            ('location_id', '=', third_warehouse)])
+        if loc:
+            return loc
 
     @api.multi
     def _b2b_log_count(self):

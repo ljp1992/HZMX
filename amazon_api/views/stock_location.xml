@@ -5,10 +5,11 @@
 			<field name="name">stock_location_tree</field>
 			<field name="model">stock.location</field>
 			<field name="arch" type="xml">
-				<tree create="0">
+				<tree create="0" edit="0" delete="0">
 					<field name="display_name"/>
                     <field name="name"/>
                     <field name="location_id"/>
+					<field name="partner_id" string="所有人" groups="b2b_platform.b2b_manager"/>
 				</tree>
 			</field>
 		</record>
@@ -17,15 +18,16 @@
 			<field name="name">stock_location_form</field>
 			<field name="model">stock.location</field>
 			<field name="arch" type="xml">
-				<form create="0" edit="0">
+				<form create="0" edit="0" delete="0">
 					<sheet>
 						<group>
 							<group>
 								<field name="name"/>
-								<field name="partner_id" required="1" string="所属商户" options="{'no_create': True}"/>
+								<field name="partner_id" required="1" string="所有人" groups="b2b_platform.b2b_manager"
+									   options="{'no_create': True}"/>
 							</group>
 							<group>
-								<field name="location_id" options="{'no_create': True}"/>
+								<field name="location_id" options="{'no_create': True}" readonly="1"/>
 							</group>
 						</group>
 					</sheet>
@@ -39,7 +41,7 @@
 			<field name="arch" type="xml">
 				<search string="">
 					<field name="name"/>
-					<filter string="内部库位" name="internal" domain="[('usage','=','internal')]"/>
+					<!--<filter string="内部库位" name="internal" domain="[('usage','=','internal')]"/>-->
 				</search>
 			</field>
 		</record>
@@ -50,7 +52,8 @@
             <field name="view_mode">tree,form</field>
 			<field name="view_type">form</field>
 			<field name="search_view_id" ref="stock_location_search"/>
-			<field name="context">{'view_own_data': True, 'search_default_internal': True}</field>
+			<field name="domain">[('usage','=','internal')]</field>
+			<field name="context">{'view_own_data': True}</field>
 		</record>
 
         <record id="stock_location_act_tree" model="ir.actions.act_window.view">

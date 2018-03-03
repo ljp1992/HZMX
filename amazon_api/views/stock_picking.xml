@@ -191,6 +191,59 @@
         <menuitem id="stock_picking_menu2" name="已发货" parent="b2b_platform.delivery_manage_menu" sequence="2"
                   action="stock_picking_act2"/>
 
+        <record id="b2b_stock_picking_form2" model="ir.ui.view">
+			<field name="name">stock_picking_form2</field>
+			<field name="model">stock.picking</field>
+			<field name="arch" type="xml">
+				<form>
+                    <field name="state" invisible="1"/>
+
+                    <field name="move_type" invisible="1"/>
+                    <field name="picking_type_id" invisible="1"/>
+                    <field name="b2b_state" invisible="1"/>
+                    <field name="b2b_type" invisible="1"/>
+                    <header>
+                        <button name="b2b_do_new_transfer" string="移动" type="object" class="oe_highlight"/>
+                        <!--<button name="b2b_do_new_transfer" string="移动" type="object" class="oe_highlight"-->
+                                <!--attrs="{'invisible':[('b2b_state', '=', 'done')]}"/>-->
+                        <field name="b2b_state" widget="statusbar" statusbar_visible="draft,done"/>
+                    </header>
+					<sheet>
+                        <group>
+                            <group>
+                                <field name="partner_id" string="创建人" readonly="1"/>
+                                <field name="create_date" string="创建时间" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="location_id" context="{'view_own_data': True}"
+                                       options="{'no_create':True}"/>
+                                <field name="location_dest_id" context="{'view_own_data': True}"
+                                       options="{'no_create':True}"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="明细">
+                                <field name="pack_operation_product_ids" context="{'default_location_id': location_id,
+                                        'default_location_dest_id': location_dest_id}">
+                                    <tree editable="bottom">
+                                        <field name="product_id" options="{'no_create':True}"
+                                               context="{'view_own_published_product': True}"/>
+                                        <field name="product_uom_id" options="{'no_create':True}"/>
+                                        <field name="product_qty" invisible="1"/>
+                                        <field name="qty_done" string="数量"/>
+                                        <field name="location_id" context="{'view_own_data': True}"
+                                            options="{'no_create':True}" invisible="1"/>
+                                        <field name="location_dest_id" context="{'view_own_data': True}"
+                                            options="{'no_create':True}" invisible="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+				</form>
+			</field>
+		</record>
+
         <record id="stock_picking_act3" model="ir.actions.act_window">
             <field name="name">调拨</field>
             <field name="res_model">stock.picking</field>
@@ -208,7 +261,7 @@
         <record id="stock_picking_act_form3" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="b2b_stock_picking_form"/>
+            <field name="view_id" ref="b2b_stock_picking_form2"/>
             <field name="act_window_id" ref="stock_picking_act3"/>
         </record>
         <!--<menuitem id="stock_picking_menu3" name="调拨" parent="b2b_platform.stock_manage_menu" sequence="3"-->

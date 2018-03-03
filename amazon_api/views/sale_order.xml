@@ -162,9 +162,11 @@
                     <field name="had_own_delivery" invisible="1"/>
                     <field name="had_agent_delivery" invisible="1"/>
                     <header>
-                        <button name="false_delivery" type="object" string="假发货" class="btn-primary"/>
-                        <button name="b2b_action_confirm" type="object" string="自有发货" class="btn-primary"
-                                attrs="{'invisible':['|',('b2b_type','=','agent_delivery'),('had_own_delivery','=',True)]}"/>
+                        <button name="false_delivery" type="object" string="假发货" class="btn-primary"
+                                attrs="{'invisible':[('b2b_state','=','delivered')]}"/>
+                        <button name="b2b_action_confirm" type="object" string="自有发货" class="btn-primary"/>
+                        <!--<button name="b2b_action_confirm" type="object" string="自有发货" class="btn-primary"-->
+                                <!--attrs="{'invisible':['|',('b2b_type','=','agent_delivery'),('had_own_delivery','=',True)]}"/>-->
                         <button name="platform_purchase" type="object" string="平台采购" class="btn-primary"
                                 attrs="{'invisible':['|',('b2b_type','=','own_delivery'),('had_agent_delivery','=',True)]}"/>
                         <field name="b2b_state" widget="statusbar"
@@ -172,15 +174,14 @@
                     </header>
                     <sheet>
                         <div class="oe_button_box">
-                            <!--<button name="view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"-->
-                                    <!--attrs="{'invisible': [('b2b_invoice_count', '=', 0)]}">-->
-                                <!--<field name="b2b_invoice_count" widget="statinfo" string="发票"/>-->
-                            <!--</button>-->
                             <button name="view_delivery_order" type="object" class="oe_stat_button" icon="fa-truck"
                                     attrs="{'invisible': [('b2b_delivery_count', '=', 0)]}">
                                 <field name="b2b_delivery_count" widget="statinfo" string="发货单"/>
                             </button>
-
+                            <button name="view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"
+                                    attrs="{'invisible': [('b2b_invoice_count', '=', 0)]}">
+                                <field name="b2b_invoice_count" widget="statinfo" string="发票"/>
+                            </button>
                         </div>
                         <group>
                             <group>

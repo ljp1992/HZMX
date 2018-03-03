@@ -7,9 +7,23 @@ from lxml import etree
 class StockLocation(models.Model):
     _inherit = "stock.location"
 
+    partner_id = fields.Many2one('res.partner', domain=lambda self: self._partner_id_domain(), string=u'所有人')
+    location_id = fields.Many2one('stock.location', default=lambda self: self._paltform_location())
+
+    @api.model
+    def _paltform_location(self):
+        if self.user_has_groups('b2b_platform.b2b_manager'):
+            return self.env.ref('b2b_platform.third_warehouse').id
+
+    @api.model
+    def _partner_id_domain(self):
+        if self.user_has_groups('b2b_platform.b2b_manager'):
+            users = self.env['res.users'].search([('user_type', '=', 'merchant')])
+            partner_ids = [user.partner_id.id for user in users]
+            return [('id', 'in', partner_ids)]
+
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
-        # print 'name_search stock.location'
         args = args or []
         if name:
             args += [('name', operator, name)]
@@ -33,13 +47,14 @@ class StockLocation(models.Model):
 
     @api.model
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
-        # print view_id,view_type,toolbar,submenu
         res = super(StockLocation, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar,
                                                           submenu=submenu)
         if view_type == 'tree' and self.user_has_groups('b2b_platform.b2b_manager'):
-            res['arch'] = res['arch'].replace('<tree create="0">', '<tree>')
+            print res['arch']
+            res['arch'] = res['arch'].replace('<tree create="0" edit="0" delete="0">', '<tree>')
         elif view_type == 'form' and self.user_has_groups('b2b_platform.b2b_manager'):
-            res['arch'] = res['arch'].replace('<form create="0" edit="0">', '<form>')
+            res['arch'] = res['arch'].replace('<form create="0" edit="0" delete="0">', '<form>')
+
         return res
 
 

@@ -24,7 +24,7 @@ class SaleOrder(models.Model):
 
     b2b_delivery_count = fields.Integer(compute='_b2b_delivery_count')
     purchase_count = fields.Integer(compute='_purchase_count')
-    invoice_count = fields.Integer(compute='_invoice_count')
+    b2b_invoice_count = fields.Integer(compute='_b2b_invoice_count')
 
     e_order_amount = fields.Float(string=u'订单金额')
     e_order_freight = fields.Float(compute='_e_order_freight', store=False, string=u'运费')
@@ -131,9 +131,9 @@ class SaleOrder(models.Model):
         for record in self:
             record.b2b_delivery_count = len(record.own_deliverys) + len(record.agent_deliverys)
 
-    def _invoice_count(self):
+    def _b2b_invoice_count(self):
         for record in self:
-            record.invoice_count = len(record.b2b_invoice_ids)
+            record.b2b_invoice_count = len(record.b2b_invoice_ids)
 
     @api.multi
     def view_delivery_order(self):
