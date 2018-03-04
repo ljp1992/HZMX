@@ -56,7 +56,7 @@
 			<field name="res_model">res.users</field>
             <field name="view_mode">tree,form</field>
 			<field name="view_type">form</field>
-			<field name="domain">[('user_type','=','management')]</field>
+			<field name="domain">[('own_user', '=', True), ('user_type', '=', 'management')]</field>
 			<field name="search_view_id" ref="b2b_platform.b2b_res_users_search"/>
 			<field name="context">{'user_type': 'management'}</field>
 		</record>
@@ -144,7 +144,7 @@
 			<field name="res_model">res.users</field>
             <field name="view_mode">tree,form</field>
 			<field name="view_type">form</field>
-			<field name="domain">[('user_type','=','merchant')]</field>
+			<field name="domain">[('own_user', '=', True), ('user_type', '=', 'merchant')]</field>
 			<field name="search_view_id" ref="b2b_platform.res_users_search"/>
 			<field name="context">{'search_default_waiting_audit': 1}</field>
 		</record>
@@ -221,7 +221,7 @@
 			<field name="res_model">res.users</field>
             <field name="view_mode">tree,form</field>
 			<field name="view_type">form</field>
-			<field name="domain">[('user_type', '=', 'operator')]</field>
+			<field name="domain">[('own_user', '=', True), ('user_type', '=', 'operator')]</field>
 			<field name="search_view_id" ref="operator_res_users_search"/>
 			<field name="context">{'user_type': 'operator'}</field>
 		</record>
