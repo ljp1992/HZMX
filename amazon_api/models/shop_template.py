@@ -12,6 +12,8 @@ class ShopTemplate(models.Model):
     suffix = fields.Char(string=u'品名后缀')
     keywords = fields.Char(string=u'关键字')
 
+    handle_days = fields.Integer(default=3, string=u'处理天数')
+
     important_description = fields.Text(string=u'重要说明')
     key_description = fields.Text(string=u'要点说明')
     prefix_description = fields.Text(string=u'产品描述前缀')

@@ -249,9 +249,6 @@
             <field name="arch" type="xml">
                 <kanban class="oe_background_grey o_kanban_dashboard o_salesteam_kanban" create="0" js_class="sales_team_dashboard">
                     <field name="name"/>
-                    <!--<field name="account_amount"/>-->
-                    <!--<field name="credit"/>-->
-                    <!--<field name="debit"/>-->
                     <templates>
                         <t t-name="kanban-box">
                             <div>
@@ -271,14 +268,18 @@
 												<field name="available_cash"/>
 											</span>
 											<br></br>
-											<button name="view_transcation_detail" type="object"
-													class="btn btn-primary">交易明细</button>
                                         </div>
                                         <div class="col-xs-6 o_kanban_primary_right">
-                                            <span style="font-size:14.0pt;">待结算金额:<br/>
-                                            	<field name="wait_clear_amount"/>
+                                            <span style="font-size:14.0pt;">待入账金额:<br/>
+                                            	<field name="wait_add"/>
                                             </span>
                                             <br/><br/>
+											<span style="font-size:14.0pt;">待扣除金额:<br/>
+												<field name="wait_reduce"/>
+											</span>
+											<br></br>
+											<button name="view_transcation_detail" type="object"
+													class="btn btn-primary">交易明细</button>
                                         </div>
                                     </div>
                                 </div>

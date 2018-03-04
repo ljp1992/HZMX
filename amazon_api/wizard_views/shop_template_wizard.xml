@@ -27,6 +27,7 @@
                             <group>
                                 <field name="browse_node_id" options="{'no_create':True}"/>
 								<field name="categ_id" options="{'no_create':True}"/>
+								<field name="handle_days"/>
 							</group>
                         </group>
                         <group>

@@ -12,6 +12,8 @@ class ShopTemplateWizard(models.TransientModel):
     suffix = fields.Char(string=u'品名后缀')
     keywords = fields.Char(string=u'关键字')
 
+    handle_days = fields.Integer(default=3, string=u'处理天数')
+
     important_description = fields.Text(string=u'重要说明')
     key_description = fields.Text(string=u'要点说明')
     prefix_description = fields.Text(string=u'产品描述前缀')
@@ -38,6 +40,7 @@ class ShopTemplateWizard(models.TransientModel):
             self.key_description = self.template_id.key_description
             self.prefix_description = self.template_id.prefix_description
             self.suffix_description = self.template_id.suffix_description
+            self.handle_days = self.template_id.handle_days
 
     @api.multi
     def shop_include(self):
@@ -84,6 +87,7 @@ class ShopTemplateWizard(models.TransientModel):
                 'freight_template_id': template.freight_template_id.id,
                 'amazon_categ_id': self.categ_id.id,
                 'browse_node_id': self.browse_node_id.id,
+                'handle_days': self.handle_days,
             }
             # freight
             freight_lines = []

@@ -9,7 +9,8 @@ class ResUsers(models.Model):
     introduction = fields.Text(u'简介')
 
     account_amount = fields.Float(string=u'账户余额')
-    wait_clear_amount = fields.Float(compute='_compute_amount', store=False, string=u'待结算金额')
+    wait_add = fields.Float(compute='_compute_amount', store=False, string=u'待入账金额')
+    wait_reduce = fields.Float(compute='_compute_amount', store=False, string=u'待扣除金额')
     available_cash = fields.Float(compute='_compute_amount', store=False, string=u'可提现金额')
 
     own_my_data = fields.Boolean(search='_own_my_data', store=False)
@@ -48,13 +49,17 @@ class ResUsers(models.Model):
     @api.multi
     def _compute_amount(self):
         for record in self:
-            merchant = record.merchant_id or record
-            wait_clear_amount = 0
+            wait_add = 0
+            wait_reduce = 0
             for detail in record.transcation_detail_ids:
                 if detail.state == 'draft':
-                    wait_clear_amount += detail.amount
-            record.wait_clear_amount = wait_clear_amount
-            record.available_cash = record.account_amount + wait_clear_amount
+                    if detail.amount < 0:
+                        wait_reduce += detail.amount
+                    else:
+                        wait_add += detail.amount
+            record.wait_add = wait_add
+            record.wait_reduce = 0 - wait_reduce
+            record.available_cash = record.account_amount + wait_reduce
 
     @api.multi
     def pass_audit(self):
