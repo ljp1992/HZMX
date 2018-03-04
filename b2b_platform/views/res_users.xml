@@ -270,6 +270,9 @@
 											<span style="font-size:14.0pt;">可提现金额:<br/>
 												<field name="available_cash"/>
 											</span>
+											<br></br>
+											<button name="view_transcation_detail" type="object"
+													class="btn btn-primary">交易明细</button>
                                         </div>
                                         <div class="col-xs-6 o_kanban_primary_right">
                                             <span style="font-size:14.0pt;">待结算金额:<br/>

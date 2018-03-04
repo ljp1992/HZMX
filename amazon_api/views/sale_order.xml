@@ -28,7 +28,7 @@
                         <button name="false_delivery" type="object" string="假发货" class="btn-primary"
                                 attrs="{'invisible':[('b2b_state','=','delivered')]}"/>
                         <!--<button name="b2b_action_confirm" type="object" string="自有发货" class="btn-primary"/>-->
-                        <!--<button name="platform_purchase" type="object" string="平台采购" class="btn-primary"/>-->
+                        <button name="platform_purchase" type="object" string="平台采购cs" class="btn-primary"/>
                         <button name="b2b_action_confirm" type="object" string="自有发货" class="btn-primary"
                                 attrs="{'invisible':['|', ('b2b_type', '!=', 'own_delivery'),
                                 ('b2b_own_delivery_count', '>', 0)]}"/>

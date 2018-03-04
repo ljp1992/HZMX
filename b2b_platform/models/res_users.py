@@ -9,8 +9,8 @@ class ResUsers(models.Model):
     introduction = fields.Text(u'简介')
 
     account_amount = fields.Float(string=u'账户余额')
-    wait_clear_amount = fields.Float(store=False, string=u'待结算金额')
-    available_cash = fields.Float(compute='_available_cash', store=False, string=u'可提现金额')
+    wait_clear_amount = fields.Float(compute='_compute_amount', store=False, string=u'待结算金额')
+    available_cash = fields.Float(compute='_compute_amount', store=False, string=u'可提现金额')
 
     own_my_data = fields.Boolean(search='_own_my_data', store=False)
 
@@ -29,9 +29,32 @@ class ResUsers(models.Model):
         ('failed', u'未审核通过')
     ], string=u'审核状态')
 
-    def _available_cash(self):
+    @api.multi
+    def view_transcation_detail(self):
+        self.ensure_one()
+        merchant = self.env.user.merchant_id or self.env.user
+        return {
+            'name': u'交易明细',
+            'type': 'ir.actions.act_window',
+            'res_model': 'transcation.detail',
+            'view_mode': 'tree,',
+            'view_type': 'form',
+            'views': [
+                (self.env.ref('amazon_api.transcation_detail_tree').id, 'tree')],
+            'domain': [('merchant_id', '=', merchant.id)],
+            'target': 'current',
+        }
+
+    @api.multi
+    def _compute_amount(self):
         for record in self:
-            record.available_cash = record.account_amount - record.wait_clear_amount
+            merchant = record.merchant_id or record
+            wait_clear_amount = 0
+            for detail in record.transcation_detail_ids:
+                if detail.state == 'draft':
+                    wait_clear_amount += detail.amount
+            record.wait_clear_amount = wait_clear_amount
+            record.available_cash = record.account_amount + wait_clear_amount
 
     @api.multi
     def pass_audit(self):

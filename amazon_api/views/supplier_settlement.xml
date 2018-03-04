@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="supplier_settlement_tree" model="ir.ui.view">
+			<field name="name">supplier_settlement_tree</field>
+			<field name="model">supplier.settlement</field>
+			<field name="arch" type="xml">
+				<tree colors="blue:state=='uploading';red:state=='fail';black:state=='success'">
+					<field name="name"/>
+                    <field name="from_date"/>
+                    <field name="to_date"/>
+					<field name="merchant_id"/>
+					<field name="state"/>
+				</tree>
+			</field>
+		</record>
+
+        <record id="supplier_settlement_form" model="ir.ui.view">
+			<field name="name">supplier_settlement_form</field>
+			<field name="model">supplier.settlement</field>
+			<field name="arch" type="xml">
+				<form>
+					<field name="state" invisible="1"/>
+                    <header>
+                        <button name="search_supplier_invoice" type="object" string="查询供应商发票" class="oe_highlight"/>
+                        <button name="action_send" type="object" string="结算通知" class="oe_highlight"/>
+                        <button name="action_confirm" type="object" string="确认" class="oe_highlight"/>
+						<field name="state" widget="statusbar" statusbar_visible="draft,wait_supplier_confirm,done"/>
+					</header>
+					<sheet>
+						<group>
+                            <group>
+                                <field name="from_date"/>
+                                <field name="to_date"/>
+							</group>
+							<group>
+                                <field name="merchant_id" options="{'no_create':True}"/>
+							</group>
+						</group>
+                        <notebook>
+                            <page string="明细">
+                                <field name="order_line" readonly="1">
+                                    <tree editable="bottom">
+                                        <field name="name"/>
+                                        <field name="date"/>
+                                        <field name="total" sum="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+        <record id="supplier_settlement_act" model="ir.actions.act_window">
+            <field name="name">结算单</field>
+            <field name="res_model">supplier.settlement</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_type">form</field>
+        </record>
+
+        <menuitem id="supplier_settlement_menu" name="结算单" parent="b2b_platform.account_close_menu" sequence="1"
+                  action="supplier_settlement_act"/>
+	</data>
+</odoo>		

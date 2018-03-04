@@ -14,7 +14,7 @@ class Invoice(models.Model):
 
     total = fields.Float(compute='_compute_total', store=True, string=u'金额')
 
-    date = fields.Date(string=u'日期', required=True, default=lambda self: fields.Date.today())
+    date = fields.Datetime(string=u'日期', required=True, default=lambda self: datetime.datetime.now())
 
     merchant_id = fields.Many2one('res.users', string=u'商户', required=True, readonly=True,
                                   default=lambda self: self.env.user, domain=[('user_type', '=', 'merchant')])
@@ -23,6 +23,7 @@ class Invoice(models.Model):
     picking_id = fields.Many2one('stock.picking')
 
     order_line = fields.One2many('invoice.line', 'order_id')
+    # transcation_details = fields.One2many('transcation.detail', 'invoice_id')
 
     state = fields.Selection([
         ('draft', u'新建'),
@@ -37,7 +38,9 @@ class Invoice(models.Model):
     def create(self, val):
         if not val.has_key('name'):
             val['name'] = self.env['ir.sequence'].next_by_code('account.invoice.number') or '/'
-        return super(Invoice, self).create(val)
+        result = super(Invoice, self).create(val)
+        result.create_transcation_detail()
+        return result
 
     @api.depends('order_line.total')
     def _compute_total(self):
@@ -48,9 +51,35 @@ class Invoice(models.Model):
             record.total = total
 
     @api.multi
+    def create_transcation_detail(self):
+        for record in self:
+            val = {}
+            if record.type == 'distributor':
+                val = {
+                    'origin': record.name,
+                    'invoice_id': record.id,
+                    'type': 'distributor_invoice',
+                    'state': 'draft',
+                    'amount': 0 - record.total,
+                }
+            elif record.type == 'supplier':
+                val = {
+                    'origin': record.name,
+                    'invoice_id': record.id,
+                    'type': 'supplier_invoice',
+                    'state': 'draft',
+                    'amount': record.total,
+                }
+            if val:
+                self.env['transcation.detail'].create(val)
+
+    @api.multi
     def invoice_confirm(self):
         for record in self:
+            if record.state == 'paid':
+                continue
             record.state = 'paid'
+            record.transcation_details.action_confirm()
             if record.type == 'distributor':
                 record.merchant_id.account_amount -= record.total
             elif record.type == 'supplier':

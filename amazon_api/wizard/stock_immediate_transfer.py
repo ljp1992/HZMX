@@ -67,7 +67,7 @@ class StockImmediateTransfer(models.TransientModel):
                         'merchant_id': merchant.id,
                         'type': 'supplier',
                         'origin': picking.purchase_order_id.name,
-                        'state': 'paid',
+                        'state': 'draft',
                         'order_line': []
                     }
                     supplier_loc_invoice = copy.deepcopy(third_loc_invoice)
@@ -92,11 +92,6 @@ class StockImmediateTransfer(models.TransientModel):
                             }))
                     if supplier_loc_invoice.get('order_line'):
                         invoice = invoice_obj.create(supplier_loc_invoice)
-                        invoice.invoice_confirm()
                     if third_loc_invoice.get('order_line'):
                         invoice = invoice_obj.create(third_loc_invoice)
-                        invoice.invoice_confirm()
-                    picking.sudo().sale_order_id.b2b_invoice_ids.invoice_confirm()
-                    # print picking.sale_order_id,picking.sudo().sale_order_id.b2b_invoice_ids
-                    # raise UserError(u'ljp')
         return result

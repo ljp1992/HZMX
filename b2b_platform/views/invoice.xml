@@ -84,7 +84,7 @@
         </record>
 
         <menuitem id="distributor_invoice_menu" name="经销商发票" parent="account_close_menu"
-                  action="b2b_platform.invoice_act" sequence="1"/>
+                  action="b2b_platform.invoice_act" sequence="3"/>
 
         <record id="supplier_invoice_form" model="ir.ui.view">
             <field name="name">supplier_invoice_form</field>
@@ -155,6 +155,6 @@
         </record>
 
         <menuitem id="supplier_invoice_menu" name="供应商发票" parent="account_close_menu"
-                  action="b2b_platform.supplier_invoice_act" sequence="2"/>
+                  action="b2b_platform.supplier_invoice_act" sequence="5"/>
     </data>
 </odoo>

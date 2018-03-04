@@ -32,18 +32,13 @@ class AccountCharge(models.Model):
         ('done', u'完成'),
         ('cancel', u'已取消')], string=u'状态', default='draft')
 
-    @api.model
-    def create(self, val):
-        if not val.has_key('name'):
-            val['name'] = self.env['ir.sequence'].next_by_code('account.charge.number') or '/'
-        return super(AccountCharge, self).create(val)
-
     def btn_notice(self):
         self.state = 'notice'
 
     def btn_done(self):
         self.state = 'done'
         self.merchant_id.account_amount += self.amount
+        self.transcation_detail_ids.action_confirm()
 
     def btn_cancel(self):
         self.state = 'cancel'

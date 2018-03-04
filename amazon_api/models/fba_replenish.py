@@ -68,6 +68,8 @@ class FbaReplenish(models.Model):
             suppliers = list(set(suppliers))
             if len(suppliers) > 1:
                 raise UserError(u'只能选择一个供应商供应商不符')
+            elif len(suppliers) == 1:
+                record.supplier = suppliers[0].id
 
 
 
