@@ -8,7 +8,7 @@
 				<tree>
 					<field name="origin"/>
                     <field name="type"/>
-					<field name="create_date" sring="创建时间"/>
+					<field name="create_date" string="创建时间"/>
 					<field name="paid_time"/>
                     <field name="amount" sum="1"/>
 				</tree>

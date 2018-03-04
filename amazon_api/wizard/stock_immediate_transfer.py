@@ -94,4 +94,46 @@ class StockImmediateTransfer(models.TransientModel):
                         invoice = invoice_obj.create(supplier_loc_invoice)
                     if third_loc_invoice.get('order_line'):
                         invoice = invoice_obj.create(third_loc_invoice)
+                elif picking.origin_type == 'fba_delivery': #fba 补发货
+                    picking.fba_replenish_id.state = 'done'
+                    third_loc = loc_obj.search([
+                        ('partner_id', '=', merchant.partner_id.id),
+                        ('location_id', '=', self.env.ref('b2b_platform.third_warehouse').id)], limit=1)
+                    supplier_loc = loc_obj.search([
+                        ('partner_id', '=', merchant.partner_id.id),
+                        ('location_id', '=', self.env.ref('b2b_platform.supplier_stock').id)], limit=1)
+                    third_loc_invoice = {
+                        'picking_id': picking.id,
+                        'fba_freight': picking.fba_replenish_id.freight,
+                        'fba_replenish_id': picking.fba_replenish_id.id,
+                        'merchant_id': merchant.id,
+                        'type': 'supplier',
+                        'origin': picking.fba_replenish_id.name,
+                        'state': 'draft',
+                        'order_line': []
+                    }
+                    supplier_loc_invoice = copy.deepcopy(third_loc_invoice)
+                    for line in picking.pack_operation_product_ids:
+                        if line.location_id == supplier_loc:
+                            supplier_loc_invoice['order_line'].append((0, 0, {
+                                'product_id': line.product_id.id,
+                                'product_uom_qty': line.qty_done,
+                                'product_uom': line.product_uom_id.id,
+                                'platform_price': line.product_id.supplier_price,
+                                'freight': 0,
+                                'operation_line_id': line.id,
+                            }))
+                        elif line.location_id == third_loc:
+                            third_loc_invoice['order_line'].append((0, 0, {
+                                'product_id': line.product_id.id,
+                                'product_uom_qty': line.qty_done,
+                                'product_uom': line.product_uom_id.id,
+                                'platform_price': line.product_id.supplier_price,
+                                'freight': 0,
+                                'operation_line_id': line.id,
+                            }))
+                    if supplier_loc_invoice.get('order_line'):
+                        invoice = invoice_obj.create(supplier_loc_invoice)
+                    if third_loc_invoice.get('order_line'):
+                        invoice = invoice_obj.create(third_loc_invoice)
         return result

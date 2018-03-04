@@ -12,6 +12,7 @@ class Invoice(models.Model):
     note = fields.Text(string=u'备注')
     origin = fields.Char(string=u'来源')
 
+    fba_freight = fields.Float(string=u'FBA运费')
     total = fields.Float(compute='_compute_total', store=True, string=u'金额')
 
     date = fields.Datetime(string=u'日期', required=True, default=lambda self: datetime.datetime.now())
@@ -48,7 +49,7 @@ class Invoice(models.Model):
             total = 0
             for line in record.order_line:
                 total += line.total
-            record.total = total
+            record.total = total + record.fba_freight
 
     @api.multi
     def create_transcation_detail(self):

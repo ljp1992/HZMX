@@ -11,6 +11,7 @@ class StockPackOperation(models.Model):
 
     b2b_sale_line_id = fields.Many2one('sale.order.line')
     b2b_purchase_line_id = fields.Many2one('purchase.order.line')
+    fba_replenish_line_id = fields.Many2one('fba.replenish.line')
 
     @api.onchange('qty_done')
     def b2b_onchange_product_qty(self):

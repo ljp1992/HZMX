@@ -35,6 +35,7 @@ class StockPicking(models.Model):
     logistics_company_id = fields.Many2one('logistics.company', string=u'物流公司')
     sale_order_id = fields.Many2one('sale.order')
     purchase_order_id = fields.Many2one('purchase.order')
+    fba_replenish_id = fields.Many2one('fba.replenish')
     # distributor_invoice_ids = fields.Many2one('invoice', related='sale_order_id.invoice_ids', string=u'经销商发票')
 
     delivery_info_upload_state = fields.Selection([
@@ -55,6 +56,7 @@ class StockPicking(models.Model):
     origin_type = fields.Selection([
         ('own_delivery', u'自有发货'),
         ('agent_delivery', u'代发货'),
+        ('fba_delivery', u'FBA补货'),
     ], string=u'类型')
 
     @api.model
@@ -64,7 +66,6 @@ class StockPicking(models.Model):
         loc = self.env['stock.location'].search([
             ('partner_id', '=', merchant.partner_id.id),
             ('location_id', '=', supplier_loc)])
-        print loc
         if loc:
             return loc
 

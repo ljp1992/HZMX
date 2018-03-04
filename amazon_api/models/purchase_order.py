@@ -18,10 +18,10 @@ class PurchaseOrder(models.Model):
     own_record = fields.Boolean(compute='_own_record')
     hide_delivery_button = fields.Boolean(compute='_hide_delivery_button')
 
-    sale_order_id = fields.Many2one('sale.order')
-
     delivery_order_count = fields.Integer(compute='_delivery_order_count')
 
+    sale_order_id = fields.Many2one('sale.order')
+    fba_replenish_id = fields.Many2one('fba.replenish', string=u'FBA补货单')
     merchant_id = fields.Many2one('res.users', default=lambda self: self.env.user.merchant_id or self.env.user,
                                   string=u'商户')
     e_country_id = fields.Many2one('amazon.country', related='sale_order_id.country_id', string=u'发往国家')
@@ -85,7 +85,7 @@ class PurchaseOrder(models.Model):
             'view_type': 'form',
             'views': [
                 (self.env.ref('b2b_platform.invoice_tree').id, 'tree'),
-                (self.env.ref('b2b_platform.supplier_invoice_form').id, 'form')],
+                (self.env.ref('b2b_platform.invoice_form').id, 'form')],
             'domain': [('id', 'in', self.b2b_invoice_ids.ids)],
             'target': 'current',
         }
@@ -206,6 +206,7 @@ class PurchaseOrderLine(models.Model):
     b2b_total = fields.Float(compute='_compute_total', store=False, string=u'小计')
 
     b2b_sale_line_id = fields.Many2one('sale.order.line')
+    fba_replenish_line_id = fields.Many2one('fba.replenish')
 
     def _compute_total(self):
         for record in self:

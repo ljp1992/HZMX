@@ -31,9 +31,9 @@
                     <field name="b2b_type" invisible="1"/>
                     <field name="own_record" invisible="1"/>
                     <header>
-                        <button name="b2b_do_new_transfer" string="移动" type="object" class="oe_highlight"/>
-                        <!--<button name="b2b_do_new_transfer" string="移动" type="object" class="oe_highlight"-->
-                                <!--attrs="{'invisible':['|',('b2b_state', '=', 'done'),('own_record', '=', False)]}"/>-->
+                        <!--<button name="b2b_do_new_transfer" string="移动" type="object" class="oe_highlight"/>-->
+                        <button name="b2b_do_new_transfer" string="发货" type="object" class="oe_highlight"
+                                attrs="{'invisible':['|',('b2b_state', '=', 'done'),('own_record', '=', False)]}"/>
                         <button name="upload_delivery_info" string="上传发货信息" type="object" class="oe_highlight"
                             attrs="{'invisible': [('own_record', '=', False)]}"/>
                         <field name="b2b_state" widget="statusbar" statusbar_visible="draft,done"/>
