@@ -22,9 +22,14 @@
 				<form>
 					<field name="state" invisible="1"/>
                     <header>
-                        <button name="search_supplier_invoice" type="object" string="查询供应商发票" class="oe_highlight"/>
-                        <button name="action_send" type="object" string="结算通知" class="oe_highlight"/>
-                        <button name="action_confirm" type="object" string="确认" class="oe_highlight"/>
+                        <button name="search_supplier_invoice" type="object" string="查询供应商发票" class="oe_highlight"
+							attrs="{'invisible': [('state', '!=', 'draft')]}" groups="b2b_platform.b2b_manager"/>
+                        <button name="action_send" type="object" string="结算通知" class="oe_highlight"
+								attrs="{'invisible': [('state', '!=', 'draft')]}"
+								groups="b2b_platform.b2b_manager"/>
+                        <button name="action_confirm" type="object" string="确认" class="oe_highlight"
+								groups="b2b_platform.b2b_seller"
+								attrs="{'invisible': [('state', '!=', 'wait_supplier_confirm')]}"/>
 						<field name="state" widget="statusbar" statusbar_visible="draft,wait_supplier_confirm,done"/>
 					</header>
 					<sheet>
@@ -58,6 +63,7 @@
             <field name="res_model">supplier.settlement</field>
             <field name="view_mode">tree,form</field>
             <field name="view_type">form</field>
+			<field name="domain">[('own_data', '=', True)]</field>
         </record>
 
         <menuitem id="supplier_settlement_menu" name="结算单" parent="b2b_platform.account_close_menu" sequence="1"

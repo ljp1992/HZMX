@@ -11,6 +11,8 @@ class SupplierSettlement(models.Model):
 
     note = fields.Text(string=u'备注')
 
+    own_data = fields.Boolean(search='_own_data', store=False)
+
     from_date = fields.Datetime(default=lambda self: datetime.datetime.now() - datetime.timedelta(days=30),
                                 string=u'起始时间')
     to_date = fields.Datetime(default=lambda self: datetime.datetime.now(), string=u'终止时间')
@@ -24,6 +26,14 @@ class SupplierSettlement(models.Model):
         ('wait_supplier_confirm', u'待供应商确认'),
         ('done', u'完成'),
     ], default='draft', string=u'状态')
+
+    @api.model
+    def _own_data(self, operation, value):
+        merchant = self.env.user.merchant_id or self.env.user
+        if self.user_has_groups('b2b_platform.b2b_shop_operator'):
+            return [('merchant_id', '=', merchant.id)]
+        elif self.user_has_groups('b2b_platform.b2b_seller'):
+            return [('merchant_id', '=', merchant.id)]
 
     @api.model
     def create(self, val):
