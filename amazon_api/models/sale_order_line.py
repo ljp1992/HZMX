@@ -11,17 +11,23 @@ class SaleOrderLine(models.Model):
 
     e_price_unit = fields.Float(string=u'单价')
     e_freight = fields.Float(string=u'运费')
-    supplier_freight = fields.Float(compute='_supplier_freight', string=u'供应商运费')
+    supplier_freight = fields.Float(compute='_supplier_freight', string=u'运费')
+    b2b_subtotal = fields.Float(compute='_compute_b2b_subtotal', store=False, string=u'小计')
 
     shop_product_id = fields.Many2one('product.product', string=u'商品')
     e_currency_id = fields.Many2one('amazon.currency', related='order_id.e_currency_id', string=u'币种')
-
 
     b2b_state = fields.Selection([
         ('wait_handle', u'待处理'),
         ('delivering', u'待发货'),
         ('delivered', u'已交付'),
         ('cancel', u'取消')], related='order_id.b2b_state', string=u'状态')
+
+    api.multi
+    def _compute_b2b_subtotal(self):
+        for record in self:
+            print 111
+            record.b2b_subtotal = (record.price_unit + record.supplier_freight) * record.product_uom_qty
 
     @api.multi
     def _own_product(self):

@@ -37,3 +37,4 @@ from . import purchase_order
 from . import request_location
 from . import stock_pack_operation
 from . import stock_quant
+from . import fba_replenish

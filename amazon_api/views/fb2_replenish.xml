@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+        <record id="fba_replenish_tree" model="ir.ui.view">
+			<field name="name">fba_replenish_tree</field>
+			<field name="model">fba.replenish</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="name" string="单号"/>
+				</tree>
+			</field>
+		</record>
+
+        <record id="b2b_fba_replenish_form" model="ir.ui.view">
+			<field name="name">fba_replenish_form</field>
+			<field name="model">fba.replenish</field>
+			<field name="arch" type="xml">
+				<form>
+                    <!--<field name="state" invisible="1"/>-->
+                    <!--<field name="location_id" invisible="1"/>-->
+                    <!--<field name="location_dest_id" invisible="1"/>-->
+                    <!--<field name="move_type" invisible="1"/>-->
+                    <!--<field name="picking_type_id" invisible="1"/>-->
+                    <!--<field name="b2b_state" invisible="1"/>-->
+                    <!--<field name="b2b_type" invisible="1"/>-->
+                    <!--<field name="own_record" invisible="1"/>-->
+                    <header>
+                        <button name="send_request" string="提交申请" type="object" class="oe_highlight"/>
+                        <button name="confirmed" string="确认" type="object" class="oe_highlight"/>
+                        <!--&lt;!&ndash;<button name="b2b_do_new_transfer" string="移动" type="object" class="oe_highlight"&ndash;&gt;-->
+                                <!--&lt;!&ndash;attrs="{'invisible':['|',('b2b_state', '=', 'done'),('own_record', '=', False)]}"/>&ndash;&gt;-->
+                        <!--<button name="upload_delivery_info" string="上传发货信息" type="object" class="oe_highlight"-->
+                            <!--attrs="{'invisible': [('own_record', '=', False)]}"/>-->
+                        <!--<field name="state" widget="statusbar" statusbar_visible="draft,done"/>-->
+                    </header>
+					<sheet>
+                        <!--<div class="oe_button_box">-->
+                            <!--<button name="view_submission_history" type="object" class="oe_stat_button"-->
+                                    <!--icon="fa-pencil-square-o" attrs="{'invisible': [('b2b_log_count', '=', 0)]}">-->
+                                <!--<field name="b2b_log_count" widget="statinfo" string="上传日志"/>-->
+                            <!--</button>-->
+                        <!--</div>-->
+                        <group>
+                            <group>
+                                <field name="distributor" readonly="1"/>
+                                <field name="supplier" options="{'no_create': True}"/>
+                                <field name="country_id" options="{'no_create': True}"/>
+                                <field name="method"/>
+                            </group>
+                            <group>
+                                <field name="type"/>
+                                <field name="logistics_company_id"
+                                       attrs="{'invisible': [('type', '=', 'supplier_delivery')]}"  options="{'no_create': True}"/>
+                                <field name="freight"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="明细">
+                                <field name="order_line">
+                                    <tree editable="bottom">
+                                        <field name="product_id"/>
+                                        <field name="platform_price"/>
+                                        <field name="supplier_price"/>
+                                        <field name="product_uom"/>
+                                        <field name="need_qty"/>
+                                        <field name="available_qty"/>
+                                        <field name="supplier"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+				</form>
+			</field>
+		</record>
+
+        <record id="fba_replenish_act" model="ir.actions.act_window">
+            <field name="name">FBA补货</field>
+            <field name="res_model">fba.replenish</field>
+            <field name="view_mode">tree</field>
+            <field name="view_type">form</field>
+            <field name="domain">[]</field>
+            <!--<field name="context">{'view_own_picking': True}</field>-->
+        </record>
+        <record id="fba_replenish_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="fba_replenish_tree"/>
+            <field name="act_window_id" ref="fba_replenish_act"/>
+        </record>
+        <record id="fba_replenish_act_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="b2b_fba_replenish_form"/>
+            <field name="act_window_id" ref="fba_replenish_act"/>
+        </record>
+        <menuitem id="fba_replenish_menu" name="FBA补货" parent="b2b_platform.fba_replenish_parent_menu" sequence="1"
+                  action="fba_replenish_act"/>
+	</data>
+</odoo>

@@ -93,10 +93,10 @@ class InvoiceLine(models.Model):
     freight = fields.Float(string=u'运费')
     total = fields.Float(compute='_compute_total', store=True, string=u'小计')
 
-    @api.depends('platform_price', 'product_uom_qty')
+    @api.depends('platform_price', 'product_uom_qty', 'freight')
     def _compute_total(self):
         for record in self:
-            record.total = record.platform_price * record.product_uom_qty + record.freight
+            record.total = (record.platform_price + record.freight) * record.product_uom_qty
 
 
 

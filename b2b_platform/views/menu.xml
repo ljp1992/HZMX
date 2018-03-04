@@ -12,6 +12,7 @@
             <menuitem id="purchase_parent_menu" parent="ecommerce_menu_root" name="代发采购" sequence="5"/>
             <menuitem id="stock_parent_menu" parent="ecommerce_menu_root" name="发货管理" sequence="7"/>
             <menuitem id="stock_manage_parent_menu" parent="ecommerce_menu_root" name="库存管理" sequence="8"/>
+            <menuitem id="fba_replenish_parent_menu" parent="ecommerce_menu_root" name="FBA补货" sequence="9"/>
             <menuitem id="log_menu" parent="ecommerce_menu_root" name="日志" sequence="10"/>
 
         <menuitem id="stock_menu_root" name="仓储" sequence="5"/>

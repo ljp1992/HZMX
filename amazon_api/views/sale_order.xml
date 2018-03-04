@@ -103,8 +103,9 @@
                                         <field name="product_id" readonly="1"/>
                                         <field name="product_uom_qty" readonly="1"/>
                                         <field name="product_uom" readonly="1"/>
-                                        <field name="price_unit" readonly="1"/>
-                                        <field name="price_subtotal" sum="1" readonly="1"/>
+                                        <field name="price_unit" string="平台采购价格" readonly="1"/>
+                                        <field name="supplier_freight" readonly="1"/>
+                                        <field name="b2b_subtotal" sum="1" readonly="1"/>
                                     </tree>
                                 </field>
                             </page>

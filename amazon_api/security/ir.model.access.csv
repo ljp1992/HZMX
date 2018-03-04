@@ -85,6 +85,12 @@ request_location_operator_id,request_location,model_request_location,b2b_platfor
 request_location_merchant_id,request_location,model_request_location,b2b_platform.b2b_seller,1,1,1,1
 request_location_manager_id,request_location,model_request_location,b2b_platform.b2b_manager,1,1,1,1
 
+fba_replenish_operator_id,fba_replenish,model_fba_replenish,b2b_platform.b2b_shop_operator,1,1,1,1
+fba_replenish_merchant_id,fba_replenish,model_fba_replenish,b2b_platform.b2b_seller,1,1,1,1
+fba_replenish_manager_id,fba_replenish,model_fba_replenish,b2b_platform.b2b_manager,1,1,1,1
 
+fba_replenish_line_operator_id,fba_replenish_line,model_fba_replenish_line,b2b_platform.b2b_shop_operator,1,1,1,1
+fba_replenish_line_merchant_id,fba_replenish_line,model_fba_replenish_line,b2b_platform.b2b_seller,1,1,1,1
+fba_replenish_line_manager_id,fba_replenish_line,model_fba_replenish_line,b2b_platform.b2b_manager,1,1,1,1
 
 

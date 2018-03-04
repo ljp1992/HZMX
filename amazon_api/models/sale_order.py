@@ -370,7 +370,7 @@ class SaleOrder(models.Model):
                 'platform_price': sale_line.product_id.platform_price,
                 'product_uom_qty': sale_line.product_uom_qty,
                 'product_uom': sale_line.product_uom.id,
-                'freight': 0,
+                'freight': sale_line.supplier_freight,
             }))
             platform_pro_merchant = sale_line.sudo().product_id.product_tmpl_id.merchant_id
             supplier_id = platform_pro_merchant.partner_id.id
