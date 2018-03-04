@@ -34,9 +34,9 @@ class ResUsers(models.Model):
     @api.model
     def _compute_own_user(self, operation, value):
         print 1111
-        if self.env.user.id == 1:
-            return [('user_type', '=', 'management')]
-        elif self.user_has_groups('b2b_platform.b2b_seller'):
+        # if self.env.user.id == 1:
+        #     return [('user_type', '=', 'management')]
+        if self.user_has_groups('b2b_platform.b2b_seller'):
             return [('merchant_id', '=', self.env.user.id)]
         # elif self.user_has_groups('b2b_platform.b2b_manager'):
         #     return [('user_type', '=', 'merchant')]
