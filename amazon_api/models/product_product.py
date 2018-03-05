@@ -41,16 +41,10 @@ class ProductProduct(models.Model):
 
     @api.model
     def _product_owner(self, operation, value):
+        print '_product_owner'
         if self.user_has_groups('b2b_platform.b2b_shop_operator') or \
                 self.user_has_groups('b2b_platform.b2b_seller'):
             merchant = self.env.user.merchant_id or self.env.user
-            # platform_tmpls = self.env['product.template'].sudo().search([
-            #     ('state', '=', 'platform_published'),
-            #     ('merchant_id', '=', merchant.id),
-            # ])
-            # product_ids = []
-            # for platform_tmpl in platform_tmpls:
-            #     product_ids += platform_tmpl.product_variant_ids.ids
             return [('merchant_id', '=', merchant.id)]
 
     def _hide_price(self):
@@ -151,6 +145,7 @@ class ProductProduct(models.Model):
 
     @api.model
     def search(self, args, offset=0, limit=None, order=None, count=False):
+        print args
         context = self.env.context
         if context.get('view_own_product'):
             user = self.env.user
