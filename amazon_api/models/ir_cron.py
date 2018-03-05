@@ -13,4 +13,10 @@ class IrCron(models.Model):
         self.env['product.attribute'].create_attribute_and_categs()
         self.env['amazon.category'].create_categs_theme()
         self.env['amazon.browse.node'].create_browse_node()
+        self.env['b2b.account'].create_account() # 创建账户
+        return
+
+    def handle_history_data(self):
+        '''历史数据处理'''
+
         return

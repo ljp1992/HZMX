@@ -28,7 +28,7 @@ class AccountCharge(models.Model):
 
     state = fields.Selection([
         ('draft', u'新建'),
-        ('notice', u'通知'),
+        ('notice', u'已发送给平台'),
         ('done', u'完成'),
         ('cancel', u'已取消')], string=u'状态', default='draft')
 

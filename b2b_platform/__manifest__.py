@@ -32,10 +32,8 @@
         'views/menu.xml',
         'views/res_users.xml',
         'views/auth_signup.xml',
-        'views/account_charge.xml',
         'views/res_bank.xml',
         'views/bank_account.xml',
-        'views/account_cash.xml',
         'views/invoice.xml',
     ],
     # only loaded in demonstration mode

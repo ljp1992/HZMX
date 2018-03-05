@@ -33,29 +33,12 @@ class ResUsers(models.Model):
 
     @api.model
     def _compute_own_user(self, operation, value):
-        print 1111
-        # if self.env.user.id == 1:
-        #     return [('user_type', '=', 'management')]
         if self.user_has_groups('b2b_platform.b2b_seller'):
             return [('merchant_id', '=', self.env.user.id)]
-        # elif self.user_has_groups('b2b_platform.b2b_manager'):
-        #     return [('user_type', '=', 'merchant')]
 
     @api.multi
     def view_transaction_detail(self):
-        self.ensure_one()
-        merchant = self.env.user.merchant_id or self.env.user
-        return {
-            'name': u'交易明细',
-            'type': 'ir.actions.act_window',
-            'res_model': 'transaction.detail',
-            'view_mode': 'tree,',
-            'view_type': 'form',
-            'views': [
-                (self.env.ref('amazon_api.transaction_detail_tree').id, 'tree')],
-            'domain': [('merchant_id', '=', merchant.id)],
-            'target': 'current',
-        }
+        pass
 
     @api.multi
     def _compute_amount(self):
@@ -79,21 +62,7 @@ class ResUsers(models.Model):
     @api.multi
     def pass_audit(self):
         '''审核通过'''
-        self.ensure_one()
-        self.write({
-            'groups_id': [(6, False, [self.env.ref('b2b_platform.b2b_seller').id])],
-            'audit_state': 'pass',
-        })
-        location_obj = self.env['stock.location']
-        partner_id = self.partner_id.id
-        location_id = self.env.ref('b2b_platform.supplier_stock').id
-        location = location_obj.search([('partner_id', '=', partner_id), ('location_id', '=', location_id)])
-        if not location:
-            location_obj.create({
-                'name': self.name,
-                'location_id': location_id,
-                'partner_id': partner_id,
-            })
+        pass
 
     @api.model
     def _own_my_data(self, operator, value):

@@ -27,9 +27,18 @@ class AccountCharge(models.Model):
                 'type': 'charge',
                 'state': 'draft',
                 'amount': record.amount,
+                'merchant_id': record.merchant_id.id,
             }
-            print record.amount
             self.env['transaction.detail'].create(val)
+
+    @api.multi
+    def unlink(self):
+        merchants = [record.merchant_id for record in self]
+        result = super(AccountCharge, self).unlink()
+        for merchant in merchants:
+            merchant._compute_amount()
+        return result
+
 
 
 

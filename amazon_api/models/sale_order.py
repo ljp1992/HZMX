@@ -409,7 +409,7 @@ class SaleOrder(models.Model):
                     })]
                 }
         invoice = self.env['invoice'].create(distributor_invoice)
-        if merchant.account_amount < invoice.total:
+        if merchant.left_amount < invoice.total:
             raise UserError(u'账户余额不足，请充值！')
         invoice.invoice_confirm()
         for (supplier_id, val) in purchase_info.items():

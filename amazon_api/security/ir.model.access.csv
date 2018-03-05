@@ -93,11 +93,14 @@ fba_replenish_line_operator_id,fba_replenish_line,model_fba_replenish_line,b2b_p
 fba_replenish_line_merchant_id,fba_replenish_line,model_fba_replenish_line,b2b_platform.b2b_seller,1,1,1,1
 fba_replenish_line_manager_id,fba_replenish_line,model_fba_replenish_line,b2b_platform.b2b_manager,1,1,1,1
 
-transcation_detail_operator_id,transcation_detail,model_transcation_detail,b2b_platform.b2b_shop_operator,1,1,1,1
-transcation_detail_merchant_id,transcation_detail,model_transcation_detail,b2b_platform.b2b_seller,1,1,1,1
-transcation_detail_manager_id,transcation_detail,model_transcation_detail,b2b_platform.b2b_manager,1,1,1,1
-
+transaction_detail_operator_id,transaction_detail,model_transaction_detail,b2b_platform.b2b_shop_operator,1,1,1,1
+transaction_detail_merchant_id,transaction_detail,model_transaction_detail,b2b_platform.b2b_seller,1,1,1,1
+transaction_detail_manager_id,transaction_detail,model_transaction_detail,b2b_platform.b2b_manager,1,1,1,1
 
 supplier_settlement_operator_id,supplier_settlement,model_supplier_settlement,b2b_platform.b2b_shop_operator,1,1,1,1
 supplier_settlement_merchant_id,supplier_settlement,model_supplier_settlement,b2b_platform.b2b_seller,1,1,1,1
 supplier_settlement_manager_id,supplier_settlement,model_supplier_settlement,b2b_platform.b2b_manager,1,1,1,1
+
+b2b_account_operator_id,b2b_account,model_b2b_account,b2b_platform.b2b_shop_operator,1,1,1,1
+b2b_account_merchant_id,b2b_account,model_b2b_account,b2b_platform.b2b_seller,1,1,1,1
+b2b_account_manager_id,b2b_account,model_b2b_account,b2b_platform.b2b_manager,1,1,1,1

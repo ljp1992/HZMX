@@ -22,7 +22,8 @@
             <field name="arch" type="xml">
                 <form>
                     <header>
-                        <button name="btn_notice" string="付款通知" states='draft' type="object" class="oe_highlight"/>
+                        <button name="btn_notice" string="付款通知" states='draft' type="object" class="oe_highlight"
+                            groups="b2b_platform.b2b_seller"/>
                         <button name="btn_done" string="确认" states='notice' type="object" class="oe_highlight"
                             groups="b2b_platform.b2b_manager"/>
                         <!--<button name="btn_cancel" string="取消" states='notice' type="object"/>-->

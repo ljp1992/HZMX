@@ -23,10 +23,18 @@ class AccountCash(models.Model):
                 'cash_id': record.id,
                 'type': 'cash',
                 'state': 'draft',
-                'amount': 0 - record.amount,
+                'amount': record.amount,
+                'merchant_id': record.merchant_id.id,
             }
-            print val
             self.env['transaction.detail'].create(val)
+
+    @api.multi
+    def unlink(self):
+        merchants = [record.merchant_id for record in self]
+        result = super(AccountCash, self).unlink()
+        for merchant in merchants:
+            merchant._compute_amount()
+        return result
 
 
 

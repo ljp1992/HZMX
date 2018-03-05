@@ -10,6 +10,15 @@
             <field name="args" eval="False"/>
         </record>
 
+        <record id="handle_history_data" model="ir.cron">
+            <field name="name">历史数据处理</field>
+            <field name="user_id">1</field>
+            <field name="active" eval="False"/>
+            <field name="model">ir.cron</field>
+            <field name="function">handle_history_data</field>
+            <field name="args" eval="False"/>
+        </record>
+
         <record id="get_feed_result" model="ir.cron">
             <field name="name">获取变体、图片、价格、库存、发货信息的上传结果</field>
             <field name="user_id">1</field>

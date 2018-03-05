@@ -46,6 +46,10 @@
         'views/fb2_replenish.xml',
         'views/transaction_detail.xml',
         'views/supplier_settlement.xml',
+        'views/res_users.xml',
+        'views/account_charge.xml',
+        'views/account_cash.xml',
+
         'wizard_views/shop_template_wizard.xml',
         'wizard_views/amazon_wizard.xml',
         'wizard_views/stock_adjust.xml',
