@@ -298,7 +298,7 @@ class FbaReplenish(models.Model):
             }))
         invoice = self.env['invoice'].create(invoice_val)
         invoice.invoice_confirm()
-        if merchant.account_amount < 0:
+        if merchant.left_amount < 0:
             raise UserError(u'余额不足，请及时充值！')
 
     @api.model

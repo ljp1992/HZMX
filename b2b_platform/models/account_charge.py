@@ -37,7 +37,6 @@ class AccountCharge(models.Model):
 
     def btn_done(self):
         self.state = 'done'
-        self.merchant_id.account_amount += self.amount
         self.transaction_detail_ids.action_confirm()
 
     def btn_cancel(self):

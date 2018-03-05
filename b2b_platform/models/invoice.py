@@ -81,10 +81,6 @@ class Invoice(models.Model):
                 continue
             record.state = 'paid'
             record.transaction_details.action_confirm()
-            if record.type == 'distributor':
-                record.merchant_id.account_amount -= record.total
-            elif record.type == 'supplier':
-                record.merchant_id.account_amount += record.total
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):

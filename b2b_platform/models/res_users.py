@@ -8,7 +8,6 @@ class ResUsers(models.Model):
 
     introduction = fields.Text(u'简介')
 
-    account_amount = fields.Float(compute='_compute_amount', store=False, string=u'账户余额')
     wait_add = fields.Float(compute='_compute_amount', store=False, string=u'待入账金额')
     wait_reduce = fields.Float(compute='_compute_amount', store=False, string=u'待扣除金额')
     available_cash = fields.Float(compute='_compute_amount', store=False, string=u'可提现金额')
