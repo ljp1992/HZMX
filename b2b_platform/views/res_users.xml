@@ -264,7 +264,7 @@
                                             	<field name="account_amount"/>
                                             </span>
 											<br/><br/>
-											<button name="view_transcation_detail" type="object"
+											<button name="view_transaction_detail" type="object"
 													class="btn btn-primary">交易明细</button>
                                         </div>
                                         <div class="col-xs-6 o_kanban_primary_right">

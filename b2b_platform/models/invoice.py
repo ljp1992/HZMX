@@ -24,7 +24,7 @@ class Invoice(models.Model):
     picking_id = fields.Many2one('stock.picking')
 
     order_line = fields.One2many('invoice.line', 'order_id')
-    # transcation_details = fields.One2many('transcation.detail', 'invoice_id')
+    # transaction_details = fields.One2many('transaction.detail', 'invoice_id')
 
     state = fields.Selection([
         ('draft', u'新建'),
@@ -40,7 +40,7 @@ class Invoice(models.Model):
         if not val.has_key('name'):
             val['name'] = self.env['ir.sequence'].next_by_code('account.invoice.number') or '/'
         result = super(Invoice, self).create(val)
-        result.create_transcation_detail()
+        result.create_transaction_detail()
         return result
 
     @api.depends('order_line.total')
@@ -52,7 +52,7 @@ class Invoice(models.Model):
             record.total = total + record.fba_freight
 
     @api.multi
-    def create_transcation_detail(self):
+    def create_transaction_detail(self):
         for record in self:
             val = {}
             if record.type == 'distributor':
@@ -72,7 +72,7 @@ class Invoice(models.Model):
                     'amount': record.total,
                 }
             if val:
-                self.env['transcation.detail'].create(val)
+                self.env['transaction.detail'].create(val)
 
     @api.multi
     def invoice_confirm(self):
@@ -80,7 +80,7 @@ class Invoice(models.Model):
             if record.state == 'paid':
                 continue
             record.state = 'paid'
-            record.transcation_details.action_confirm()
+            record.transaction_details.action_confirm()
             if record.type == 'distributor':
                 record.merchant_id.account_amount -= record.total
             elif record.type == 'supplier':

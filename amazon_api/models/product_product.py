@@ -41,7 +41,6 @@ class ProductProduct(models.Model):
 
     @api.model
     def _product_owner(self, operation, value):
-        print '_product_owner'
         if self.user_has_groups('b2b_platform.b2b_shop_operator') or \
                 self.user_has_groups('b2b_platform.b2b_seller'):
             merchant = self.env.user.merchant_id or self.env.user

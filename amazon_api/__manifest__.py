@@ -44,7 +44,7 @@
         'views/stock_pack_operation.xml',
         'views/stock_quant.xml',
         'views/fb2_replenish.xml',
-        'views/transcation_detail.xml',
+        'views/transaction_detail.xml',
         'views/supplier_settlement.xml',
         'wizard_views/shop_template_wizard.xml',
         'wizard_views/amazon_wizard.xml',

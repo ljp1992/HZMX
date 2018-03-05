@@ -38,8 +38,9 @@ from . import request_location
 from . import stock_pack_operation
 from . import stock_quant
 from . import fba_replenish
-from . import transcation_detail
+from . import transaction_detail
 from . import invoice
 from . import supplier_settlement
 from . import account_cash
 from . import account_charge
+from . import b2b_account

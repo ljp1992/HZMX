@@ -7,5 +7,5 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
 
     shop_ids = fields.One2many('amazon.shop', 'operator_id', string=u'亚马逊店铺')
-    transcation_detail_ids = fields.One2many('transcation.detail', 'merchant_id')
+    transaction_detail_ids = fields.One2many('transaction.detail', 'merchant_id')
 

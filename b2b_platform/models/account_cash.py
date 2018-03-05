@@ -71,7 +71,7 @@ class AccountCash(models.Model):
         self.state = 'done'
         merchant = self.env.user.merchant_id or self.env.user
         merchant.account_amount -= self.amount
-        self.transcation_detail_ids.action_confirm()
+        self.transaction_detail_ids.action_confirm()
 
 
 

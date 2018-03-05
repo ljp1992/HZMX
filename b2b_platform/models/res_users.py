@@ -42,17 +42,17 @@ class ResUsers(models.Model):
         #     return [('user_type', '=', 'merchant')]
 
     @api.multi
-    def view_transcation_detail(self):
+    def view_transaction_detail(self):
         self.ensure_one()
         merchant = self.env.user.merchant_id or self.env.user
         return {
             'name': u'交易明细',
             'type': 'ir.actions.act_window',
-            'res_model': 'transcation.detail',
+            'res_model': 'transaction.detail',
             'view_mode': 'tree,',
             'view_type': 'form',
             'views': [
-                (self.env.ref('amazon_api.transcation_detail_tree').id, 'tree')],
+                (self.env.ref('amazon_api.transaction_detail_tree').id, 'tree')],
             'domain': [('merchant_id', '=', merchant.id)],
             'target': 'current',
         }
@@ -63,7 +63,7 @@ class ResUsers(models.Model):
             wait_add = 0
             wait_reduce = 0
             left_amount = 0
-            for detail in record.transcation_detail_ids:
+            for detail in record.transaction_detail_ids:
                 if detail.state == 'draft':
                     if detail.amount < 0:
                         wait_reduce += detail.amount

@@ -8,18 +8,18 @@ class AccountCharge(models.Model):
     _inherit = 'account.charge'
 
 
-    transcation_detail_ids = fields.One2many('transcation.detail', 'charge_id')
+    transaction_detail_ids = fields.One2many('transaction.detail', 'charge_id')
 
     @api.model
     def create(self, val):
         if not val.has_key('name'):
             val['name'] = self.env['ir.sequence'].next_by_code('account.charge.number') or '/'
         result = super(AccountCharge, self).create(val)
-        result.create_transcation_detail()
+        result.create_transaction_detail()
         return result
 
     @api.multi
-    def create_transcation_detail(self):
+    def create_transaction_detail(self):
         for record in self:
             val = {
                 'origin': record.name,
@@ -29,7 +29,7 @@ class AccountCharge(models.Model):
                 'amount': record.amount,
             }
             print record.amount
-            self.env['transcation.detail'].create(val)
+            self.env['transaction.detail'].create(val)
 
 
 

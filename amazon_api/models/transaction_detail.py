@@ -4,8 +4,8 @@ from odoo.osv import osv
 from datetime import datetime, timedelta
 from odoo.exceptions import ValidationError, UserError
 
-class TranscationDetail(models.Model):
-    _name = 'transcation.detail'
+class transactionDetail(models.Model):
+    _name = 'transaction.detail'
     _order = 'id desc'
     _rec_name = 'origin'
 

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 	<data>
-        <record id="transcation_detail_tree" model="ir.ui.view">
-			<field name="name">transcation_detail_tree</field>
-			<field name="model">transcation.detail</field>
+        <record id="transaction_detail_tree" model="ir.ui.view">
+			<field name="name">transaction_detail_tree</field>
+			<field name="model">transaction.detail</field>
 			<field name="arch" type="xml">
 				<tree>
 					<field name="origin"/>
