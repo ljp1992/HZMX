@@ -16,19 +16,26 @@
 			<field name="model">fba.replenish</field>
 			<field name="arch" type="xml">
 				<form>
+                    <field name="user_type" invisible="1"/>
+                    <!--<field name="hide_platform_price" invisible="1"/>-->
+                    <!--<field name="hide_supplier_price" invisible="1"/>-->
                     <header>
                         <button name="send_request" string="补货申请" type="object" class="oe_highlight"
                                 groups="b2b_platform.b2b_shop_operator, b2b_platform.b2b_seller"
-                                attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                                attrs="{'invisible': ['|', ('user_type', '!=', 'distributor'),
+                                    ('state', '!=', 'draft')]}"/>
                         <button name="supplier_confirm" string="确认" type="object" class="oe_highlight"
                                 groups="b2b_platform.b2b_shop_operator, b2b_platform.b2b_seller"
-                                attrs="{'invisible': [('state', '!=', 'wait_supplier_confirm')]}"/>
+                                attrs="{'invisible': ['|', ('user_type', '!=', 'supplier'),
+                                    ('state', '!=', 'wait_supplier_confirm')]}"/>
                         <button name="platform_confirm" string="确认运费" type="object" class="oe_highlight"
                                 groups="b2b_platform.b2b_manager"
-                                attrs="{'invisible': [('state', '!=', 'wait_platform_confirm')]}"/>
+                                attrs="{'invisible': ['|', ('user_type', '!=', 'manager'),
+                                    ('state', '!=', 'wait_platform_confirm')]}"/>
                         <button name="distributor_confirm" string="补货确认" type="object" class="oe_highlight"
                                 groups="b2b_platform.b2b_shop_operator, b2b_platform.b2b_seller"
-                                attrs="{'invisible': [('state', '!=', 'wait_distributor_confirm')]}"/>
+                                attrs="{'invisible': ['|', ('user_type', '!=', 'distributor'),
+                                    ('state', '!=', 'wait_distributor_confirm')]}"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,wait_supplier_confirm,
                                 wait_distributor_confirm,wait_delivery,done"/>
                     </header>
@@ -89,12 +96,11 @@
 		</record>
 
         <record id="fba_replenish_act" model="ir.actions.act_window">
-            <field name="name">FBA补货</field>
+            <field name="name">FBA补货申请</field>
             <field name="res_model">fba.replenish</field>
-            <field name="view_mode">tree</field>
+            <field name="view_mode">tree,form</field>
             <field name="view_type">form</field>
-            <field name="domain">[('own_data', '=', True)]</field>
-            <!--<field name="context">{'view_own_picking': True}</field>-->
+            <field name="domain">[('own_fba_request', '=', True)]</field>
         </record>
         <record id="fba_replenish_act_tree" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
@@ -108,7 +114,29 @@
             <field name="view_id" ref="b2b_fba_replenish_form"/>
             <field name="act_window_id" ref="fba_replenish_act"/>
         </record>
-        <menuitem id="fba_replenish_menu" name="FBA补货" parent="b2b_platform.fba_replenish_parent_menu" sequence="1"
+        <menuitem id="fba_replenish_menu" name="FBA补货申请" parent="b2b_platform.fba_replenish_parent_menu" sequence="1"
                   action="fba_replenish_act"/>
+        
+        <record id="fba_replenish_act_two" model="ir.actions.act_window">
+            <field name="name">FBA发货</field>
+            <field name="res_model">fba.replenish</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_type">form</field>
+            <field name="domain">[('own_fba_delivery', '=', True)]</field>
+        </record>
+        <record id="fba_replenish_act_two_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="fba_replenish_tree"/>
+            <field name="act_window_id" ref="fba_replenish_act_two"/>
+        </record>
+        <record id="fba_replenish_act_two_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="b2b_fba_replenish_form"/>
+            <field name="act_window_id" ref="fba_replenish_act_two"/>
+        </record>
+        <menuitem id="fba_replenish_delivery_menu" name="FBA发货" parent="b2b_platform.fba_replenish_parent_menu"
+                  sequence="3" action="fba_replenish_act_two"/>
 	</data>
 </odoo>

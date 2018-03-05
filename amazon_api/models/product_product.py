@@ -10,7 +10,8 @@ class ProductProduct(models.Model):
     upc = fields.Char(string=u'UPC')
     main_img_url = fields.Char(compute='_get_main_img_url', string=u'主图')
 
-    hide_platform_price = fields.Boolean(related='product_tmpl_id.hide_platform_price')
+    hide_supplier_price = fields.Boolean(compute='_hide_price', store=False)
+    hide_platform_price = fields.Boolean(compute='_hide_price', store=False)
 
     supplier_price = fields.Monetary(inverse='_set_product_platform_price', string=u'供应商供货价')
     platform_price = fields.Monetary(inverse='_set_seller_price', string=u'平台价格')
@@ -36,6 +37,18 @@ class ProductProduct(models.Model):
         ('platform_published', u'平台已发布'),
         ('seller', u'经销商产品'),
         ('shop', u'店铺产品'), ], related='product_tmpl_id.state', string=u'状态')
+
+    def _hide_price(self):
+        merchant = self.env.user.merchant_id or self.env.user
+        for record in self:
+            if record.merchant_id == merchant and record.state in ['platform_unpublished', 'platform_published']:
+                record.hide_supplier_price = False
+            else:
+                record.hide_supplier_price = True
+            if record.merchant_id != merchant and record.state == 'platform_published':
+                record.hide_platform_price = False
+            else:
+                record.hide_platform_price = True
 
     @api.multi
     def _get_platform_product(self):

@@ -21,6 +21,7 @@
 			<field name="arch" type="xml">
 				<form>
 					<field name="state" invisible="1"/>
+					<field name="hide_supplier_price" invisible="1"/>
 					<field name="hide_platform_price" invisible="1"/>
 					<field name="currency_id" invisible="1"/>
 					<sheet>
@@ -44,8 +45,8 @@
                         </group>
 						<group>
                             <group>
-								<field name="supplier_price" attrs="{'invisible':[('state', 'not in',
-									['platform_unpublished'])]}"/>
+								<field name="supplier_price"
+									   attrs="{'invisible':[('hide_supplier_price', '=', True)]}"/>
 								<field name="platform_price"
 									   attrs="{'invisible': [('hide_platform_price', '=', True)]}"/>
 								<field name="seller_price" attrs="{'invisible':[('state', '!=', 'seller')]}"/>

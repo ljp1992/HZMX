@@ -10,17 +10,11 @@
                     <field name="type"/>
 					<field name="create_date" string="创建时间"/>
 					<field name="paid_time"/>
+					<field name="state"/>
                     <field name="amount" sum="1"/>
 				</tree>
 			</field>
 		</record>
 
-        <!--<record id="transcation_detail_act" model="ir.actions.act_window">-->
-            <!--<field name="name">FBA补货</field>-->
-            <!--<field name="res_model">transcation.detail</field>-->
-            <!--<field name="view_mode">tree</field>-->
-            <!--<field name="view_type">form</field>-->
-            <!--<field name="domain">[]</field>-->
-        <!--</record>-->
 	</data>
 </odoo>

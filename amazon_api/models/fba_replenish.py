@@ -22,7 +22,10 @@ class FbaReplenish(models.Model):
 
     hide_distributor_info = fields.Boolean(compute='_compute_hide_info')
     hide_supplier_info = fields.Boolean(compute='_compute_hide_info')
-    own_data = fields.Boolean(search='_search_own_data', store=False)
+    own_fba_request = fields.Boolean(search='_search_fba_request', store=False)
+    own_fba_delivery = fields.Boolean(search='_search_fba_delivery', store=False)
+    hide_supplier_price = fields.Boolean(compute='_compute_hide_price')
+    hide_platform_price = fields.Boolean(compute='_compute_hide_price')
 
     country_id = fields.Many2one('amazon.country', string=u'发往国家', required=True)
     distributor = fields.Many2one('res.users', string=u'经销商', required=True,
@@ -54,6 +57,36 @@ class FbaReplenish(models.Model):
         ('wait_delivery', u'待发货'),
         ('done', u'完成'),
         ('cancel', u'取消')], string=u'状态', default='draft')
+    user_type = fields.Selection([
+        ('distributor', u'经销商'),
+        ('supplier', u'供应商'),
+        ('manager', u'管理员'),
+    ], compute='_compute_user_type', store=False, string=u'当前用户是经销商还是供应商')
+
+    @api.multi
+    def _compute_hide_price(self):
+        merchant = self.env.user.merchant_id or self.env.user
+        for record in self:
+            if merchant == record.distributor:
+                record.hide_supplier_price = True
+                record.hide_platform_price = False
+            elif merchant == record.supplier:
+                record.hide_supplier_price = False
+                record.hide_platform_price = True
+            else:
+                record.hide_supplier_price = False
+                record.hide_platform_price = False
+
+    @api.multi
+    def _compute_user_type(self):
+        merchant = self.env.user.merchant_id or self.env.user
+        for record in self:
+            if record.distributor == merchant:
+                record.user_type = 'distributor'
+            elif record.supplier == merchant:
+                record.user_type = 'supplier'
+            elif self.user_has_groups('b2b_platform.b2b_manager'):
+                record.user_type = 'manager'
 
     @api.multi
     def _compute_invoice_count(self):
@@ -94,15 +127,22 @@ class FbaReplenish(models.Model):
         }
 
     @api.model
-    def _search_own_data(self, operation, value):
+    def _search_fba_request(self, operation, value):
         merchant = self.env.user.merchant_id or self.env.user
-        obj = self.env['fba.replenish']
         if self.user_has_groups('b2b_platform.b2b_shop_operator'):
-            fbas = obj.search(['|', ('distributor', '=', merchant.id), ('supplier', '=', merchant.id)])
-            return [('id', 'in', fbas.ids)]
+            return [('distributor', '=', merchant.id)]
         elif self.user_has_groups('b2b_platform.b2b_seller'):
-            fbas = obj.search(['|', ('distributor', '=', merchant.id), ('supplier', '=', merchant.id)])
-            return [('id', 'in', fbas.ids)]
+            return [('distributor', '=', merchant.id)]
+
+    @api.model
+    def _search_fba_delivery(self, operation, value):
+        print 111
+        merchant = self.env.user.merchant_id or self.env.user
+        if self.user_has_groups('b2b_platform.b2b_shop_operator'):
+            return [('supplier', '=', merchant.id)]
+        elif self.user_has_groups('b2b_platform.b2b_seller'):
+            print 222
+            return [('supplier', '=', merchant.id)]
 
     @api.multi
     def _compute_hide_info(self):
@@ -258,6 +298,8 @@ class FbaReplenish(models.Model):
             }))
         invoice = self.env['invoice'].create(invoice_val)
         invoice.invoice_confirm()
+        if merchant.account_amount < 0:
+            raise UserError(u'余额不足，请及时充值！')
 
     @api.model
     def create(self, val):
@@ -322,6 +364,10 @@ class FbaReplenishLine(models.Model):
         ('done', u'完成'),
         ('cancel', u'取消'),
     ], related='order_id.state', default='draft', store=False, string=u'状态')
+
+    @api.onchange('need_qty')
+    def onchange_need_qty(self):
+        print self.env.context
 
     @api.multi
     def _change_supplier(self):

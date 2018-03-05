@@ -128,7 +128,7 @@ class StockImmediateTransfer(models.TransientModel):
                                 'product_id': line.product_id.id,
                                 'product_uom_qty': line.qty_done,
                                 'product_uom': line.product_uom_id.id,
-                                'platform_price': line.product_id.supplier_price,
+                                'platform_price': 0,
                                 'freight': 0,
                                 'operation_line_id': line.id,
                             }))
