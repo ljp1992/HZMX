@@ -78,8 +78,10 @@
                                     <tree editable="bottom">
                                         <field name="product_id" options="{'no_create':True}"
                                                attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                                        <field name="platform_price"/>
-                                        <field name="supplier_price"/>
+                                        <field name="platform_price"
+                                               invisible="context.get('hide_platform_price') or False"/>
+                                        <field name="supplier_price"
+                                               invisible="context.get('hide_supplier_price') or False"/>
                                         <field name="product_uom"/>
                                         <field name="need_qty" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                                         <field name="available_qty"
@@ -101,6 +103,7 @@
             <field name="view_mode">tree,form</field>
             <field name="view_type">form</field>
             <field name="domain">[('own_fba_request', '=', True)]</field>
+            <field name="context">{'hide_supplier_price': True}</field>
         </record>
         <record id="fba_replenish_act_tree" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
@@ -123,6 +126,7 @@
             <field name="view_mode">tree,form</field>
             <field name="view_type">form</field>
             <field name="domain">[('own_fba_delivery', '=', True)]</field>
+            <field name="context">{'hide_platform_price': True}</field>
         </record>
         <record id="fba_replenish_act_two_tree" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>

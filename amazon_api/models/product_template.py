@@ -120,7 +120,6 @@ class ProductTemplate(models.Model):
         for tmpl in self:
             country = tmpl.shop_id.country_id
             freight_line = tmpl.freight_lines.filtered(lambda r: r.country_id == country)
-            print freight_line
             if freight_line:
                 tmpl.freight = freight_line[0].freight
             else:
@@ -519,6 +518,7 @@ class ProductTemplate(models.Model):
             message = ''
             message_id = 0
             for pro in template.product_variant_ids:
+                print pro.platform_product_id,pro.platform_product_id.qty_available
                 inventory = pro.platform_product_id.qty_available
                 inventory = int(inventory)
                 message_id += 1

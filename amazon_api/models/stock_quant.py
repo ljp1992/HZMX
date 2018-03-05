@@ -8,10 +8,30 @@ class StockQuant(models.Model):
     _inherit = 'stock.quant'
 
     own_data = fields.Boolean(compute='_compute_own_data', search='_own_data', default=False, store=False)
+    own_prodcut_quant = fields.Boolean(search='_own_prodcut_quant', store=False)
+
+    @api.model
+    def _own_prodcut_quant(self, operation, value):
+        if self.user_has_groups('b2b_platform.b2b_shop_operator') or \
+                self.user_has_groups('b2b_platform.b2b_seller'):
+            merchant = self.env.user.merchant_id or self.env.user
+            distributor_tmpls = self.env['product.template'].sudo().search([
+                ('state', '=', 'seller'),
+                ('merchant_id', '=', merchant.id),
+            ])
+            product_ids = []
+            for distributor_tmpl in distributor_tmpls:
+                product_ids += distributor_tmpl.platform_tmpl_id.product_variant_ids.ids
+            print product_ids
+            quants = self.env['stock.quant'].search([
+                ('product_id', 'in', product_ids),
+                ('location_id.usage', '=', 'internal'),
+            ])
+            print quants
+            return [('id', 'in', quants.ids)]
 
     @api.multi
     def _compute_own_data(self):
-        print 'compute'
         merchant = self.env.user.merchant_id or self.env.user
         if self.user_has_groups('b2b_platform.b2b_shop_operator'):
             products = self.env['product.product'].search([
@@ -32,7 +52,6 @@ class StockQuant(models.Model):
                 record.own_data = True
             else:
                 record.own_data = False
-
 
     @api.model
     def _own_data(self, operation, value):

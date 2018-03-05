@@ -12,6 +12,7 @@ class ProductProduct(models.Model):
 
     hide_supplier_price = fields.Boolean(compute='_hide_price', store=False)
     hide_platform_price = fields.Boolean(compute='_hide_price', store=False)
+    product_owner = fields.Boolean(search='_product_owner', store=False)
 
     supplier_price = fields.Monetary(inverse='_set_product_platform_price', string=u'供应商供货价')
     platform_price = fields.Monetary(inverse='_set_seller_price', string=u'平台价格')
@@ -38,6 +39,20 @@ class ProductProduct(models.Model):
         ('seller', u'经销商产品'),
         ('shop', u'店铺产品'), ], related='product_tmpl_id.state', string=u'状态')
 
+    @api.model
+    def _product_owner(self, operation, value):
+        if self.user_has_groups('b2b_platform.b2b_shop_operator') or \
+                self.user_has_groups('b2b_platform.b2b_seller'):
+            merchant = self.env.user.merchant_id or self.env.user
+            # platform_tmpls = self.env['product.template'].sudo().search([
+            #     ('state', '=', 'platform_published'),
+            #     ('merchant_id', '=', merchant.id),
+            # ])
+            # product_ids = []
+            # for platform_tmpl in platform_tmpls:
+            #     product_ids += platform_tmpl.product_variant_ids.ids
+            return [('merchant_id', '=', merchant.id)]
+
     def _hide_price(self):
         merchant = self.env.user.merchant_id or self.env.user
         for record in self:
@@ -54,8 +69,8 @@ class ProductProduct(models.Model):
     def _get_platform_product(self):
         '''变体的平台变体'''
         for pro in self:
-            pro.attribute_value_ids
             for platform_pro in pro.product_tmpl_id.platform_tmpl_id.product_variant_ids:
+                print platform_pro.attribute_value_ids, pro.attribute_value_ids
                 if platform_pro.attribute_value_ids == pro.attribute_value_ids:
                     pro.platform_product_id = platform_pro.id
 
