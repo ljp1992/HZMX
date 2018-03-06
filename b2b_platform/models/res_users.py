@@ -8,7 +8,7 @@ class ResUsers(models.Model):
 
     introduction = fields.Text(u'简介')
 
-    left_amoun = fields.Float(string=u'账户余额')
+    left_amount = fields.Float(string=u'账户余额')
     wait_add = fields.Float(store=False, string=u'待入账金额')
     wait_reduce = fields.Float(store=False, string=u'待扣除金额')
     available_cash = fields.Float(store=False, string=u'可提现金额')
