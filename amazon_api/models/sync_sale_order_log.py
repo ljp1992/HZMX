@@ -8,6 +8,7 @@ import datetime
 class SyncSaleOrderLog(models.Model):
     _name = "sync.sale.order.log"
     _rec_name = 'message'
+    _order = 'id desc'
 
     message = fields.Char(string=u'信息')
 

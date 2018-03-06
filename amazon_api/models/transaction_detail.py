@@ -9,36 +9,36 @@ class TransactionDetail(models.Model):
     _order = 'id desc'
     _rec_name = 'origin'
 
-    origin = fields.Char(string=u'来源')
+    origin = fields.Char(string=u'来源', required=True)
 
     paid_time = fields.Datetime(string=u'结算时间')
 
     amount = fields.Float(string=u'金额')
 
-    merchant_id = fields.Many2one('res.users', string=u'商户')
-    charge_id = fields.Many2one('account.charge', ondelete='cascade')
-    cash_id = fields.Many2one('account.cash', ondelete='cascade')
-    invoice_id = fields.Many2one('invoice', ondelete='cascade')
+    merchant_id = fields.Many2one('res.users', required=True, string=u'商户')
+    charge_id = fields.Many2one('account.charge', ondelete='set null')
+    cash_id = fields.Many2one('account.cash', ondelete='set null')
+    invoice_id = fields.Many2one('invoice', ondelete='set null')
 
     type = fields.Selection([
         ('charge', u'充值'),
         ('cash', u'提现'),
         ('distributor_invoice', u'经销商发票'),
         ('supplier_invoice', u'供应商发票'),
-    ], string=u'类型')
+    ],  required=True, string=u'类型')
     state = fields.Selection([
         ('draft', u'草稿'),
         ('done', u'完成'),
-    ], default='draft', string=u'状态')
+    ], default='draft',  required=True, string=u'状态')
 
     @api.multi
     def action_confirm(self):
         for record in self:
-            record.write({
-                'paid_time': datetime.now(),
-                'state': 'done',
-            })
-
+            if record.state == 'draft':
+                record.write({
+                    'paid_time': datetime.now(),
+                    'state': 'done',
+                })
 
 class transactionDetail(models.Model):
     _name = 'transcation.detail'

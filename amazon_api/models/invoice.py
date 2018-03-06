@@ -10,3 +10,51 @@ class Invoice(models.Model):
     fba_replenish_id = fields.Many2one('fba.replenish')
 
     transaction_details = fields.One2many('transaction.detail', 'invoice_id')
+
+    @api.model
+    def create(self, val):
+        if not val.has_key('name'):
+            val['name'] = self.env['ir.sequence'].next_by_code('account.invoice.number') or '/'
+        result = super(Invoice, self).create(val)
+        result.create_transaction_detail()
+        return result
+
+    @api.multi
+    def unlink(self):
+        for record in self:
+            record.transaction_details.unlink()
+
+    @api.multi
+    def create_transaction_detail(self):
+        for record in self:
+            val = {}
+            if record.type == 'distributor':
+                val = {
+                    'merchant_id': record.merchant_id.id,
+                    'origin': record.name,
+                    'invoice_id': record.id,
+                    'type': 'distributor_invoice',
+                    'state': 'draft',
+                    'amount': record.total,
+                }
+            elif record.type == 'supplier':
+                val = {
+                    'merchant_id': record.merchant_id.id,
+                    'origin': record.name,
+                    'invoice_id': record.id,
+                    'type': 'supplier_invoice',
+                    'state': 'draft',
+                    'amount': record.total,
+                }
+            if val:
+                self.env['transaction.detail'].create(val)
+
+    @api.multi
+    def invoice_confirm(self):
+        for record in self:
+            if record.state == 'draft':
+                record.write({
+                    'state': 'done',
+                    'paid_time': datetime.datetime.now(),
+                })
+                record.transaction_details.action_confirm()

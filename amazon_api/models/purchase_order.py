@@ -84,8 +84,8 @@ class PurchaseOrder(models.Model):
             'view_mode': 'tree,form',
             'view_type': 'form',
             'views': [
-                (self.env.ref('b2b_platform.invoice_tree').id, 'tree'),
-                (self.env.ref('b2b_platform.invoice_form').id, 'form')],
+                (self.env.ref('amazon_api.invoice_tree').id, 'tree'),
+                (self.env.ref('amazon_api.invoice_form').id, 'form')],
             'domain': [('id', 'in', self.b2b_invoice_ids.ids)],
             'target': 'current',
         }

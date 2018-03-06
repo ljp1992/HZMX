@@ -31,7 +31,6 @@ class SaleOrder(models.Model):
     e_order_freight = fields.Float(compute='_e_order_freight', store=False, string=u'运费')
     e_order_commission = fields.Float(compute='_e_order_commission', store=False, string=u'佣金')
 
-    # own_data = fields.Boolean(compute='_get_own_data', search='_own_data_search')
     have_own_product = fields.Boolean(compute='_have_own_product', default=False, help=u'单据是否有自有产品')
     have_not_own_product = fields.Boolean(compute='_have_own_product', default=False, help=u'单据是否有非自有产品')
     had_own_delivery = fields.Boolean(compute='_had_b2b_delivery', default=False, help=u'已经操作过自有发货了')
@@ -162,8 +161,8 @@ class SaleOrder(models.Model):
             'view_mode': 'tree,form',
             'view_type': 'form',
             'views': [
-                (self.env.ref('b2b_platform.invoice_tree').id, 'tree'),
-                (self.env.ref('b2b_platform.invoice_form').id, 'form')],
+                (self.env.ref('amazon_api.invoice_tree').id, 'tree'),
+                (self.env.ref('amazon_api.invoice_form').id, 'form')],
             'domain': [('sale_order_id', '=', self.id)],
             'target': 'current',
         }
@@ -180,6 +179,7 @@ class SaleOrder(models.Model):
                 (self.env.ref('amazon_api.purchase_order_tree').id, 'tree'),
                 (self.env.ref('amazon_api.b2b_purchase_order_form').id, 'form')],
             'domain': [('id', 'in', self.purchase_orders.ids)],
+            'context': {'hide_supplier_price': True},
             'target': 'current',
         }
 
@@ -292,35 +292,13 @@ class SaleOrder(models.Model):
             'target': 'current',
         }
 
-    # @api.multi
-    # def _get_own_data(self):
-    #     print '_get_own_data'
-    #     user = self.env.user
-    #     for record in self:
-    #         if user.user_type == 'operator':
-    #             if record.shop_id in user.shop_ids.ids:
-    #                 record.own_data = True
-    #             else:
-    #                 record.own_data = False
-    #         elif user.user_type == 'merchant':
-    #             shop_ids = []
-    #             for operator in user.operator_ids:
-    #                 shop_ids += operator.shop_ids.ids
-    #             if record.shop_id in shop_ids:
-    #                 record.own_data = True
-    #             else:
-    #                 record.own_data = False
-
     @api.model
     def _own_data_search(self, operator, value):
         user = self.env.user
-        if user.user_type == 'operator':
+        if self.user_has_groups('b2b_platform.b2b_shop_operator'):
             return [('shop_id', 'in', user.shop_ids.ids)]
-        elif user.user_type == 'merchant':
-            shop_ids = []
-            for operator in user.operator_ids:
-                shop_ids += operator.shop_ids.ids
-            return [('shop_id', 'in', shop_ids)]
+        elif self.user_has_groups('b2b_platform.b2b_seller'):
+            return [('merchant_id', '=', self.env.user.id)]
         else:
             return []
 
@@ -360,6 +338,7 @@ class SaleOrder(models.Model):
         purchase_info = {}
         distributor_invoice = {
             'type': 'distributor',
+            'detail_type': 'distributor_platform_purchase',
             'sale_order_id': self.id,
             'origin': self.name,
             'order_line': [],
@@ -409,20 +388,8 @@ class SaleOrder(models.Model):
                     })]
                 }
         invoice = self.env['invoice'].create(distributor_invoice)
-        if merchant.left_amount < invoice.total:
-            raise UserError(u'账户余额不足，请充值！')
         invoice.invoice_confirm()
         for (supplier_id, val) in purchase_info.items():
             purchase_order = purchase_obj.create(val)
-        return {
-            'name': u'采购单',
-            'type': 'ir.actions.act_window',
-            'res_model': 'purchase.order',
-            'view_mode': 'tree,form',
-            'view_type': 'form',
-            'views': [
-                (self.env.ref('amazon_api.purchase_order_tree').id, 'tree'),
-                (self.env.ref('amazon_api.b2b_purchase_order_form').id, 'form')],
-            'domain': [('id', 'in', self.purchase_orders.ids)],
-            'target': 'current',
-        }
+        return
+

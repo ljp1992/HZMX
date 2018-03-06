@@ -59,7 +59,7 @@
                                 <field name="order_line">
                                     <tree>
                                         <field name="product_id"/>
-                                        <field name="price_unit"/>
+                                        <field name="price_unit" invisible="context.get('hide_supplier_price')"/>
                                         <field name="product_qty"/>
                                         <field name="product_uom"/>
                                         <field name="freight"/>

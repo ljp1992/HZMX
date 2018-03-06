@@ -6,8 +6,9 @@
             <field name="model">account.charge</field>
             <field name="priority">10</field>
             <field name="arch" type="xml">
-                <tree string="充值">
+                <tree colors="blue:state=='draft';red:state=='notice';black:state=='done';">
                     <field name="name"/>
+                    <field name="merchant_id" groups="b2b_platform.b2b_manager"/>
                     <field name="date"/>
                     <field name="bank_id"/>
                     <field name="account_id"/>
@@ -26,7 +27,6 @@
                             groups="b2b_platform.b2b_seller"/>
                         <button name="btn_done" string="确认" states='notice' type="object" class="oe_highlight"
                             groups="b2b_platform.b2b_manager"/>
-                        <!--<button name="btn_cancel" string="取消" states='notice' type="object"/>-->
                         <field name="state" widget="statusbar" statusbar_visible="draft,notice,done" readonly="1"/>
                     </header>
                     <sheet>
@@ -37,7 +37,7 @@
                         </div>
                         <group>
                             <group>
-                                <field name="merchant_id" readonly="True"/>
+                                <field name="merchant_id" readonly="True" groups="b2b_platform.b2b_manager"/>
                                 <field name="bank_id" options="{'no_create': True}"
                                        attrs="{'readonly':[('state','!=','draft')]}"/>
                                 <field name="account_id" domain="[('bank_id', '=', bank_id)]"
@@ -58,28 +58,41 @@
             </field>
         </record>
 
+        <record id="account_charge_search" model="ir.ui.view">
+			<field name="name">account_charge_search</field>
+			<field name="model">account.charge</field>
+			<field name="arch" type="xml">
+				<search string="">
+					<field name="name"/>
+                    <filter name="state" string="状态" context="{'group_by': 'state'}"/>
+					<!--<filter string="待平台确认" name="notice" domain="[('state','=','notice')]"/>-->
+					<!--<filter string="完成" domain="[('state','=','done')]"/>-->
+				</search>
+			</field>
+		</record>
+
         <record id="account_charge_act" model="ir.actions.act_window">
             <field name="name">账户充值</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">account.charge</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="account_charge_search"/>
+            <!--<field name="domain">[('own_my_data', '=', True)]</field>-->
+            <field name="context">{'search_default_state': True}</field>
         </record>
-
         <record id="account_charge_act_tree" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="account_charge_tree"/>
             <field name="act_window_id" ref="account_charge_act"/>
         </record>
-
         <record id="account_charge_act_form" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
             <field name="view_id" ref="account_charge_form"/>
             <field name="act_window_id" ref="account_charge_act"/>
         </record>
-
         <menuitem id="acount_charge_menu" name="充值" parent="b2b_platform.account_management_menu"
                   action="account_charge_act" groups="b2b_platform.b2b_seller,b2b_platform.b2b_manager" sequence="3"/>
     </data>

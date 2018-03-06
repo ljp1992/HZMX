@@ -34,7 +34,6 @@
         'views/auth_signup.xml',
         'views/res_bank.xml',
         'views/bank_account.xml',
-        'views/invoice.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

@@ -13,7 +13,7 @@ class AccountCash(models.Model):
 
     note = fields.Text(u'备注')
 
-    available_cash = fields.Float(related='merchant_id.available_cash', store=False, string=u'可提现金额')
+    # available_cash = fields.Float(related='merchant_id.available_cash', store=False, string=u'可提现金额')
     amount = fields.Float(string=u'提现金额', required=True)
 
     date = fields.Date(string=u'日期', default=lambda self: fields.Date.today(), required=True)
@@ -27,7 +27,7 @@ class AccountCash(models.Model):
                                  string=u'银行账号')
 
     state = fields.Selection([
-        ('draft', u'新建'),
+        ('draft', u'草稿'),
         ('paltform_confirm', u'待平台确认'),
         ('merchant_confirm', u'待商户到账确认'),
         ('done', u'完成'),
@@ -61,16 +61,7 @@ class AccountCash(models.Model):
             val['name'] = self.env['ir.sequence'].next_by_code('account.cash.number') or '/'
         return super(AccountCash, self).create(val)
 
-    def btn_notice(self):
-        self.state = 'paltform_confirm'
 
-    def platform_confirm(self):
-        self.state = 'merchant_confirm'
-
-    def merchant_confirm(self):
-        self.state = 'done'
-        merchant = self.env.user.merchant_id or self.env.user
-        self.transaction_detail_ids.action_confirm()
 
 
 

@@ -21,36 +21,26 @@ class AccountCharge(models.Model):
 
     proof = fields.Binary(string=u'付款凭证')
 
-    merchant_id = fields.Many2one('res.users', string=u'经销商', required=True, readonly=True,
+    merchant_id = fields.Many2one('res.users', string=u'商户', required=True, readonly=True,
                                   default=lambda self: self.env.user, domain=[('user_type', '=', 'merchant')])
     bank_id = fields.Many2one('res.bank', domain=[('platform', '=', True)], string=u'银行', required=True)
     account_id = fields.Many2one('bank.account', domain=[('platform', '=', True)], required=True, string=u'银行账号')
 
     state = fields.Selection([
-        ('draft', u'新建'),
-        ('notice', u'已发送给平台'),
+        ('draft', u'草稿'),
+        ('notice', u'待平台确认'),
         ('done', u'完成'),
         ('cancel', u'已取消')], string=u'状态', default='draft')
 
-    def btn_notice(self):
-        self.state = 'notice'
-
-    def btn_done(self):
-        self.state = 'done'
-        self.transaction_detail_ids.action_confirm()
-
-    def btn_cancel(self):
-        self.state = 'cancel'
-
     @api.model
     def _own_my_data(self, operator, value):
-        user = self.env.user
-        if user.user_type == 'operator':
+        if self.user_has_groups('b2b_platform.b2b_shop_operator'):
             return [('id', '=', 0)]
-        elif user.user_type == 'merchant':
+        elif self.user_has_groups('b2b_platform.b2b_seller'):
             return [('merchant_id', '=', self.env.user.id)]
-        else:
-            return []
+        elif self.user_has_groups('b2b_platform.b2b_manager'):
+            return [('state', 'in', ['notice', 'done'])]
+
 
 
 

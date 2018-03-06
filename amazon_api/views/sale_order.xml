@@ -24,6 +24,7 @@
                     <field name="state" invisible="1"/>
                     <field name="b2b_type" invisible="1"/>
                     <field name="b2b_own_delivery_count" invisible="1"/>
+                    <field name="purchase_count" invisible="1"/>
                     <header>
                         <button name="false_delivery" type="object" string="假发货" class="btn-primary"
                                 attrs="{'invisible':[('b2b_state','=','delivered')]}"/>
@@ -40,17 +41,17 @@
                     </header>
                     <sheet>
                         <div class="oe_button_box">
-                            <button name="view_purchase_order" type="object" class="oe_stat_button" icon="fa-truck"
-                                    attrs="{'invisible': [('purchase_count', '=', 0)]}">
-                                <field name="purchase_count" widget="statinfo" string="采购单"/>
-                            </button>
+                            <!--<button name="view_purchase_order" type="object" class="oe_stat_button" icon="fa-truck"-->
+                                    <!--attrs="{'invisible': [('purchase_count', '=', 0)]}">-->
+                                <!--<field name="purchase_count" widget="statinfo" string="采购单"/>-->
+                            <!--</button>-->
                             <button name="view_delivery_order" type="object" class="oe_stat_button" icon="fa-truck"
                                     attrs="{'invisible': [('b2b_delivery_count', '=', 0)]}">
                                 <field name="b2b_delivery_count" widget="statinfo" string="发货单"/>
                             </button>
                             <button name="view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"
                                     attrs="{'invisible': [('b2b_invoice_count', '=', 0)]}">
-                                <field name="b2b_invoice_count" widget="statinfo" string="发票"/>
+                                <field name="b2b_invoice_count" widget="statinfo" string="经销商发票"/>
                             </button>
                         </div>
                         <group>
@@ -131,8 +132,8 @@
             <field name="view_mode">tree,form</field>
             <field name="view_type">form</field>
             <field name="search_view_id" ref="sale_order_search"/>
-            <field name="domain">[('b2b_state', '=', 'wait_handle')]</field>
-            <field name="context">{'view_own_sale_order': True}</field>
+            <field name="domain">[('own_data', '=', True), ('b2b_state', '=', 'wait_handle')]</field>
+            <!--<field name="context">{'view_own_sale_order': True}</field>-->
         </record>
 
         <record id="sale_order_act_tree" model="ir.actions.act_window.view">
@@ -159,8 +160,8 @@
             <field name="view_mode">tree,form</field>
             <field name="view_type">form</field>
             <field name="search_view_id" ref="sale_order_search"/>
-            <field name="domain">[('b2b_state', '=', 'delivering')]</field>
-            <field name="context">{'view_own_sale_order': True}</field>
+            <field name="domain">[('own_data', '=', True), ('b2b_state', '=', 'delivering')]</field>
+            <!--<field name="context">{'view_own_sale_order': True}</field>-->
         </record>
 
         <record id="sale_order_act_tree1" model="ir.actions.act_window.view">
@@ -186,8 +187,8 @@
             <field name="view_mode">tree,form</field>
             <field name="view_type">form</field>
             <field name="search_view_id" ref="sale_order_search"/>
-            <field name="domain">[('b2b_state', '=', 'delivered')]</field>
-            <field name="context">{'view_own_sale_order': True}</field>
+            <field name="domain">[('own_data', '=', True), ('b2b_state', '=', 'delivered')]</field>
+            <!--<field name="context">{'view_own_sale_order': True}</field>-->
         </record>
 
         <record id="sale_order_act_tree2" model="ir.actions.act_window.view">

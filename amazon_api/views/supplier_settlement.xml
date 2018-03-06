@@ -47,7 +47,7 @@
                                 <field name="order_line" readonly="1">
                                     <tree editable="bottom">
                                         <field name="name"/>
-                                        <field name="date"/>
+                                        <field name="create_date" string="创建时间"/>
                                         <field name="total" sum="1"/>
                                     </tree>
                                 </field>

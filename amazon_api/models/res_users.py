@@ -32,7 +32,7 @@ class ResUsers(models.Model):
     @api.multi
     @api.depends('transaction_details.state')
     def _compute_amount(self):
-        print 'compute amount'
+        print 'compute account amount'
         for record in self:
             left_amount = 0
             to_add_amount = 0
@@ -40,7 +40,7 @@ class ResUsers(models.Model):
             for detail in record.transaction_details:
                 if detail.state == 'draft':
                     if detail.type in ['cash']:
-                        to_cash_amount -= detail.amount
+                        to_cash_amount += detail.amount
                     elif detail.type in ['supplier_invoice', 'charge']:
                         to_add_amount += detail.amount
                 elif detail.state == 'done':
@@ -51,6 +51,8 @@ class ResUsers(models.Model):
             record.to_add_amount = to_add_amount
             record.to_cash_amount = to_cash_amount
             record.left_amount = left_amount - to_cash_amount
+            if record.left_amount < 0:
+                raise UserError(u'账户余额不足！')
 
     @api.multi
     def pass_audit(self):

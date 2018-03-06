@@ -56,7 +56,7 @@ class FbaReplenish(models.Model):
         ('wait_distributor_confirm', u'待经销商确认'),
         ('wait_delivery', u'待发货'),
         ('done', u'完成'),
-        ('cancel', u'取消')], string=u'状态', default='draft')
+        ('cancel', u'取消')], default='draft', required=True, string=u'状态')
     user_type = fields.Selection([
         ('distributor', u'经销商'),
         ('supplier', u'供应商'),
@@ -104,8 +104,8 @@ class FbaReplenish(models.Model):
             'view_mode': 'tree,form',
             'view_type': 'form',
             'views': [
-                (self.env.ref('b2b_platform.invoice_tree').id, 'tree'),
-                (self.env.ref('b2b_platform.invoice_form').id, 'form')],
+                (self.env.ref('amazon_api.invoice_tree').id, 'tree'),
+                (self.env.ref('amazon_api.invoice_form').id, 'form')],
             'domain': [('id', 'in', self.distributor_invoices.ids)],
             'target': 'current',
         }
@@ -120,8 +120,8 @@ class FbaReplenish(models.Model):
             'view_mode': 'tree,form',
             'view_type': 'form',
             'views': [
-                (self.env.ref('b2b_platform.invoice_tree').id, 'tree'),
-                (self.env.ref('b2b_platform.invoice_form').id, 'form')],
+                (self.env.ref('amazon_api.invoice_tree').id, 'tree'),
+                (self.env.ref('amazon_api.invoice_form').id, 'form')],
             'domain': [('id', 'in', self.supplier_invoices.ids)],
             'target': 'current',
         }
@@ -136,12 +136,10 @@ class FbaReplenish(models.Model):
 
     @api.model
     def _search_fba_delivery(self, operation, value):
-        print 111
         merchant = self.env.user.merchant_id or self.env.user
         if self.user_has_groups('b2b_platform.b2b_shop_operator'):
             return [('supplier', '=', merchant.id)]
         elif self.user_has_groups('b2b_platform.b2b_seller'):
-            print 222
             return [('supplier', '=', merchant.id)]
 
     @api.multi
@@ -194,10 +192,11 @@ class FbaReplenish(models.Model):
     def supplier_confirm(self):
         '''供应商确认'''
         self.ensure_one()
-        if self.type == 'supplier_delivery':
-            self.state = 'wait_distributor_confirm'
-        elif self.type == 'other_delivery':
-            self.state == 'wait_platform_confirm'
+        if self.state == 'wait_supplier_confirm':
+            if self.type == 'supplier_delivery':
+                self.state = 'wait_distributor_confirm'
+            elif self.type == 'other_delivery':
+                self.state = 'wait_platform_confirm'
 
     @api.multi
     def platform_confirm(self):

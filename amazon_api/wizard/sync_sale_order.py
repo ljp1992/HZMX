@@ -29,7 +29,7 @@ class SyncSaleOrder(models.TransientModel):
 
     @api.model
     def get_start_date(self):
-        return datetime.now() - timedelta(days=5)
+        return datetime.now() - timedelta(days=12)
 
     @api.model
     def get_end_date(self):
@@ -77,6 +77,8 @@ class SyncSaleOrder(models.TransientModel):
                 orders = [orders]
             for order in orders:
                 e_order = order.get('AmazonOrderId', {}).get('value', '')
+                if not e_order:
+                    continue
                 if sale_order_obj.search([('e_order', '=', e_order)]):
                     continue
                 ShippingAddress = order.get('ShippingAddress', {})

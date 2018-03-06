@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record id="view_tree_qdoo_deposit" model="ir.ui.view">
+        <record id="account_cash_tree" model="ir.ui.view">
             <field name="name">qdoo_deposit_tree</field>
             <field name="model">account.cash</field>
             <field name="arch" type="xml">
-                <tree>
+                <tree colors="blue:state=='draft';red:state=='paltform_confirm';purple:state=='merchant_confirm';
+                    black:state=='done';">
                     <field name="name"/>
+                    <field name="merchant_id" groups="b2b_platform.b2b_manager"/>
                     <field name="date"/>
                     <field name="bank_id"/>
                     <field name="account_id"/>
@@ -15,7 +17,7 @@
                 </tree>
             </field>
         </record>
-        <record id="view_form_qdoo_deposit" model="ir.ui.view">
+        <record id="account_cash_form" model="ir.ui.view">
             <field name="name">qdoo_deposit_form</field>
             <field name="model">account.cash</field>
             <field name="arch" type="xml">
@@ -37,7 +39,7 @@
                         </div>
                         <group>
                             <group>
-                                <field name="merchant_id" readonly="True"/>
+                                <field name="merchant_id" readonly="True" groups="b2b_platform.b2b_manager"/>
                                 <field name="date" attrs="{'readonly':[('state','!=','draft')]}"/>
                                 <!--<field name="file_name"/>-->
                                 <field name="proof" attrs="{'invisible':[('state','=','draft')],
@@ -45,7 +47,7 @@
                                     'required': [('state', '=', 'paltform_confirm')]}"/>
                             </group>
                             <group>
-                                <field name="available_cash" readonly="1"
+                                <field name="left_amount" readonly="1"
                                        attrs="{'invisible':[('state', '!=', 'draft')]}"/>
                                 <field name="amount" attrs="{'readonly':[('state','!=','draft')]}"/>
                                 <field name="bank_id" options="{'no_create': True}"
@@ -62,14 +64,42 @@
             </field>
         </record>
 
+        <record id="account_cash_search" model="ir.ui.view">
+			<field name="name">account_cash_search</field>
+			<field name="model">account.cash</field>
+			<field name="arch" type="xml">
+				<search string="">
+					<field name="name"/>
+                    <filter string="状态" name="state" context="{'group_by': 'state'}"/>
+                    <!--<filter string="草稿" domain="[('state','=','draft')]"/>-->
+					<!--<filter string="待平台确认" domain="[('state','=','paltform_confirm')]"/>-->
+                    <!--<filter string="待商户到账确认" domain="[('state','=','merchant_confirm')]"/>-->
+					<!--<filter string="完成" domain="[('state','=','done')]"/>-->
+				</search>
+			</field>
+		</record>
+
         <record id="account_cash_act" model="ir.actions.act_window">
             <field name="name">提现</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">account.cash</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="account_cash_search"/>
+            <field name="context">{'search_default_state': True}</field>
         </record>
-
+        <record id="account_cash_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="account_cash_tree"/>
+            <field name="act_window_id" ref="account_cash_act"/>
+        </record>
+        <record id="account_cash_act_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="account_cash_form"/>
+            <field name="act_window_id" ref="account_cash_act"/>
+        </record>
         <menuitem id="acount_cash_menu" name="提现" parent="b2b_platform.account_management_menu"
                   action="account_cash_act" groups="b2b_platform.b2b_seller,b2b_platform.b2b_manager" sequence="5"/>
     </data>

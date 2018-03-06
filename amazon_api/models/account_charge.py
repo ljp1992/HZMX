@@ -15,8 +15,18 @@ class AccountCharge(models.Model):
         if not val.has_key('name'):
             val['name'] = self.env['ir.sequence'].next_by_code('account.charge.number') or '/'
         result = super(AccountCharge, self).create(val)
-        result.create_transaction_detail()
         return result
+
+    @api.multi
+    def btn_notice(self):
+        self.ensure_one()
+        self.state = 'notice'
+        self.create_transaction_detail()
+
+    @api.multi
+    def btn_done(self):
+        self.state = 'done'
+        self.transaction_detail_ids.action_confirm()
 
     @api.multi
     def create_transaction_detail(self):
@@ -33,10 +43,11 @@ class AccountCharge(models.Model):
 
     @api.multi
     def unlink(self):
-        merchants = [record.merchant_id for record in self]
+        for record in self:
+            if record.merchant_id != self.env.user:
+                raise UserError(u'只有%s具有删除该单据的权限' % (record.merchant_id.name))
+            record.transaction_detail_ids.unlink()
         result = super(AccountCharge, self).unlink()
-        for merchant in merchants:
-            merchant._compute_amount()
         return result
 
 

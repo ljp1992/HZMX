@@ -10,12 +10,12 @@ class Invoice(models.Model):
     name = fields.Char(string=u'单号')
 
     note = fields.Text(string=u'备注')
-    origin = fields.Char(string=u'来源')
+    origin = fields.Char(string=u'相关单号')
 
     fba_freight = fields.Float(string=u'FBA运费')
     total = fields.Float(compute='_compute_total', store=True, string=u'金额')
 
-    date = fields.Datetime(string=u'日期', required=True, default=lambda self: datetime.datetime.now())
+    paid_time = fields.Datetime(string=u'结算时间')
 
     merchant_id = fields.Many2one('res.users', string=u'商户', required=True, readonly=True,
                                   default=lambda self: self.env.user, domain=[('user_type', '=', 'merchant')])
@@ -27,21 +27,23 @@ class Invoice(models.Model):
     # transaction_details = fields.One2many('transaction.detail', 'invoice_id')
 
     state = fields.Selection([
-        ('draft', u'新建'),
-        ('paid', u'已付款'),
+        ('draft', u'未结算'),
+        ('done', u'已结算'),
         ('cancel', u'已取消')], default='draft', string=u'状态')
     type = fields.Selection([
         ('distributor', u'经销商'),
         ('supplier', u'供应商'),
     ], string=u'发票类型')
+    detail_type = fields.Selection([
+        ('distributor_platform_purchase', u'平台采购'),
+        ('distributor_own_delivery', u'自有产品第三方仓库发货'),
+        ('distributor_fba', u'FBA补货'),
+        ('supplier_own_stock', u'自有仓库发货'),
+        ('supplier_third_stock', u'第三方仓库发货'),
+        ('supplier_fba_own_stock', u'FBA自有仓库发货'),
+        ('supplier_fba_third_stock', u'FBA第三方仓库发货'),
+    ], string=u'来源')
 
-    @api.model
-    def create(self, val):
-        if not val.has_key('name'):
-            val['name'] = self.env['ir.sequence'].next_by_code('account.invoice.number') or '/'
-        result = super(Invoice, self).create(val)
-        result.create_transaction_detail()
-        return result
 
     @api.depends('order_line.total')
     def _compute_total(self):
@@ -50,37 +52,6 @@ class Invoice(models.Model):
             for line in record.order_line:
                 total += line.total
             record.total = total + record.fba_freight
-
-    @api.multi
-    def create_transaction_detail(self):
-        for record in self:
-            val = {}
-            if record.type == 'distributor':
-                val = {
-                    'origin': record.name,
-                    'invoice_id': record.id,
-                    'type': 'distributor_invoice',
-                    'state': 'draft',
-                    'amount': 0 - record.total,
-                }
-            elif record.type == 'supplier':
-                val = {
-                    'origin': record.name,
-                    'invoice_id': record.id,
-                    'type': 'supplier_invoice',
-                    'state': 'draft',
-                    'amount': record.total,
-                }
-            if val:
-                self.env['transaction.detail'].create(val)
-
-    @api.multi
-    def invoice_confirm(self):
-        for record in self:
-            if record.state == 'paid':
-                continue
-            record.state = 'paid'
-            record.transaction_details.action_confirm()
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
