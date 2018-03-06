@@ -287,6 +287,7 @@ class FbaReplenish(models.Model):
             }))
         invoice = self.env['invoice'].create(invoice_val)
         invoice.invoice_confirm()
+        print invoice
 
 
     # @api.multi

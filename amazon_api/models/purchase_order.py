@@ -219,7 +219,7 @@ class PurchaseOrderLine(models.Model):
     b2b_total = fields.Float(compute='_compute_total', store=False, string=u'小计')
 
     b2b_sale_line_id = fields.Many2one('sale.order.line')
-    fba_replenish_line_id = fields.Many2one('fba.replenish')
+    fba_replenish_line_id = fields.Many2one('fba.replenish.line')
 
     def _compute_total(self):
         for record in self:

@@ -41,10 +41,10 @@
                     </header>
                     <sheet>
                         <div class="oe_button_box">
-                            <!--<button name="view_purchase_order" type="object" class="oe_stat_button" icon="fa-truck"-->
-                                    <!--attrs="{'invisible': [('purchase_count', '=', 0)]}">-->
-                                <!--<field name="purchase_count" widget="statinfo" string="采购单"/>-->
-                            <!--</button>-->
+                            <button name="view_purchase_order" type="object" class="oe_stat_button" icon="fa-truck"
+                                    attrs="{'invisible': [('purchase_count', '=', 0)]}">
+                                <field name="purchase_count" widget="statinfo" string="采购单"/>
+                            </button>
                             <button name="view_delivery_order" type="object" class="oe_stat_button" icon="fa-truck"
                                     attrs="{'invisible': [('b2b_delivery_count', '=', 0)]}">
                                 <field name="b2b_delivery_count" widget="statinfo" string="发货单"/>
