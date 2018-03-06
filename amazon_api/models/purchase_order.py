@@ -6,13 +6,15 @@ from odoo.exceptions import UserError
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
 
-    origin = fields.Char(string=u'来源')
+    origin = fields.Char(string=u'来源单据')
 
     freight = fields.Float(compute='_compute_freight', store=False, string=u'运费')
 
     b2b_delivery_count = fields.Integer(compute='_b2b_delivery_count')
     b2b_invoice_count = fields.Integer(compute='_b2b_invoice_count')
+
     b2b_total = fields.Float(compute='_compute_total', store=False, string=u'合计')
+    fba_freight = fields.Float(string=u'FBA运费')
 
     own_data = fields.Boolean(search='_own_data_search', store=False)
     own_record = fields.Boolean(compute='_own_record')
@@ -34,6 +36,10 @@ class PurchaseOrder(models.Model):
         ('confirmed', u'已确认'),
         ('done', u'已发货'),
     ], default='draft', string=u'状态')
+    origin_type = fields.Selection([
+        ('FBA', u'FBA补货'),
+        ('sale', u'客户订单'),
+    ], default='sale', string=u'来源')
 
     @api.multi
     def _own_record(self):
@@ -59,7 +65,7 @@ class PurchaseOrder(models.Model):
             total = 0
             for line in record.order_line:
                 total += line.b2b_total
-            record.b2b_total = total
+            record.b2b_total = total + record.fba_freight
 
     def _compute_freight(self):
         for record in self:
@@ -133,6 +139,11 @@ class PurchaseOrder(models.Model):
         if not location:
             raise UserError(u'Not found supplier b2b location!')
         location_dest_id = self.env.ref('stock.stock_location_customers').id
+        origin_type = ''
+        if self.origin_type == 'FBA':
+            origin_type = 'fba_delivery'
+        elif self.origin_type == 'sale':
+            origin_type = 'agent_delivery'
         val = {
             'partner_id': merchant.partner_id.id,
             'merchant_id': merchant.id,
@@ -140,10 +151,11 @@ class PurchaseOrder(models.Model):
             'location_dest_id': location_dest_id,
             'picking_type_id': 4,
             'b2b_type': 'outgoing',
-            'origin_type': 'agent_delivery',
+            'origin_type': origin_type,
             'origin': self.name,
-            'purchase_order_id': self.id,
-            'sale_order_id': self.sale_order_id.id,
+            'purchase_order_id': self.id or False,
+            'sale_order_id': self.sale_order_id.id or False,
+            'fba_replenish_id': self.fba_replenish_id.id or False,
             'pack_operation_product_ids': [],
         }
         for line in self.order_line:
@@ -155,7 +167,8 @@ class PurchaseOrder(models.Model):
                 'location_id': location.id,
                 'location_dest_id': location_dest_id,
                 'b2b_purchase_line_id': line.id,
-                'b2b_sale_line_id': line.b2b_sale_line_id.id,
+                'b2b_sale_line_id': line.b2b_sale_line_id.id or False,
+                'fba_replenish_line_id': line.fba_replenish_line_id.id or False,
             }))
         delivery = stock_picking_obj.create(val)
         delivery.create_delivery_info()

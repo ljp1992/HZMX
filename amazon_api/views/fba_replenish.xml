@@ -7,6 +7,9 @@
 			<field name="arch" type="xml">
 				<tree>
 					<field name="name" string="单号"/>
+                    <field name="distributor"/>
+                    <field name="supplier"/>
+                    <field name="state"/>
 				</tree>
 			</field>
 		</record>
@@ -37,22 +40,26 @@
                                 attrs="{'invisible': ['|', ('user_type', '!=', 'distributor'),
                                     ('state', '!=', 'wait_distributor_confirm')]}"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,wait_supplier_confirm,
-                            wait_platform_confirm,wait_distributor_confirm,wait_delivery,done"/>
+                            wait_platform_confirm,wait_distributor_confirm,purchase,wait_delivery,done"/>
                     </header>
 					<sheet>
                         <div class="oe_button_box">
-                            <button name="view_delivery" type="object" class="oe_stat_button" icon="fa-truck"
-                                    attrs="{'invisible': [('delivery_count', '=', 0)]}">
-                                <field name="delivery_count" widget="statinfo" string="发货单"/>
+                            <!--<button name="view_delivery" type="object" class="oe_stat_button" icon="fa-truck"-->
+                                    <!--attrs="{'invisible': [('delivery_count', '=', 0)]}">-->
+                                <!--<field name="delivery_count" widget="statinfo" string="发货单"/>-->
+                            <!--</button>-->
+                            <button name="view_purchase_order" type="object" class="oe_stat_button" icon="fa-truck"
+                                    attrs="{'invisible': [('purchase_count', '=', 0)]}">
+                                <field name="purchase_count" widget="statinfo" string="采购单"/>
                             </button>
                             <button name="view_distributor_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"
                                     attrs="{'invisible': [('distributor_invoice_count', '=', 0)]}">
                                 <field name="distributor_invoice_count" widget="statinfo" string="经销商发票"/>
                             </button>
-                            <button name="view_supplier_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"
-                                    attrs="{'invisible': [('supplier_invoice_count', '=', 0)]}">
-                                <field name="supplier_invoice_count" widget="statinfo" string="供应商发票"/>
-                            </button>
+                            <!--<button name="view_supplier_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"-->
+                                    <!--attrs="{'invisible': [('supplier_invoice_count', '=', 0)]}">-->
+                                <!--<field name="supplier_invoice_count" widget="statinfo" string="供应商发票"/>-->
+                            <!--</button>-->
                         </div>
                         <group>
                             <group>
@@ -68,14 +75,22 @@
                                        attrs="{'readonly': [('state', '!=', 'draft')],
                                        'invisible': [('type', '=', 'supplier_delivery')],
                                        'required': [('type', '=', 'other_delivery')]}"  />
-                                <field name="freight" attrs="{'readonly': [('state', 'not in',
-                                        ['wait_supplier_confirm', 'wait_platform_confirm'])]}"/>
+                                <field name="freight" attrs="{'readonly': ['|', ('user_type', 'not in', ['supplier',
+                                    'manager']), ('state', 'not in', ['wait_supplier_confirm',
+                                    'wait_platform_confirm'])], 'invisible': [('state', '=', 'draft')]}"/>
+                                <field name="distributor_amount"
+                                       attrs="{'invisible': [('user_type', '!=', 'distributor')]}"/>
+                                <field name="supplier_amount"
+                                       attrs="{'invisible': [('user_type', '!=', 'supplier')]}"/>
                             </group>
                         </group>
                         <notebook>
                             <page string="明细">
+                                <!--<field name="order_line" attrs="{'readonly': [('state', '!=', 'draft')]}">-->
                                 <field name="order_line">
                                     <tree editable="bottom">
+                                        <field name="user_type" invisible="1"/>
+                                        <field name="state" invisible="1"/>
                                         <field name="product_id" options="{'no_create':True}"
                                                attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                                         <field name="platform_price"
@@ -84,13 +99,22 @@
                                                invisible="context.get('hide_supplier_price') or False"/>
                                         <field name="product_uom"/>
                                         <field name="need_qty" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                                        <field name="available_qty"
-                                               attrs="{'readonly': [('state', '!=', 'wait_supplier_confirm')]}"/>
+                                        <!--<field name="available_qty" attrs="{'readonly': ['|', ('state', '!=',-->
+                                            <!--'wait_supplier_confirm'), ('user_type', '!=', 'supplier')]}"/>-->
+                                        <field name="available_qty" attrs="{'readonly': [('state', '!=', 'wait_supplier_confirm')]}"/>
                                         <field name="supplier" readonly="1"/>
                                         <field name="state" invisible="1"/>
                                     </tree>
                                 </field>
-                                <field name="note"/>
+                            </page>
+                            <page string="备注">
+                                <group>
+                                    <field name="distributor_note" attrs="{'readonly': ['|', ('user_type', '!=',
+                                        'distributor'), ('state', 'in', ['purchase', 'wait_delivery', 'done'])]}"/>
+                                    <field name="supplier_note" attrs="{'readonly': ['|', ('user_type', '!=',
+                                        'supplier'), ('state', 'in', ['purchase', 'wait_delivery', 'done'])]}"/>
+                                    <field name="platform_note" attrs="{'readonly': ['|', ('user_type', '!=', 'manager'), ('state', 'in', ['purchase', 'wait_delivery', 'done'])], 'invisible': [('user_type', '=', 'supplier_delivery')]}"/>
+                                </group>
                             </page>
                         </notebook>
                     </sheet>
@@ -126,7 +150,7 @@
             <field name="res_model">fba.replenish</field>
             <field name="view_mode">tree,form</field>
             <field name="view_type">form</field>
-            <field name="domain">[('own_fba_delivery', '=', True)]</field>
+            <field name="domain">[('own_fba_delivery', '=', True), ('state', '!=', 'draft')]</field>
             <field name="context">{'hide_platform_price': True}</field>
         </record>
         <record id="fba_replenish_act_two_tree" model="ir.actions.act_window.view">

@@ -22,6 +22,7 @@
                 <form>
                     <field name="state" invisible="1"/>
                     <field name="own_record" invisible="1"/>
+                    <field name="origin_type" invisible="1"/>
                     <header>
                         <button name="confirm_purchase_ljp" type="object" string="确认" class="btn-primary"
                                 attrs="{'invisible': ['|',('b2b_state', '!=', 'draft'),
@@ -44,10 +45,11 @@
                                 <field name="name" readonly="1"/>
                             </h1>
                         </div>
-                        <group>
+                        <group attrs="{'readonly': [('b2b_state', '!=', 'draft')]}">
                             <group>
                                 <field name="partner_id"/>
-                                <field name="b2b_total"/>
+                                <field name="fba_freight" attrs="{'invisible': [('origin_type', '!=', 'FBA')]}"/>
+                                <field name="b2b_total" invisible="context.get('hide_supplier_price')"/>
                             </group>
                             <group>
                                 <field name="date_order"/>
@@ -62,8 +64,8 @@
                                         <field name="price_unit" invisible="context.get('hide_supplier_price')"/>
                                         <field name="product_qty"/>
                                         <field name="product_uom"/>
-                                        <field name="freight"/>
-                                        <field name="b2b_total" sum="1"/>
+                                        <field name="freight" invisible="context.get('hide_supplier_price')"/>
+                                        <field name="b2b_total" sum="1" invisible="context.get('hide_supplier_price')"/>
                                     </tree>
                                 </field>
                             </page>

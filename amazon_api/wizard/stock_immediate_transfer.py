@@ -98,6 +98,7 @@ class StockImmediateTransfer(models.TransientModel):
                     if third_loc_invoice.get('order_line'):
                         invoice = invoice_obj.create(third_loc_invoice)
                 elif picking.origin_type == 'fba_delivery': #fba 补发货
+                    picking.purchase_order_id.b2b_state = 'done'
                     picking.fba_replenish_id.state = 'done'
                     third_loc = loc_obj.search([
                         ('partner_id', '=', merchant.partner_id.id),
@@ -109,6 +110,7 @@ class StockImmediateTransfer(models.TransientModel):
                         'picking_id': picking.id,
                         'fba_freight': picking.fba_replenish_id.freight,
                         'fba_replenish_id': picking.fba_replenish_id.id,
+                        'purchase_order_id': picking.purchase_order_id.id,
                         'merchant_id': merchant.id,
                         'type': 'supplier',
                         'detail_type': 'supplier_fba_third_stock',

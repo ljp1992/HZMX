@@ -30,12 +30,13 @@
                     <field name="b2b_state" invisible="1"/>
                     <field name="b2b_type" invisible="1"/>
                     <field name="own_record" invisible="1"/>
+                    <field name="origin_type" invisible="1"/>
                     <header>
                         <!--<button name="b2b_do_new_transfer" string="移动" type="object" class="oe_highlight"/>-->
                         <button name="b2b_do_new_transfer" string="发货" type="object" class="oe_highlight"
                                 attrs="{'invisible':['|',('b2b_state', '=', 'done'),('own_record', '=', False)]}"/>
                         <button name="upload_delivery_info" string="上传发货信息" type="object" class="oe_highlight"
-                            attrs="{'invisible': [('own_record', '=', False)]}"/>
+                            attrs="{'invisible': ['|', ('own_record', '=', False), ('origin_type', '=', 'fba_delivery')]}"/>
                         <field name="b2b_state" widget="statusbar" statusbar_visible="draft,done"/>
                     </header>
 					<sheet>
@@ -72,7 +73,7 @@
                                     </tree>
                                 </field>
                             </page>
-                            <page string="收件人信息">
+                            <page string="收件人信息" attrs="{'invisible': [('origin_type', '=', 'fba_delivery')]}">
                                 <group>
                                     <group>
                                         <field name="logistics_company_id" options="{'no_create': True}"/>
