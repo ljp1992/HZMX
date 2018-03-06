@@ -53,9 +53,12 @@ class SupplierSettlement(models.Model):
     @api.multi
     def search_supplier_invoice(self):
         self.ensure_one()
-        invoices = self.env['invoice'].search([
+        self.order_line = False
+        invoices = self.env['invoice'].sudo().search([
             ('state', '=', 'draft'),
             ('type', '=', 'supplier'),
+            ('create_date', '>=', self.from_date),
+            ('create_date', '<=', self.to_date),
         ])
         invoices.write({
             'supplier_settlement_id': self.id,
