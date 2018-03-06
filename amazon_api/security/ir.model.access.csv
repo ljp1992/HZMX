@@ -101,6 +101,4 @@ supplier_settlement_operator_id,supplier_settlement,model_supplier_settlement,b2
 supplier_settlement_merchant_id,supplier_settlement,model_supplier_settlement,b2b_platform.b2b_seller,1,1,1,1
 supplier_settlement_manager_id,supplier_settlement,model_supplier_settlement,b2b_platform.b2b_manager,1,1,1,1
 
-b2b_account_operator_id,b2b_account,model_b2b_account,b2b_platform.b2b_shop_operator,1,1,1,1
-b2b_account_merchant_id,b2b_account,model_b2b_account,b2b_platform.b2b_seller,1,1,1,1
-b2b_account_manager_id,b2b_account,model_b2b_account,b2b_platform.b2b_manager,1,1,1,1
+

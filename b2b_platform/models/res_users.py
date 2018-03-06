@@ -8,9 +8,10 @@ class ResUsers(models.Model):
 
     introduction = fields.Text(u'简介')
 
-    wait_add = fields.Float(compute='_compute_amount', store=False, string=u'待入账金额')
-    wait_reduce = fields.Float(compute='_compute_amount', store=False, string=u'待扣除金额')
-    available_cash = fields.Float(compute='_compute_amount', store=False, string=u'可提现金额')
+    left_amoun = fields.Float(string=u'账户余额')
+    wait_add = fields.Float(store=False, string=u'待入账金额')
+    wait_reduce = fields.Float(store=False, string=u'待扣除金额')
+    available_cash = fields.Float(store=False, string=u'可提现金额')
 
     own_my_data = fields.Boolean(search='_own_my_data', store=False)
     own_user = fields.Boolean(search='_compute_own_user', store=False)
