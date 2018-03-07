@@ -32,7 +32,7 @@ class ResUsers(models.Model):
     @api.multi
     @api.depends('transaction_details.state')
     def _compute_amount(self):
-        print 'compute account amount'
+        # print 'compute account amount'
         for record in self:
             left_amount = 0
             to_add_amount = 0
@@ -41,12 +41,12 @@ class ResUsers(models.Model):
                 if detail.state == 'draft':
                     if detail.type in ['cash']:
                         to_cash_amount += detail.amount
-                    elif detail.type in ['supplier_invoice', 'charge']:
+                    elif detail.type in ['supplier_invoice', 'charge', 'submitted_appeal']:
                         to_add_amount += detail.amount
                 elif detail.state == 'done':
-                    if detail.type in ['distributor_invoice', 'cash']:
+                    if detail.type in ['distributor_invoice', 'cash', 'received_appeal']:
                         left_amount -= detail.amount
-                    elif detail.type in ['supplier_invoice', 'charge']:
+                    elif detail.type in ['supplier_invoice', 'charge', 'submitted_appeal']:
                         left_amount += detail.amount
             record.to_add_amount = to_add_amount
             record.to_cash_amount = to_cash_amount

@@ -36,6 +36,7 @@
                         <button name="platform_purchase" type="object" string="平台采购" class="btn-primary"
                                 attrs="{'invisible':['|', ('b2b_type', '!=', 'agent_delivery'),
                                 ('purchase_count', '>', 0)]}"/>
+                        <button name="replenish_delivery" type="object" string="补发货" class="btn-primary"/>
                         <field name="b2b_state" widget="statusbar"
                                statusbar_visible="wait_handle,delivering,delivered"/>
                     </header>

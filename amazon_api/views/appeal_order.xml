@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="appeal_order_tree" model="ir.ui.view">
+            <field name="name">appeal_order_tree</field>
+            <field name="model">appeal.order</field>
+            <field name="arch" type="xml">
+                <tree colors="blue:state=='draft';purple:state=='wait_supplier_confirm';red:state=='wait_platform_confirm';black:state=='done';gray:state=='fail';">
+                    <field name="name"/>
+                    <field name="distributor_id"/>
+                    <field name="supplier_id"/>
+                    <field name="sale_order_id"/>
+                    <field name="purchase_id"/>
+                    <field name="picking_id"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record id="appeal_order_form" model="ir.ui.view">
+            <field name="name">appeal_order_form</field>
+            <field name="model">appeal.order</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="identity" invisible="1"/>
+                        <button name="submit_appeal_order" string="提交申请单" type="object" class="oe_highlight" attrs="{'invisible': ['|', ('identity', '!=', 'distributor'), ('state', '!=', 'draft')]}"/>
+                        <button name="supplier_confirm" string="供应商确认" type="object" class="oe_highlight" attrs="{'invisible': ['|', ('identity', '!=', 'supplier'),('state', '!=', 'wait_supplier_confirm')]}"/>
+                        <button name="supplier_refuse" string="供应商拒绝" type="object" class="oe_highlight" attrs="{'invisible': ['|', ('identity', '!=', 'supplier'),('state', '!=', 'wait_supplier_confirm')]}"/>
+                        <button name="platform_confirm" string="平台确认" type="object" class="oe_highlight" attrs="{'invisible': ['|', ('identity', '!=', 'manager'), ('state', '!=', 'wait_platform_confirm')]}"/>
+                        <button name="platform_refuse" string="平台驳回申诉单" type="object" class="oe_highlight" attrs="{'invisible': ['|', ('identity', '!=', 'manager'), ('state', '!=', 'wait_platform_confirm')]}"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,wait_supplier_confirm,wait_platform_confirm,done"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" class="oe_inline" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="sale_order_id" options="{'no_create': True}" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                <field name="purchase_id" options="{'no_create': True}" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                <field name="picking_id" options="{'no_create': True}" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                <field name="distributor_id" options="{'no_create': True}"/>
+                                <field name="supplier_id" options="{'no_create': True}"/>
+                            </group>
+                            <group>
+                                <field name="appeal_time" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                <field name="appeal_amount" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                <field name="agree_amount" attrs="{'required': [('state', 'in', ['wait_supplier_confirm', 'wait_platform_confirm'])], 'invisible': [('state', '=', 'draft')], 'readonly': ['|', '|', ('state', 'in', ['draft', 'done', 'fail']), '&amp;', ('state', '=', 'wait_supplier_confirm'), ('identity', '!=', 'supplier'), '&amp;', ('state', '=', 'wait_platform_confirm'), ('identity', '!=', 'manager')]}"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="appeal_text" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                        </group>
+                        <group>
+                            <field name="answer_text" attrs="{'invisible': [('state', '=', 'draft')], 'readonly': ['|', ('identity', '!=', 'supplier'), ('state', '!=', 'wait_supplier_confirm')]}"/>
+                        </group>
+                        <group>
+                            <field name="platform_note" attrs="{'invisible': [('state', 'in', ['draft', 'wait_supplier_confirm'])], 'readonly': ['|', ('identity', '!=', 'manager'), ('state', '!=', 'wait_platform_confirm')]}"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="appeal_order_search" model="ir.ui.view">
+			<field name="name">appeal_order_search</field>
+			<field name="model">appeal.order</field>
+			<field name="arch" type="xml">
+				<search>
+					<field name="name"/>
+                    <field name="distributor_id"/>
+                    <field name="supplier_id"/>
+                    <field name="sale_order_id"/>
+                    <field name="purchase_id"/>
+                    <field name="picking_id"/>
+                    <filter string="草稿" domain="[('state','=','draft')]"/>
+                    <filter string="待供应商审核" name="wait_supplier_confirm" domain="[('state','=','wait_supplier_confirm')]"/>
+                    <filter string="待平台审核" name="wait_platform_confirm" domain="[('state','=','wait_platform_confirm')]"/>
+                    <filter string="完成" domain="[('state','=','done')]"/>
+                    <filter string="申诉失败" domain="[('state','=','fail')]"/>
+                    <filter name="state" string="状态" context="{'group_by': 'state'}"/>
+				</search>
+			</field>
+		</record>
+
+        <record id="appeal_order_act1" model="ir.actions.act_window">
+            <field name="name">提交的申诉</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">appeal.order</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="appeal_order_search"/>
+            <field name="domain">[('submitted_appeal', '=', True)]</field>
+        </record>
+        <record id="appeal_order_act_tree1" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="appeal_order_tree"/>
+            <field name="act_window_id" ref="appeal_order_act1"/>
+        </record>
+        <record id="appeal_order_act_form1" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="appeal_order_form"/>
+            <field name="act_window_id" ref="appeal_order_act1"/>
+        </record>
+        <menuitem id="distributor_appeal_order_menu" name="提交的申诉" parent="b2b_platform.order_appeal_parent_menu" action="appeal_order_act1" sequence="1"/>
+
+        <record id="appeal_order_act2" model="ir.actions.act_window">
+            <field name="name">收到的申诉</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">appeal.order</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="appeal_order_search"/>
+            <field name="domain">[('received_appeal', '=', True), ('state', '!=', 'draft')]</field>
+            <field name="context">{'search_default_wait_supplier_confirm': True}</field>
+        </record>
+        <record id="appeal_order_act_tree2" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="appeal_order_tree"/>
+            <field name="act_window_id" ref="appeal_order_act2"/>
+        </record>
+        <record id="appeal_order_act_form2" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="appeal_order_form"/>
+            <field name="act_window_id" ref="appeal_order_act2"/>
+        </record>
+        <menuitem id="supplier_appeal_order_menu" name="收到的申诉" parent="b2b_platform.order_appeal_parent_menu" action="appeal_order_act2" sequence="2"/>
+
+        <record id="appeal_order_act" model="ir.actions.act_window">
+            <field name="name">申诉单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">appeal.order</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="appeal_order_search"/>
+            <field name="domain">[]</field>
+            <field name="context">{'search_default_wait_platform_confirm': True}</field>
+        </record>
+        <record id="appeal_order_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="appeal_order_tree"/>
+            <field name="act_window_id" ref="appeal_order_act"/>
+        </record>
+        <record id="appeal_order_act_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="appeal_order_form"/>
+            <field name="act_window_id" ref="appeal_order_act"/>
+        </record>
+        <menuitem id="appeal_order_menu" name="申诉单" parent="b2b_platform.appeal_order_platform_menu" action="appeal_order_act" groups="b2b_platform.b2b_manager" sequence="1"/>
+    </data>
+</odoo>

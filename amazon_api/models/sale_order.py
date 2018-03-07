@@ -98,6 +98,12 @@ class SaleOrder(models.Model):
         ('own_and_agent_delivery', u'自有发货&代发采购')], string=u'类型')
 
     @api.multi
+    def replenish_delivery(self):
+        '''补发货'''
+        self.ensure_one()
+
+
+    @api.multi
     def _had_b2b_delivery(self):
         for record in self:
             if record.own_deliverys:

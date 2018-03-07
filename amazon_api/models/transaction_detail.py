@@ -19,12 +19,15 @@ class TransactionDetail(models.Model):
     charge_id = fields.Many2one('account.charge', ondelete='set null')
     cash_id = fields.Many2one('account.cash', ondelete='set null')
     invoice_id = fields.Many2one('invoice', ondelete='set null')
+    appeal_id = fields.Many2one('appeal.order', ondelete='set null')
 
     type = fields.Selection([
         ('charge', u'充值'),
         ('cash', u'提现'),
         ('distributor_invoice', u'经销商发票'),
         ('supplier_invoice', u'供应商发票'),
+        ('submitted_appeal', u'提交的申诉单'),
+        ('received_appeal', u'收到的申诉单'),
     ],  required=True, string=u'类型')
     state = fields.Selection([
         ('draft', u'草稿'),

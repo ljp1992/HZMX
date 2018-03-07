@@ -50,6 +50,7 @@
         'views/account_charge.xml',
         'views/account_cash.xml',
         'views/invoice.xml',
+        'views/appeal_order.xml',
 
         'wizard_views/shop_template_wizard.xml',
         'wizard_views/amazon_wizard.xml',
