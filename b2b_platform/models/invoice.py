@@ -24,7 +24,6 @@ class Invoice(models.Model):
     picking_id = fields.Many2one('stock.picking')
 
     order_line = fields.One2many('invoice.line', 'order_id')
-    # transaction_details = fields.One2many('transaction.detail', 'invoice_id')
 
     state = fields.Selection([
         ('draft', u'未结算'),

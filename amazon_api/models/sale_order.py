@@ -22,10 +22,12 @@ class SaleOrder(models.Model):
     sale_date = fields.Datetime(string=u'下单日期')
     confirm_date = fields.Datetime(string=u'确认日期')
 
-    b2b_delivery_count = fields.Integer(compute='_b2b_delivery_count')
-    b2b_own_delivery_count = fields.Integer(compute='_b2b_delivery_count')
-    purchase_count = fields.Integer(compute='_purchase_count')
-    b2b_invoice_count = fields.Integer(compute='_b2b_invoice_count')
+    # b2b_delivery_count = fields.Integer(compute='_b2b_delivery_count')
+    agent_delivery_count = fields.Integer(compute='_compute_order_count')
+    own_delivery_count = fields.Integer(compute='_compute_order_count')
+    purchase_count = fields.Integer(compute='_compute_order_count')
+    b2b_invoice_count = fields.Integer(compute='_compute_order_count')
+    replenish_order_count = fields.Integer(compute='_compute_order_count', store=False)
 
     e_order_amount = fields.Float(string=u'订单金额')
     e_order_freight = fields.Float(compute='_e_order_freight', store=False, string=u'运费')
@@ -59,6 +61,8 @@ class SaleOrder(models.Model):
                                         string=u'调拨单')
     b2b_invoice_ids = fields.One2many('invoice', 'sale_order_id', domain=[('type', '=', 'distributor')],
                                       string=u'经销商发票')
+    appeal_orders = fields.One2many('appeal.order', 'sale_order_id', string=u'申诉单')
+    replenish_orders = fields.One2many('replenish.order', 'sale_order_id')
 
     platform = fields.Selection([
         ('amazon', u'亚马逊'),
@@ -89,19 +93,44 @@ class SaleOrder(models.Model):
         ('failed', u'失败')], default='wait_upload', string=u'发货信息上传状态')
     b2b_state = fields.Selection([
         ('wait_handle', u'待处理'),
+        ('purchase', u'已转采'),
         ('delivering', u'待发货'),
-        ('delivered', u'已交付'),
+        ('delivered', u'已发货'),
         ('cancel', u'取消')], default='wait_handle', string=u'状态')
+    # appeal_state = fields.Selection([
+    #     ('no', u'没有申诉单'),
+    #     ('appealing', u'申诉中'),
+    #     ('done', u'申诉成功'),
+    #     ('fail', u'申诉失败')
+    # ], default='no', string=u'申诉状态')
     b2b_type = fields.Selection([
         ('own_delivery', u'自有发货'),
         ('agent_delivery', u'代发采购'),
-        ('own_and_agent_delivery', u'自有发货&代发采购')], string=u'类型')
+        ('own_and_agent_delivery', u'自有发货&代发采购')], compute='_get_b2b_type', store=False, string=u'类型')
+
+    @api.multi
+    def _compute_order_count(self):
+        for record in self:
+            record.purchase_count = len(record.purchase_orders)
+            record.b2b_invoice_count = len(record.b2b_invoice_ids)
+            record.agent_delivery_count = len(record.agent_deliverys)
+            record.own_delivery_count = len(record.own_deliverys)
+            record.replenish_order_count = len(record.replenish_orders)
 
     @api.multi
     def replenish_delivery(self):
         '''补发货'''
         self.ensure_one()
-
+        return {
+            'name': u'补货单',
+            'type': 'ir.actions.act_window',
+            'res_model': 'replenish.order',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'views': [(self.env.ref('amazon_api.replenish_order_form').id, 'form')],
+            'context': {'default_sale_order_id': self.id},
+            'target': 'current',
+        }
 
     @api.multi
     def _had_b2b_delivery(self):
@@ -121,7 +150,7 @@ class SaleOrder(models.Model):
                     record.have_not_own_product = True
 
     @api.multi
-    def judge_sale_order_type(self):
+    def _get_b2b_type(self):
         '''判断单据是自有发货、代发采购、还是既有自有发货又有代发采购'''
         for record in self:
             if record.have_own_product and record.have_not_own_product:
@@ -142,6 +171,21 @@ class SaleOrder(models.Model):
     def _b2b_invoice_count(self):
         for record in self:
             record.b2b_invoice_count = len(record.b2b_invoice_ids)
+
+    @api.multi
+    def view_replenish_order(self):
+        self.ensure_one()
+        return {
+            'name': u'补货单',
+            'type': 'ir.actions.act_window',
+            'res_model': 'replenish.order',
+            'view_mode': 'tree,form',
+            'view_type': 'form',
+            'views': [(self.env.ref('amazon_api.replenish_order_tree').id, 'tree'),
+                      (self.env.ref('amazon_api.replenish_order_form').id, 'form')],
+            'domain': [('sale_order_id', '=', self.id)],
+            'target': 'current',
+        }
 
     @api.multi
     def view_delivery_order(self):
@@ -184,7 +228,7 @@ class SaleOrder(models.Model):
             'views': [
                 (self.env.ref('amazon_api.purchase_order_tree').id, 'tree'),
                 (self.env.ref('amazon_api.b2b_purchase_order_form').id, 'form')],
-            'domain': [('id', 'in', self.purchase_orders.ids)],
+            'domain': [('sale_order_id', '=', self.id)],
             'context': {'hide_supplier_price': True},
             'target': 'current',
         }
@@ -336,12 +380,8 @@ class SaleOrder(models.Model):
     def platform_purchase(self):
         '''平台采购'''
         self.ensure_one()
-        self.b2b_state = 'delivering'
-        purchase_obj = self.env['purchase.order']
-        loc_obj = self.env['stock.location']
-        stock_picking_obj = self.env['stock.picking']
-        merchant = self.env.user.merchant_id or self.env.user
-        purchase_info = {}
+        self.b2b_state = 'purchase'
+        #创建并确认经销商发票
         distributor_invoice = {
             'type': 'distributor',
             'detail_type': 'distributor_platform_purchase',
@@ -357,6 +397,11 @@ class SaleOrder(models.Model):
                 'product_uom': sale_line.product_uom.id,
                 'freight': sale_line.supplier_freight,
             }))
+        invoice = self.env['invoice'].create(distributor_invoice)
+        invoice.invoice_confirm()
+        #创建采购单
+        purchase_info = {}
+        for sale_line in self.order_line:
             platform_pro_merchant = sale_line.sudo().product_id.product_tmpl_id.merchant_id
             supplier_id = platform_pro_merchant.partner_id.id
             if purchase_info.has_key(supplier_id):
@@ -374,7 +419,6 @@ class SaleOrder(models.Model):
             else:
                 purchase_info[supplier_id] = {
                     'sale_order_id': self.id,
-                    'merchant_id': platform_pro_merchant.id,
                     'partner_id': supplier_id,
                     'state': 'draft',
                     'origin': self.name,
@@ -393,9 +437,6 @@ class SaleOrder(models.Model):
                         'b2b_sale_line_id': sale_line.id,
                     })]
                 }
-        invoice = self.env['invoice'].create(distributor_invoice)
-        invoice.invoice_confirm()
         for (supplier_id, val) in purchase_info.items():
-            purchase_order = purchase_obj.create(val)
-        return
+            self.env['purchase.order'].create(val)
 

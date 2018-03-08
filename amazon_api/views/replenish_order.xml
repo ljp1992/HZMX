@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="replenish_order_tree" model="ir.ui.view">
+            <field name="name">replenish_order_tree</field>
+            <field name="model">replenish.order</field>
+            <field name="arch" type="xml">
+                <tree colors="blue:state=='draft';purple:state=='purchase';green:state=='delivering';black:state=='delivered';gray:state=='fail';">
+                    <field name="name"/>
+                    <field name="sale_order_id"/>
+                    <field name="date_order"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record id="replenish_order_form" model="ir.ui.view">
+            <field name="name">replenish_order_form</field>
+            <field name="model">replenish.order</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="delivery_type" invisible="1"/>
+                        <button name="platform_purchase" string="平台采购" type="object" class="oe_highlight oe_read_only" attrs="{'invisible': ['|', ('purchase_count', '>', 0), ('delivery_type', '=', 'own_delivery')]}"/>
+                        <button name="own_product_delivery" string="自有发货" type="object" class="oe_highlight oe_read_only" attrs="{'invisible': ['|', ('delivery_count', '>', 0), ('delivery_type', '=', 'platform_purchase')]}"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,delivering,delivered"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box">
+                            <button name="view_purchase_order" type="object" class="oe_stat_button" icon="fa-truck"
+                                    attrs="{'invisible': [('purchase_count', '=', 0)]}">
+                                <field name="purchase_count" widget="statinfo" string="采购单"/>
+                            </button>
+                            <button name="view_delivery_order" type="object" class="oe_stat_button" icon="fa-truck"
+                                    attrs="{'invisible': [('delivery_count', '=', 0)]}">
+                                <field name="delivery_count" widget="statinfo" string="发货单"/>
+                            </button>
+                            <button name="view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"
+                                    attrs="{'invisible': [('invoice_count', '=', 0)]}">
+                                <field name="invoice_count" widget="statinfo" string="经销商发票"/>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" class="oe_inline" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="sale_order_id" options="{'no_create': True}"/>
+                                <field name="total_amount"/>
+                            </group>
+                            <group>
+                                <field name="date_order"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="明细">
+                                <field name="order_line">
+                                    <tree editable="bottom">
+                                        <field name="product_id" options="{'no_create': True}" context="{'sale_order_id_b2b': parent.sale_order_id}"/>
+                                        <field name="own_product"/>
+                                        <field name="platform_price"/>
+                                        <field name="product_uom_qty"/>
+                                        <field name="product_uom"/>
+                                        <field name="freight"/>
+                                        <field name="total_amount"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="replenish_order_search" model="ir.ui.view">
+			<field name="name">replenish_order_search</field>
+			<field name="model">replenish.order</field>
+			<field name="arch" type="xml">
+				<search>
+					<field name="name"/>
+                    <!--<field name="distributor_id"/>-->
+                    <!--<field name="supplier_id"/>-->
+                    <!--<field name="sale_order_id"/>-->
+                    <!--<field name="purchase_id"/>-->
+                    <!--<field name="picking_id"/>-->
+                    <!--<filter string="草稿" domain="[('state','=','draft')]"/>-->
+                    <!--<filter string="待供应商审核" name="wait_supplier_confirm" domain="[('state','=','wait_supplier_confirm')]"/>-->
+                    <!--<filter string="待平台审核" name="wait_platform_confirm" domain="[('state','=','wait_platform_confirm')]"/>-->
+                    <!--<filter string="完成" domain="[('state','=','done')]"/>-->
+                    <!--<filter string="申诉失败" domain="[('state','=','fail')]"/>-->
+                    <!--<filter name="state" string="状态" context="{'group_by': 'state'}"/>-->
+				</search>
+			</field>
+		</record>
+
+        <record id="replenish_order_act" model="ir.actions.act_window">
+            <field name="name">补货单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">replenish.order</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="replenish_order_search"/>
+            <field name="domain">[]</field>
+        </record>
+        <record id="replenish_order_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="replenish_order_tree"/>
+            <field name="act_window_id" ref="replenish_order_act"/>
+        </record>
+        <record id="replenish_order_act_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="replenish_order_form"/>
+            <field name="act_window_id" ref="replenish_order_act"/>
+        </record>
+        <menuitem id="replenish_order_menu" name="补货单" parent="b2b_platform.sale_order_parent_menu" action="replenish_order_act" sequence="9"/>
+    </data>
+</odoo>

@@ -139,6 +139,13 @@ class ProductProduct(models.Model):
         args = args or []
         if name:
             args += [('name', operator, name)]
+        context = self._context or {}
+        sale_order_id = context.get('sale_order_id_b2b')
+        if sale_order_id:
+            sale_order = self.env['sale.order'].search([('id', '=', sale_order_id)], limit=1)
+            if sale_order:
+                product_ids = [line.product_id.id for line in sale_order.order_line]
+                args += [('id', 'in', product_ids)]
         result = self.search(args, limit=limit)
         return result.name_get()
 

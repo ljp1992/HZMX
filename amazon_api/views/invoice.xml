@@ -6,8 +6,7 @@
             <field name="model">invoice</field>
             <field name="priority">10</field>
             <field name="arch" type="xml">
-                <tree create="0" edit="0" delete="0"
-                      colors="blue:state=='draft';black:state=='done';">
+                <tree colors="blue:state=='draft';black:state=='done';">
                     <field name="name"/>
                     <field name="merchant_id" groups="b2b_platform.b2b_manager"/>
                     <field name="create_date" string="创建时间"/>
@@ -22,7 +21,7 @@
             <field name="name">invoice_form</field>
             <field name="model">invoice</field>
             <field name="arch" type="xml">
-                <form create="0" edit="0" delete="0">
+                <form>
                     <header>
                         <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
                     </header>

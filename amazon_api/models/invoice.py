@@ -8,6 +8,7 @@ class Invoice(models.Model):
 
     supplier_settlement_id = fields.Many2one('supplier.settlement')
     fba_replenish_id = fields.Many2one('fba.replenish')
+    replenish_order_id = fields.Many2one('replenish.order', string=u'补货单')
 
     transaction_details = fields.One2many('transaction.detail', 'invoice_id')
 
@@ -23,6 +24,7 @@ class Invoice(models.Model):
     def unlink(self):
         for record in self:
             record.transaction_details.unlink()
+        return super(Invoice, self).unlink()
 
     @api.multi
     def create_transaction_detail(self):

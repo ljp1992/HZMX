@@ -21,9 +21,9 @@ class AppealOrder(models.Model):
     appeal_amount = fields.Float(required=True, string=u'申诉退款金额')
     agree_amount = fields.Float(string=u'同意退款金额')
 
-    sale_order_id = fields.Many2one('sale.order', required=True, string=u'销售订单')
-    purchase_id = fields.Many2one('purchase.order', required=True, string=u'采购单')
-    picking_id = fields.Many2one('stock.picking', required=True, string=u'发货单')
+    sale_order_id = fields.Many2one('sale.order', domain=lambda self: self._get_sale_order_domain(), string=u'销售订单')
+    purchase_id = fields.Many2one('purchase.order', string=u'采购单')
+    picking_id = fields.Many2one('stock.picking', string=u'发货单')
     supplier_id = fields.Many2one('res.partner', related='purchase_id.partner_id', store=True,
                                   readonly=True, string=u'供应商')
     distributor_id = fields.Many2one('res.partner', related='sale_order_id.merchant_id.partner_id', store=True,
@@ -43,6 +43,16 @@ class AppealOrder(models.Model):
         ('supplier', u'供应商'),
         ('manager', u'管理员'),
     ], compute='_compute_identity', sotre=False, string=u'身份')
+
+    @api.model
+    def _get_sale_order_domain(self):
+        user = self.env.user
+        if self.user_has_groups('b2b_platform.b2b_shop_operator'):
+            return [('shop_id', 'in', user.shop_ids.ids)]
+        elif self.user_has_groups('b2b_platform.b2b_seller'):
+            return [('merchant_id', '=', self.env.user.id)]
+        else:
+            return [('id', '=', 0)]
 
     @api.model
     def _search_submitted_appeal(self, operation, value):

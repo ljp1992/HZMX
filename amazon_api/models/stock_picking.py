@@ -36,6 +36,7 @@ class StockPicking(models.Model):
     sale_order_id = fields.Many2one('sale.order')
     purchase_order_id = fields.Many2one('purchase.order')
     fba_replenish_id = fields.Many2one('fba.replenish')
+    replenish_order_id = fields.Many2one('replenish.order', string=u'补货单')
     # distributor_invoice_ids = fields.Many2one('invoice', related='sale_order_id.invoice_ids', string=u'经销商发票')
 
     delivery_info_upload_state = fields.Selection([

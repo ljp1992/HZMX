@@ -104,3 +104,11 @@ supplier_settlement_manager_id,supplier_settlement,model_supplier_settlement,b2b
 appeal_order_operator_id,appeal_order,model_appeal_order,b2b_platform.b2b_shop_operator,1,1,1,1
 appeal_order_merchant_id,appeal_order,model_appeal_order,b2b_platform.b2b_seller,1,1,1,1
 appeal_order_manager_id,appeal_order,model_appeal_order,b2b_platform.b2b_manager,1,1,1,1
+
+replenish_order_operator_id,replenish_order,model_replenish_order,b2b_platform.b2b_shop_operator,1,1,1,1
+replenish_order_merchant_id,replenish_order,model_replenish_order,b2b_platform.b2b_seller,1,1,1,1
+replenish_order_manager_id,replenish_order,model_replenish_order,b2b_platform.b2b_manager,1,1,1,1
+
+replenish_order_line_operator_id,replenish_order_line,model_replenish_order_line,b2b_platform.b2b_shop_operator,1,1,1,1
+replenish_order_line_merchant_id,replenish_order_line,model_replenish_order_line,b2b_platform.b2b_seller,1,1,1,1
+replenish_order_line_manager_id,replenish_order_line,model_replenish_order_line,b2b_platform.b2b_manager,1,1,1,1

@@ -23,6 +23,7 @@ class PurchaseOrder(models.Model):
     delivery_order_count = fields.Integer(compute='_delivery_order_count')
 
     sale_order_id = fields.Many2one('sale.order')
+    replenish_order_id = fields.Many2one('replenish.order', string=u'补货单')
     fba_replenish_id = fields.Many2one('fba.replenish', string=u'FBA补货单')
     merchant_id = fields.Many2one('res.users', default=lambda self: self.env.user.merchant_id or self.env.user,
                                   string=u'商户')
@@ -32,7 +33,7 @@ class PurchaseOrder(models.Model):
     b2b_invoice_ids = fields.One2many('invoice', 'purchase_order_id', string=u'发票')
 
     b2b_state = fields.Selection([
-        ('draft', u'待发货'),
+        ('draft', u'未处理'),
         ('confirmed', u'已确认'),
         ('done', u'已发货'),
     ], default='draft', string=u'状态')
@@ -40,6 +41,12 @@ class PurchaseOrder(models.Model):
         ('FBA', u'FBA补货'),
         ('sale', u'客户订单'),
     ], default='sale', string=u'来源')
+
+    @api.multi
+    def unlink(self):
+        for record in self:
+            record.state = 'cancel'
+        return super(PurchaseOrder, self).unlink()
 
     @api.multi
     def _own_record(self):
@@ -126,9 +133,15 @@ class PurchaseOrder(models.Model):
         '''确认采购单'''
         self.ensure_one()
         self.b2b_state = 'confirmed'
+        if self.sale_order_id:
+            self.sale_order_id.b2b_state = 'delivering'
+        if self.replenish_order_id:
+            self.replenish_order_id.state = 'delivering'
         stock_picking_obj = self.env['stock.picking']
         loc_obj = self.env['stock.location']
-        merchant = self.env.user.merchant_id or self.env.user
+        merchant = self.env['res.users'].search([('partner_id', '=', self.partner_id.id)], limit=1)
+        if not merchant:
+            raise UserError(u'没有找到供应商账号！')
         location = loc_obj.search([
             ('partner_id', '=', merchant.partner_id.id),
             ('location_id', '=', self.env.ref('b2b_platform.third_warehouse').id)], limit=1)
@@ -173,7 +186,7 @@ class PurchaseOrder(models.Model):
         delivery = stock_picking_obj.create(val)
         delivery.create_delivery_info()
         return {
-            'name': u'代理发货',
+            'name': u'发货单',
             'type': 'ir.actions.act_window',
             'res_model': 'stock.picking',
             'view_mode': 'tree,form',
@@ -220,6 +233,7 @@ class PurchaseOrderLine(models.Model):
 
     b2b_sale_line_id = fields.Many2one('sale.order.line')
     fba_replenish_line_id = fields.Many2one('fba.replenish.line')
+    replenish_line_id = fields.Many2one('replenish.order.line')
 
     def _compute_total(self):
         for record in self:

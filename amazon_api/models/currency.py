@@ -18,6 +18,13 @@ class AmazonCurrency(models.Model):
             if currency:
                 record.rate = currency.rate
 
+class ResCurrency(models.Model):
+    _inherit = 'res.currency'
+
+    @api.model
+    def get_cny_currency(self):
+        return self.env['res.currency'].search([('name', '=', 'CNY')], limit=1)
+
 class CurrencyRateUpdateService(models.Model):
     _inherit = "currency.rate.update.service"
 

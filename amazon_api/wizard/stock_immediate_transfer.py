@@ -28,31 +28,30 @@ class StockImmediateTransfer(models.TransientModel):
                 # invoice
                 invoice_obj = self.env['invoice']
                 if picking.origin_type == 'own_delivery': #自有产品平台发货，生成运费账单
-                    pass
-                    # invoice_val = {
-                    #     'picking_id': picking.id,
-                    #     'sale_order_id': sale_order.id,
-                    #     'merchant_id': merchant.id,
-                    #     'origin': sale_order.name,
-                    #     'type': 'distributor',
-                    #     'state': 'paid',
-                    #     'order_line': []
-                    # }
-                    # create_invoice = False
-                    # for line in picking.pack_operation_product_ids:
-                    #     invoice_val['order_line'].append((0, 0, {
-                    #         'product_id': line.product_id.id,
-                    #         'product_uom_qty': line.qty_done,
-                    #         'product_uom': line.product_uom_id.id,
-                    #         'platform_price': 0,
-                    #         'freight': line.b2b_sale_line_id.supplier_freight,
-                    #         'operation_line_id': line.id,
-                    #     }))
-                    #     if line.platform_location:
-                    #         create_invoice = True
-                    # if create_invoice:
-                    #     invoice = invoice_obj.create(invoice_val)
-                    #     invoice.invoice_confirm()
+                    invoice_val = {
+                        'picking_id': picking.id,
+                        'sale_order_id': sale_order.id,
+                        'merchant_id': merchant.id,
+                        'origin': sale_order.name,
+                        'type': 'distributor',
+                        'state': 'paid',
+                        'order_line': []
+                    }
+                    create_invoice = False
+                    for line in picking.pack_operation_product_ids:
+                        invoice_val['order_line'].append((0, 0, {
+                            'product_id': line.product_id.id,
+                            'product_uom_qty': line.qty_done,
+                            'product_uom': line.product_uom_id.id,
+                            'platform_price': 0,
+                            'freight': line.b2b_sale_line_id.supplier_freight,
+                            'operation_line_id': line.id,
+                        }))
+                        if line.platform_location:
+                            create_invoice = True
+                    if create_invoice:
+                        invoice = invoice_obj.create(invoice_val)
+                        invoice.invoice_confirm()
                 elif picking.origin_type == 'agent_delivery': #平台采购生成发票（供应商库位发货的发票，第三方仓库发货的发票）
                     picking.purchase_order_id.b2b_state = 'done'
                     third_loc = loc_obj.search([
