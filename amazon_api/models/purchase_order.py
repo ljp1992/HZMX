@@ -33,8 +33,8 @@ class PurchaseOrder(models.Model):
     b2b_invoice_ids = fields.One2many('invoice', 'purchase_order_id', string=u'发票')
 
     b2b_state = fields.Selection([
-        ('draft', u'未处理'),
-        ('confirmed', u'已确认'),
+        ('draft', u'待处理'),
+        ('confirmed', u'代发货'),
         ('done', u'已发货'),
     ], default='draft', string=u'状态')
     origin_type = fields.Selection([

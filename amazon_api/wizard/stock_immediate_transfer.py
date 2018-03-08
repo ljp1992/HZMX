@@ -53,7 +53,13 @@ class StockImmediateTransfer(models.TransientModel):
                         invoice = invoice_obj.create(invoice_val)
                         invoice.invoice_confirm()
                 elif picking.origin_type == 'agent_delivery': #平台采购生成发票（供应商库位发货的发票，第三方仓库发货的发票）
-                    picking.purchase_order_id.b2b_state = 'done'
+                    purchase_order = picking.purchase_order_id
+                    if purchase_order:
+                        purchase_order.b2b_state = 'done'
+                        if purchase_order.sale_order_id:
+                            purchase_order.sale_order_id.state = 'delivered'
+                        if purchase_order.replenish_order_id:
+                            purchase_order.replenish_order_id.state = 'delivered'
                     third_loc = loc_obj.search([
                         ('partner_id', '=', merchant.partner_id.id),
                         ('location_id', '=', self.env.ref('b2b_platform.third_warehouse').id)], limit=1)
