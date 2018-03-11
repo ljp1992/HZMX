@@ -30,7 +30,7 @@ class Invoice(models.Model):
     def create_transaction_detail(self):
         for record in self:
             val = {}
-            if record.type == 'distributor':
+            if record.type in ['distributor_platform_purchase', 'distributor_own_delivery', 'distributor_fba']:
                 val = {
                     'merchant_id': record.merchant_id.id,
                     'origin': record.name,
@@ -39,7 +39,8 @@ class Invoice(models.Model):
                     'state': 'draft',
                     'amount': record.total,
                 }
-            elif record.type == 'supplier':
+            elif record.type in ['supplier_own_stock', 'supplier_third_stock', 'supplier_fba_own_stock',
+                                 'supplier_fba_third_stock']:
                 val = {
                     'merchant_id': record.merchant_id.id,
                     'origin': record.name,

@@ -22,12 +22,10 @@ class StockQuant(models.Model):
             product_ids = []
             for distributor_tmpl in distributor_tmpls:
                 product_ids += distributor_tmpl.platform_tmpl_id.product_variant_ids.ids
-            print product_ids
             quants = self.env['stock.quant'].search([
                 ('product_id', 'in', product_ids),
                 ('location_id.usage', '=', 'internal'),
             ])
-            print quants
             return [('id', 'in', quants.ids)]
 
     @api.multi

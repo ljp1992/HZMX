@@ -25,16 +25,16 @@
                     <field name="origin_type" invisible="1"/>
                     <header>
                         <button name="confirm_purchase_ljp" type="object" string="确认" class="btn-primary"
-                                attrs="{'invisible': ['|',('b2b_state', '!=', 'draft'),
+                                attrs="{'invisible': ['|', ('b2b_state', '!=', 'draft'),
                                 ('own_record', '=', False)]}"/>
                         <field name="b2b_state" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box">
-                            <button name="view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"
-                                    attrs="{'invisible': [('b2b_invoice_count', '=', 0)]}">
-                                <field name="b2b_invoice_count" widget="statinfo" string="发票"/>
-                            </button>
+                            <!--<button name="view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"-->
+                                    <!--attrs="{'invisible': [('b2b_invoice_count', '=', 0)]}">-->
+                                <!--<field name="b2b_invoice_count" widget="statinfo" string="发票"/>-->
+                            <!--</button>-->
                             <button name="view_delivery_order" type="object" class="oe_stat_button" icon="fa-truck"
                                     attrs="{'invisible': [('b2b_delivery_count', '=', 0)]}">
                                 <field name="b2b_delivery_count" widget="statinfo" string="发货单"/>
@@ -58,7 +58,7 @@
                         </group>
                         <notebook>
                             <page string="明细">
-                                <field name="order_line">
+                                <field name="order_line" readonly="1">
                                     <tree>
                                         <field name="product_id"/>
                                         <field name="price_unit" invisible="context.get('hide_supplier_price')"/>
@@ -75,56 +75,67 @@
             </field>
 		</record>
 
+        <record id="purchase_order_act_one" model="ir.actions.act_window">
+            <field name="name">采购订单</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_mode">tree</field>
+            <field name="view_type">form</field>
+            <field name="domain">[('own_data', '=', True), ('b2b_state', 'in', ['draft'])]</field>
+        </record>
+        <record id="purchase_order_act_tree_one" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="amazon_api.purchase_order_tree"/>
+            <field name="act_window_id" ref="purchase_order_act_one"/>
+        </record>
+        <record id="purchase_order_act_form_one" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="amazon_api.b2b_purchase_order_form"/>
+            <field name="act_window_id" ref="purchase_order_act_one"/>
+        </record>
+        <menuitem id="purchase_order_menu_one" name="待处理" parent="b2b_platform.purchase_parent_menu" sequence="1" action="purchase_order_act_one"/>
+
         <record id="purchase_order_act" model="ir.actions.act_window">
             <field name="name">采购订单</field>
             <field name="res_model">purchase.order</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
-            <field name="domain">[('b2b_state', 'in', ['draft', 'confirmed'])]</field>
-            <field name="context">{'view_own_purchase': True}</field>
+            <field name="domain">[('own_data', '=', True), ('b2b_state', 'in', ['confirmed'])]</field>
         </record>
-
         <record id="purchase_order_act_tree" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="amazon_api.purchase_order_tree"/>
             <field name="act_window_id" ref="purchase_order_act"/>
         </record>
-
         <record id="purchase_order_act_form" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
             <field name="view_id" ref="amazon_api.b2b_purchase_order_form"/>
             <field name="act_window_id" ref="purchase_order_act"/>
         </record>
-
-        <menuitem id="purchase_order_menu" name="待发货" parent="b2b_platform.purchase_parent_menu" sequence="1"
-                  action="purchase_order_act"/>
+        <menuitem id="purchase_order_menu" name="待发货" parent="b2b_platform.purchase_parent_menu" sequence="3" action="purchase_order_act"/>
 
         <record id="deliveryed_purchase_order_act" model="ir.actions.act_window">
             <field name="name">已发货</field>
             <field name="res_model">purchase.order</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
-            <field name="domain">[('b2b_state', '=', 'done')]</field>
-            <field name="context">{'view_own_purchase': True}</field>
+            <field name="domain">[('own_data', '=', True), ('b2b_state', '=', 'done')]</field>
         </record>
-
         <record id="purchase_order_act_tree1" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="amazon_api.purchase_order_tree"/>
             <field name="act_window_id" ref="deliveryed_purchase_order_act"/>
         </record>
-
         <record id="purchase_order_act_form1" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
             <field name="view_id" ref="amazon_api.b2b_purchase_order_form"/>
             <field name="act_window_id" ref="deliveryed_purchase_order_act"/>
         </record>
-
-        <menuitem id="deliveryed_purchase_order_menu" name="已发货" parent="b2b_platform.purchase_parent_menu"
-                  sequence="2" action="deliveryed_purchase_order_act"/>
+        <menuitem id="deliveryed_purchase_order_menu" name="已发货" parent="b2b_platform.purchase_parent_menu" sequence="5" action="deliveryed_purchase_order_act"/>
 	</data>
 </odoo>

@@ -11,6 +11,19 @@ class StockLocation(models.Model):
     location_id = fields.Many2one('stock.location', default=lambda self: self._paltform_location())
 
     @api.model
+    def return_merchant_supplier_location(self, merchant):
+        return self.env['stock.location'].sudo().search([
+            ('partner_id', '=', merchant.partner_id.id),
+            ('location_id', '=', self.env.ref('b2b_platform.supplier_stock').id)], limit=1)
+
+    @api.model
+    def return_merchant_third_location(self, merchant):
+        return self.env['stock.location'].sudo().search([
+            ('partner_id', '=', merchant.partner_id.id),
+            ('location_id', '=', self.env.ref('b2b_platform.third_warehouse').id)], limit=1)
+
+
+    @api.model
     def _paltform_location(self):
         if self.user_has_groups('b2b_platform.b2b_manager'):
             return self.env.ref('b2b_platform.third_warehouse').id

@@ -32,7 +32,6 @@
                     <field name="own_record" invisible="1"/>
                     <field name="origin_type" invisible="1"/>
                     <header>
-                        <!--<button name="b2b_do_new_transfer" string="移动" type="object" class="oe_highlight"/>-->
                         <button name="b2b_do_new_transfer" string="发货" type="object" class="oe_highlight"
                                 attrs="{'invisible':['|',('b2b_state', '=', 'done'),('own_record', '=', False)]}"/>
                         <button name="upload_delivery_info" string="上传发货信息" type="object" class="oe_highlight"
@@ -41,6 +40,10 @@
                     </header>
 					<sheet>
                         <div class="oe_button_box">
+                            <button name="view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"
+                                    attrs="{'invisible': [('b2b_invoice_count', '=', 0)]}">
+                                <field name="b2b_invoice_count" widget="statinfo" string="发票"/>
+                            </button>
                             <button name="view_submission_history" type="object" class="oe_stat_button"
                                     icon="fa-pencil-square-o" attrs="{'invisible': [('b2b_log_count', '=', 0)]}">
                                 <field name="b2b_log_count" widget="statinfo" string="上传日志"/>
@@ -95,8 +98,7 @@
             <field name="res_model">stock.picking</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
-            <field name="domain">[('b2b_type', '=', 'outgoing'), ('b2b_state', '=', 'draft')]</field>
-            <field name="context">{'view_own_picking': True}</field>
+            <field name="domain">[('own_picking', '=', True), ('b2b_type', '=', 'outgoing'), ('b2b_state', '=', 'draft')]</field>
         </record>
         <record id="stock_picking_act_tree" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
@@ -118,8 +120,7 @@
             <field name="res_model">stock.picking</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
-            <field name="domain">[('b2b_type', '=', 'outgoing'), ('b2b_state', '=', 'done')]</field>
-            <field name="context">{'view_own_picking': True}</field>
+            <field name="domain">[('own_picking', '=', True), ('b2b_type', '=', 'outgoing'), ('b2b_state', '=', 'done')]</field>
         </record>
         <record id="stock_picking_act_tree2" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
@@ -142,7 +143,6 @@
 			<field name="arch" type="xml">
 				<form>
                     <field name="state" invisible="1"/>
-
                     <field name="move_type" invisible="1"/>
                     <field name="picking_type_id" invisible="1"/>
                     <field name="b2b_state" invisible="1"/>
@@ -154,6 +154,7 @@
                         <field name="b2b_state" widget="statusbar" statusbar_visible="draft,done"/>
                     </header>
 					<sheet>
+
                         <group>
                             <group>
                                 <field name="partner_id" string="创建人" readonly="1"/>
@@ -194,7 +195,7 @@
             <field name="res_model">stock.picking</field>
             <field name="view_mode">tree,form</field>
             <field name="view_type">form</field>
-            <field name="domain">[('b2b_type', '=', 'internal')]</field>
+            <field name="domain">[('own_picking', '=', True), ('b2b_type', '=', 'internal')]</field>
             <field name="context">{'default_picking_type_id': 5, 'default_b2b_type': 'internal',
                 'view_own_picking':True}</field>
         </record>

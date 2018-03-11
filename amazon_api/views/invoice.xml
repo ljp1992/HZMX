@@ -11,7 +11,6 @@
                     <field name="merchant_id" groups="b2b_platform.b2b_manager"/>
                     <field name="create_date" string="创建时间"/>
                     <field name="paid_time"/>
-                    <field name="detail_type"/>
                     <field name="total" sum="1"/>
                     <field name="state"/>
                 </tree>
@@ -35,14 +34,11 @@
                             <group>
                                 <field name="merchant_id" readonly="True" groups="b2b_platform.b2b_manager"/>
                                 <field name="origin"/>
-                                <field name="detail_type"/>
                             </group>
                             <group>
                                 <field name="create_date" string="创建时间"/>
                                 <field name="paid_time" attrs="{'invisible':[('state','=','draft')]}"/>
-                                <field name="fba_freight" attrs="{'invisible':[('detail_type','in',
-                                    ['distributor_platform_purchase', 'distributor_own_delivery',
-                                    'supplier_own_stock', 'supplier_third_stock'])]}"/>
+                                <field name="fba_freight"/>
                                 <field name="total"/>
                             </group>
                         </group>
@@ -71,26 +67,21 @@
             <field name="res_model">invoice</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="domain">[('type', '=', 'distributor')]</field>
-            <!--<field name="context">{'view_own_invoice': True}</field>-->
+            <field name="domain">[('type', 'in', ['distributor_platform_purchase', 'distributor_own_delivery', 'distributor_fba'])]</field>
         </record>
-
         <record id="invoice_act_tree" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="invoice_tree"/>
             <field name="act_window_id" ref="invoice_act"/>
         </record>
-
         <record id="invoice_act_form" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
             <field name="view_id" ref="invoice_form"/>
             <field name="act_window_id" ref="invoice_act"/>
         </record>
-
-        <menuitem id="distributor_invoice_menu" name="经销商发票" parent="b2b_platform.account_close_menu"
-                  action="invoice_act" sequence="3"/>
+        <menuitem id="distributor_invoice_menu" name="经销商发票" parent="b2b_platform.account_close_menu" action="invoice_act" sequence="3"/>
 
         <record id="supplier_invoice_act" model="ir.actions.act_window">
             <field name="name">供应商发票</field>
@@ -98,25 +89,20 @@
             <field name="res_model">invoice</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="domain">[('type', '=', 'supplier')]</field>
-            <!--<field name="context">{'view_own_invoice': True}</field>-->
+            <field name="domain">[('type', 'in', ['supplier_own_stock', 'supplier_third_stock', 'supplier_fba_own_stock', 'supplier_fba_third_stock'])]</field>
         </record>
-
         <record id="invoice_act_tree" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="invoice_tree"/>
             <field name="act_window_id" ref="supplier_invoice_act"/>
         </record>
-
         <record id="invoice_act_form" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
             <field name="view_id" ref="invoice_form"/>
             <field name="act_window_id" ref="supplier_invoice_act"/>
         </record>
-
-        <menuitem id="supplier_invoice_menu" name="供应商发票" parent="b2b_platform.account_close_menu"
-                  action="supplier_invoice_act" sequence="5"/>
+        <menuitem id="supplier_invoice_menu" name="供应商发票" parent="b2b_platform.account_close_menu" action="supplier_invoice_act" sequence="5"/>
     </data>
 </odoo>

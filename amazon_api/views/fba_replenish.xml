@@ -44,22 +44,14 @@
                     </header>
 					<sheet>
                         <div class="oe_button_box">
-                            <!--<button name="view_delivery" type="object" class="oe_stat_button" icon="fa-truck"-->
-                                    <!--attrs="{'invisible': [('delivery_count', '=', 0)]}">-->
-                                <!--<field name="delivery_count" widget="statinfo" string="发货单"/>-->
-                            <!--</button>-->
                             <button name="view_purchase_order" type="object" class="oe_stat_button" icon="fa-truck"
                                     attrs="{'invisible': [('purchase_count', '=', 0)]}">
                                 <field name="purchase_count" widget="statinfo" string="采购单"/>
                             </button>
                             <button name="view_distributor_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"
-                                    attrs="{'invisible': [('distributor_invoice_count', '=', 0)]}">
-                                <field name="distributor_invoice_count" widget="statinfo" string="经销商发票"/>
+                                    attrs="{'invisible': [('invoice_count', '=', 0)]}">
+                                <field name="invoice_count" widget="statinfo" string="经销商发票"/>
                             </button>
-                            <!--<button name="view_supplier_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"-->
-                                    <!--attrs="{'invisible': [('supplier_invoice_count', '=', 0)]}">-->
-                                <!--<field name="supplier_invoice_count" widget="statinfo" string="供应商发票"/>-->
-                            <!--</button>-->
                         </div>
                         <group>
                             <group>
@@ -98,10 +90,11 @@
                                         <field name="supplier_price"
                                                invisible="context.get('hide_supplier_price') or False"/>
                                         <field name="product_uom"/>
+                                        <field name="usable_inventory" readonly="1"/>
                                         <field name="need_qty" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                                         <!--<field name="available_qty" attrs="{'readonly': ['|', ('state', '!=',-->
                                             <!--'wait_supplier_confirm'), ('user_type', '!=', 'supplier')]}"/>-->
-                                        <field name="available_qty" attrs="{'readonly': [('state', '!=', 'wait_supplier_confirm')]}"/>
+                                        <!--<field name="available_qty" attrs="{'readonly': [('state', '!=', 'wait_supplier_confirm')]}"/>-->
                                         <field name="supplier" readonly="1"/>
                                         <field name="state" invisible="1"/>
                                     </tree>

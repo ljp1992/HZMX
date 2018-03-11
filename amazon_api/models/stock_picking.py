@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError
-import datetime
+import datetime, copy
 from odoo.addons.amazon_api.amazon_api.mws import Feeds
 
 class StockPicking(models.Model):
@@ -21,11 +21,13 @@ class StockPicking(models.Model):
 
     hide_delivery_button = fields.Boolean(compute='_hide_delivery_button')
     own_record = fields.Boolean(compute='_own_record')
+    own_picking = fields.Boolean(search='_compute_own_picking', store=False)
 
     delivery_date = fields.Datetime(string=u'发货时间')
 
     # own_data = fields.Boolean(search='_own_data_search', store=False)
     b2b_log_count = fields.Integer(compute='_b2b_log_count')
+    b2b_invoice_count = fields.Integer(compute='_compute_invoice_count', store=False)
 
     location_id = fields.Many2one('stock.location', default=lambda self: self._b2b_location_id())
     location_dest_id = fields.Many2one('stock.location', default=lambda self: self._b2b_location_dest_id())
@@ -37,7 +39,8 @@ class StockPicking(models.Model):
     purchase_order_id = fields.Many2one('purchase.order')
     fba_replenish_id = fields.Many2one('fba.replenish')
     replenish_order_id = fields.Many2one('replenish.order', string=u'补货单')
-    # distributor_invoice_ids = fields.Many2one('invoice', related='sale_order_id.invoice_ids', string=u'经销商发票')
+
+    invoices = fields.One2many('invoice', 'picking_id')
 
     delivery_info_upload_state = fields.Selection([
         ('no_upload', u'未上传'),
@@ -58,7 +61,195 @@ class StockPicking(models.Model):
         ('own_delivery', u'自有发货'),
         ('agent_delivery', u'代发货'),
         ('fba_delivery', u'FBA补货'),
-    ], string=u'类型')
+    ], compute='_compute_origin_type', store=False, string=u'类型')
+
+    @api.multi
+    def view_invoice(self):
+        self.ensure_one()
+        return {
+            'name': u'发票',
+            'type': 'ir.actions.act_window',
+            'res_model': 'invoice',
+            'view_mode': 'tree,form',
+            'view_type': 'form',
+            'views': [
+                (self.env.ref('amazon_api.invoice_tree').id, 'tree'),
+                (self.env.ref('amazon_api.invoice_form').id, 'form')],
+            'domain': [('picking_id', '=', self.id)],
+            'target': 'current',
+        }
+
+    @api.multi
+    def _compute_invoice_count(self):
+        for picking in self:
+            picking.b2b_invoice_count = len(picking.invoices)
+
+    @api.multi
+    def modify_related_order_state(self):
+        '''修改相关单据状态'''
+        for record in self:
+            if record.sale_order_id:
+                record.sale_order_id.compute_sale_order_state()
+            elif record.purchase_order_id:
+                record.purchase_order_id.compute_puchase_order_state()
+
+    @api.multi
+    def check_inventory_legal(self):
+        '''检查发货后的库存数量是否小于0'''
+        pro_obj = self.env['product.product']
+        for picking in self:
+            for line in picking.pack_operation_product_ids:
+                inventory = pro_obj.get_product_actual_inventory(line.product_id, line.location_id)
+                if inventory < 0:
+                    raise UserError(u'产品%s库存不足!' % (line.product_id.name))
+
+    @api.multi
+    def create_freight_invoice(self):
+        '''创建发票（自有发货）'''
+        loc_obj = self.env['stock.location']
+        invoice_obj = self.env['invoice']
+        for picking in self:
+            if picking.sale_order_id:
+                merchant = self.env['res.users'].search([('partner_id', '=', picking.partner_id.id)], limit=1)
+                if not merchant:
+                    raise UserError(u'Not found merchant!')
+                third_loc = loc_obj.return_merchant_third_location(merchant)
+                third_loc_invoice = {
+                    'merchant_id': merchant.id,
+                    'picking_id': picking.id,
+                    'origin': picking.name,
+                    'type': 'distributor_own_delivery',
+                    'order_line': []
+                }
+                for line in picking.pack_operation_product_ids:
+                    if line.location_id == third_loc:
+                        third_loc_invoice['order_line'].append((0, 0, {
+                            'product_id': line.product_id.id,
+                            'product_uom_qty': line.qty_done,
+                            'product_uom': line.product_uom_id.id,
+                            'platform_price': 0,
+                            'freight': line.b2b_sale_line_id and line.b2b_sale_line_id.supplier_freight or 0,
+                            'operation_line_id': line.id,
+                        }))
+                if third_loc_invoice.get('order_line'):
+                    invoice = invoice_obj.create(third_loc_invoice)
+                    invoice.invoice_confirm()
+
+    @api.multi
+    def create_supplier_invoice_platform_purchase(self):
+        '''创建供应商发票（平台采购）'''
+        loc_obj = self.env['stock.location']
+        invoice_obj = self.env['invoice']
+        for picking in self:
+            if picking.purchase_order_id and picking.purchase_order_id.sale_order_id:
+                merchant = self.env['res.users'].search([('partner_id', '=', picking.partner_id.id)], limit=1)
+                if not merchant:
+                    raise UserError(u'Not found merchant!')
+                third_loc = loc_obj.return_merchant_third_location(merchant)
+                supplier_loc = loc_obj.return_merchant_supplier_location(merchant)
+                val = {
+                    'merchant_id': merchant.id,
+                    'picking_id': picking.id,
+                    'origin': picking.name,
+                    'order_line': []
+                }
+                supplier_loc_invoice = copy.deepcopy(val)
+                supplier_loc_invoice['type'] = 'supplier_own_stock'
+                third_loc_invoice = copy.deepcopy(val)
+                third_loc_invoice['type'] = 'supplier_third_stock'
+                for line in picking.pack_operation_product_ids:
+                    if line.location_id == supplier_loc:
+                        supplier_loc_invoice['order_line'].append((0, 0, {
+                            'product_id': line.product_id.id,
+                            'product_uom_qty': line.qty_done,
+                            'product_uom': line.product_uom_id.id,
+                            'platform_price': line.b2b_purchase_line_id and line.b2b_purchase_line_id.price_unit or 0,
+                            'freight': line.b2b_purchase_line_id.freight or 0,
+                            'operation_line_id': line.id,
+                        }))
+                    elif line.location_id == third_loc:
+                        third_loc_invoice['order_line'].append((0, 0, {
+                            'product_id': line.product_id.id,
+                            'product_uom_qty': line.qty_done,
+                            'product_uom': line.product_uom_id.id,
+                            'platform_price': line.b2b_purchase_line_id and line.b2b_purchase_line_id.price_unit or 0,
+                            'freight': 0,
+                            'operation_line_id': line.id,
+                        }))
+                if supplier_loc_invoice.get('order_line'):
+                    invoice_obj.create(supplier_loc_invoice)
+                if third_loc_invoice.get('order_line'):
+                    invoice_obj.create(third_loc_invoice)
+
+    @api.multi
+    def create_supplier_invoice_fba_replenish(self):
+        '''创建供应商发票（FBA补货）'''
+        loc_obj = self.env['stock.location']
+        invoice_obj = self.env['invoice']
+        for picking in self:
+            fba_replenish = picking.purchase_order_id and picking.purchase_order_id.fba_replenish_id
+            if fba_replenish:
+                merchant = self.env['res.users'].search([('partner_id', '=', picking.partner_id.id)], limit=1)
+                if not merchant:
+                    raise UserError(u'Not found merchant!')
+                third_loc = loc_obj.return_merchant_third_location(merchant)
+                supplier_loc = loc_obj.return_merchant_supplier_location(merchant)
+                if fba_replenish.type == 'supplier_delivery':
+                    fba_freight = fba_replenish.freight or 0
+                elif fba_replenish.type == 'other_delivery':
+                    fba_freight = 0
+                val = {
+                    'merchant_id': merchant.id,
+                    'picking_id': picking.id,
+                    'origin': picking.name,
+                    'fba_freight': fba_freight,
+                    'order_line': []
+                }
+                supplier_loc_invoice = copy.deepcopy(val)
+                supplier_loc_invoice['type'] = 'supplier_fba_own_stock'
+                third_loc_invoice = copy.deepcopy(val)
+                third_loc_invoice['type'] = 'supplier_fba_third_stock'
+                for line in picking.pack_operation_product_ids:
+                    if line.location_id == supplier_loc:
+                        supplier_loc_invoice['order_line'].append((0, 0, {
+                            'product_id': line.product_id.id,
+                            'product_uom_qty': line.qty_done,
+                            'product_uom': line.product_uom_id.id,
+                            'platform_price': line.b2b_purchase_line_id and line.b2b_purchase_line_id.price_unit or 0,
+                            'freight': 0,
+                            'operation_line_id': line.id,
+                        }))
+                    elif line.location_id == third_loc:
+                        third_loc_invoice['order_line'].append((0, 0, {
+                            'product_id': line.product_id.id,
+                            'product_uom_qty': line.qty_done,
+                            'product_uom': line.product_uom_id.id,
+                            'platform_price': line.b2b_purchase_line_id and line.b2b_purchase_line_id.price_unit or 0,
+                            'freight': 0,
+                            'operation_line_id': line.id,
+                        }))
+                if supplier_loc_invoice.get('order_line'):
+                    invoice_obj.create(supplier_loc_invoice)
+                if third_loc_invoice.get('order_line'):
+                    invoice_obj.create(third_loc_invoice)
+
+    @api.multi
+    def _compute_origin_type(self):
+        for record in self:
+            if record.sale_order_id:
+                record.origin_type = 'own_delivery'
+            elif record.purchase_order_id:
+                if record.purchase_order_id.sale_order_id:
+                    record.origin_type = 'agent_delivery'
+                elif record.purchase_order_id.fba_replenish_id:
+                    record.origin_type = 'fba_delivery'
+
+    @api.model
+    def _compute_own_picking(self, operation, value):
+        merchant = self.env.user.merchant_id or self.env.user
+        if self.user_has_groups('b2b_platform.b2b_shop_operator') or self.user_has_groups('b2b_platform.b2b_seller'):
+            return [('partner_id', '=', merchant.partner_id.id)]
+
 
     @api.model
     def _b2b_location_id(self):

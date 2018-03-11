@@ -19,6 +19,7 @@ class ProductProduct(models.Model):
     seller_price = fields.Monetary(inverse='_set_shop_price_cny', string=u'经销商价格')
     shop_price_cny = fields.Monetary(string=u'店铺价格')
     shop_price = fields.Float(compute='_compute_shop_price', store=True, string=u'店铺价格')
+    # usable_inventory = fields.Float(compute='get_product_usable_inventory', store=False, string=u'可用库存')
 
     merchant_id = fields.Many2one('res.users', related='product_tmpl_id.merchant_id', string=u'商户')
     platform_product_id = fields.Many2one('product.product', compute='_get_platform_product', store=False,
@@ -38,6 +39,127 @@ class ProductProduct(models.Model):
         ('platform_published', u'平台已发布'),
         ('seller', u'经销商产品'),
         ('shop', u'店铺产品'), ], related='product_tmpl_id.state', string=u'状态')
+
+    @api.model
+    def get_product_actual_inventory(self, product, location):
+        '''获取该产品、该库位下的实际库存数量'''
+        quants = self.env['stock.quant'].sudo().search([
+            ('product_id', '=', product.id),
+            ('location_id', '=', location.id),
+        ])
+        inventory = 0
+        for quant in quants:
+            inventory += quant.qty
+        return inventory
+
+    @api.multi
+    def get_loc_pro_usable_inventory(self, product, location):
+        '''获取该库位下该产品可用的库存数量'''
+        tmpl = product.product_tmpl_id
+        if tmpl.state != 'platform_published':
+            return 0
+        quants = self.env['stock.quant'].sudo().search([
+            ('product_id', '=', product.id),
+            ('location_id', '=', location.id),
+        ])
+        inventory = 0
+        for quant in quants:
+            inventory += quant.qty
+        print inventory
+        # 发货单占用的库存
+        occupy_qty = 0
+        pickings = self.env['stock.picking'].sudo().search([
+            ('b2b_state', '!=', 'done'),
+            ('b2b_type', 'in', ['outgoing', 'internal']),
+        ])
+        for picking in pickings:
+            for line in picking.pack_operation_product_ids:
+                if line.product_id == product and line.location_id == location:
+                    occupy_qty += line.qty_done
+        print occupy_qty
+        return inventory - occupy_qty
+
+    @api.model
+    def get_product_usable_inventory(self, product):
+        '''获取该产品可用的库存数量'''
+        tmpl = product.product_tmpl_id
+        if tmpl.state != 'platform_published':
+            return 0
+        merchant = tmpl.merchant_id
+        if not merchant:
+            raise UserError(u'Not found template merchant!')
+        loc_obj = self.env['stock.location']
+        supplier_loc = loc_obj.return_merchant_supplier_location(merchant)
+        third_loc = loc_obj.return_merchant_third_location(merchant)
+        loc_ids = (supplier_loc.ids or []) + (third_loc.ids or [])
+        print loc_ids
+        if not loc_ids:
+            raise UserError(u'loc_ids is null!')
+        quants = self.env['stock.quant'].sudo().search([
+            ('product_id', '=', product.id),
+            ('location_id', 'in', loc_ids),
+        ])
+        inventory = 0
+        for quant in quants:
+            inventory += quant.qty
+        print inventory
+        #采购单占用的库存
+        occupy_qty = 0
+        purchases = self.env['purchase.order'].sudo().search([('b2b_state', '!=', 'done')])
+        for purchase in purchases:
+            if not purchase.deliverys:
+                for line in purchase.order_line:
+                    if line.product_id == product:
+                        occupy_qty += line.product_qty
+        print occupy_qty
+        #发货单占用的库存
+        pickings = self.env['stock.picking'].sudo().search([
+            ('b2b_state', '!=', 'done'),
+            ('b2b_type', 'in', ['outgoing', 'internal']),
+        ])
+        for picking in pickings:
+            for line in picking.pack_operation_product_ids:
+                if line.product_id == product and line.location_id.id in loc_ids:
+                    occupy_qty += line.qty_done
+        print occupy_qty
+        return inventory - occupy_qty
+
+    # @api.multi
+    # def get_product_usable_inventory(self):
+    #     '''获取该产品可用的库存数量'''
+    #     print self
+    #     for product in self:
+    #         print product
+    #         quants = self.env['stock.quant'].sudo().search([
+    #             ('product_id', '=', product.id),
+    #             ('location_id.usage', '=', 'internal'),
+    #         ])
+    #         inventory = 0
+    #         for quant in quants:
+    #             inventory += quant.qty
+    #         print 'inventory',inventory
+    #         occupy_qty = 0
+    #         purchases = self.env['purchase.order'].sudo().search([('b2b_state', '!=', 'done')])
+    #         for purchase in purchases:
+    #             if purchase.deliverys:
+    #                 for picking in purchase.deliverys:
+    #                     if picking.b2b_state != 'done':
+    #                         for line in picking.pack_operation_product_ids:
+    #                             occupy_qty += line.qty_done
+    #             else:
+    #                 for line in purchase.order_line:
+    #                     occupy_qty += line.product_qty
+    #         print 'occupy_qty',occupy_qty
+    #         pickings = self.env['stock.picking'].sudo().search([
+    #             ('b2b_state', '!=', 'done'),
+    #             ('b2b_type', '=', 'outgoing'),
+    #         ])
+    #         for picking in pickings:
+    #             if picking.sale_order_id and not picking.purchase_order_id:
+    #                 for line in picking.pack_operation_product_ids:
+    #                     occupy_qty += line.qty_done
+    #         print 'occupy_qty',occupy_qty
+    #         product.usable_inventory =  inventory - occupy_qty
 
     @api.model
     def _product_owner(self, operation, value):

@@ -26,7 +26,6 @@ class AuthSignupHomeNew(AuthSignupHome):
         # assert qcontext.get('password'), u"请输入密码！"
         super(AuthSignupHomeNew, self).do_signup(qcontext)
         user = request.env['res.users'].sudo().search([('login', '=', qcontext.get('login'))])
-        print 11111,qcontext
         if user:
             user.write({
                 'user_type': 'merchant',

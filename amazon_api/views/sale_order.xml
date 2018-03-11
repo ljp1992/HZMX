@@ -49,7 +49,7 @@
                             </button>
                             <button name="view_delivery_order" type="object" class="oe_stat_button" icon="fa-truck"
                                     attrs="{'invisible': [('own_delivery_count', '=', 0)]}">
-                                <field name="own_delivery_count" widget="statinfo" string="发货单(自有)"/>
+                                <field name="own_delivery_count" widget="statinfo" string="发货单"/>
                             </button>
                             <button name="view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"
                                     attrs="{'invisible': [('b2b_invoice_count', '=', 0)]}">
@@ -58,7 +58,7 @@
                         </div>
                         <group>
                             <group>
-                                <field name="shop_id" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>
+                                <field name="shop_id" options="{'no_create': True}" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>
                                 <field name="e_order" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>
                                 <field name="sale_date" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>
                                 <field name="delivery_mode" attrs="{'readonly': [('b2b_state', '!=', 'wait_handle')]}"/>
@@ -95,22 +95,40 @@
                         <notebook>
                             <page string="明细">
                                 <field name="order_line">
-                                    <tree>
+                                    <tree editable="bottom">
                                         <field name="b2b_state" invisible="1"/>
-                                        <field name="order_item_id" groups="base.group_no_one" readonly="1"/>
-                                        <field name="shop_product_id" readonly="1"/>
-                                        <field name="e_currency_id" readonly="1"/>
-                                        <field name="e_price_unit" readonly="1"/>
-                                        <field name="e_freight" readonly="1"/>
-                                        <field name="own_product" readonly="1"/>
-                                        <field name="product_id" readonly="1"/>
-                                        <field name="product_uom_qty" readonly="1"/>
-                                        <field name="product_uom" readonly="1"/>
-                                        <field name="price_unit" string="平台采购价格" readonly="1"/>
-                                        <field name="supplier_freight" readonly="1"/>
-                                        <field name="b2b_subtotal" sum="1" readonly="1"/>
+                                        <field name="order_item_id" groups="base.group_no_one" />
+                                        <field name="shop_product_id" />
+                                        <field name="e_currency_id" />
+                                        <field name="e_price_unit" />
+                                        <field name="e_freight" />
+                                        <field name="own_product" />
+                                        <field name="product_id" domain="[('state', '=', 'platform_published')]"/>
+                                        <field name="product_uom_qty" />
+                                        <field name="usable_inventory"/>
+                                        <field name="product_uom" />
+                                        <field name="price_unit" string="平台采购价格" />
+                                        <field name="supplier_freight" />
+                                        <field name="b2b_subtotal" sum="1" />
                                     </tree>
                                 </field>
+                                <!--<field name="order_line">-->
+                                    <!--<tree editable="bottom">-->
+                                        <!--<field name="b2b_state" invisible="1"/>-->
+                                        <!--<field name="order_item_id" groups="base.group_no_one" readonly="1"/>-->
+                                        <!--<field name="shop_product_id" readonly="1"/>-->
+                                        <!--<field name="e_currency_id" readonly="1"/>-->
+                                        <!--<field name="e_price_unit" readonly="1"/>-->
+                                        <!--<field name="e_freight" readonly="1"/>-->
+                                        <!--<field name="own_product" readonly="1"/>-->
+                                        <!--<field name="product_id" readonly="1"/>-->
+                                        <!--<field name="product_uom_qty" readonly="1"/>-->
+                                        <!--<field name="product_uom" readonly="1"/>-->
+                                        <!--<field name="price_unit" string="平台采购价格" readonly="1"/>-->
+                                        <!--<field name="supplier_freight" readonly="1"/>-->
+                                        <!--<field name="b2b_subtotal" sum="1" readonly="1"/>-->
+                                    <!--</tree>-->
+                                <!--</field>-->
                             </page>
                         </notebook>
                     </sheet>
@@ -135,26 +153,20 @@
             <field name="view_type">form</field>
             <field name="search_view_id" ref="sale_order_search"/>
             <field name="domain">[('own_data', '=', True), ('b2b_state', '=', 'wait_handle')]</field>
-            <!--<field name="context">{'view_own_sale_order': True}</field>-->
         </record>
-
         <record id="sale_order_act_tree" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="amazon_api.b2b_sale_order_tree"/>
             <field name="act_window_id" ref="amazon_api.sale_order_act"/>
         </record>
-
         <record id="sale_order_act_form" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
             <field name="view_id" ref="b2b_sale_order_form"/>
             <field name="act_window_id" ref="amazon_api.sale_order_act"/>
         </record>
-
-        <menuitem id="sale_order_menu" name="待处理" parent="b2b_platform.sale_order_parent_menu" sequence="4"
-                  action="amazon_api.sale_order_act"/>
-
+        <menuitem id="sale_order_menu" name="待处理" parent="b2b_platform.sale_order_parent_menu" sequence="4" action="amazon_api.sale_order_act"/>
 
         <record id="wait_handle_sale_order_act" model="ir.actions.act_window">
             <field name="name">客户订单</field>
@@ -162,26 +174,21 @@
             <field name="view_mode">tree,form</field>
             <field name="view_type">form</field>
             <field name="search_view_id" ref="sale_order_search"/>
-            <field name="domain">[('own_data', '=', True), ('b2b_state', 'in', ['purchase', 'delivering'])]</field>
-            <!--<field name="context">{'view_own_sale_order': True}</field>-->
+            <field name="domain">[('own_data', '=', True), ('b2b_state', '=', 'delivering')]</field>
         </record>
-
         <record id="sale_order_act_tree1" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="amazon_api.b2b_sale_order_tree"/>
             <field name="act_window_id" ref="wait_handle_sale_order_act"/>
         </record>
-
         <record id="sale_order_act_form1" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
             <field name="view_id" ref="b2b_sale_order_form"/>
             <field name="act_window_id" ref="wait_handle_sale_order_act"/>
         </record>
-
-        <menuitem id="delivery_sale_order_menu" name="待发货" parent="b2b_platform.sale_order_parent_menu" sequence="6"
-                  action="wait_handle_sale_order_act"/>
+        <menuitem id="delivery_sale_order_menu" name="待发货" parent="b2b_platform.sale_order_parent_menu" sequence="6" action="wait_handle_sale_order_act"/>
 
         <record id="done_sale_order_act" model="ir.actions.act_window">
             <field name="name">客户订单</field>
@@ -190,125 +197,19 @@
             <field name="view_type">form</field>
             <field name="search_view_id" ref="sale_order_search"/>
             <field name="domain">[('own_data', '=', True), ('b2b_state', '=', 'delivered')]</field>
-            <!--<field name="context">{'view_own_sale_order': True}</field>-->
         </record>
-
         <record id="sale_order_act_tree2" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="amazon_api.b2b_sale_order_tree"/>
             <field name="act_window_id" ref="done_sale_order_act"/>
         </record>
-
         <record id="sale_order_act_form2" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
             <field name="view_id" ref="b2b_sale_order_form"/>
             <field name="act_window_id" ref="done_sale_order_act"/>
         </record>
-
-        <menuitem id="done_sale_order_menu" name="已交付" parent="b2b_platform.sale_order_parent_menu" sequence="8"
-                  action="done_sale_order_act"/>
-        
-        <!--<record id="sale_order_tree" model="ir.ui.view">-->
-            <!--<field name="name">sale_order_tree</field>-->
-            <!--<field name="model">sale.order</field>-->
-            <!--<field name="arch" type="xml">-->
-                <!--&lt;!&ndash;<tree colors="blue:state=='draft';purple:state=='purchase';green:state=='delivering';black:state=='delivered';gray:state=='fail';">&ndash;&gt;-->
-                <!--<tree>-->
-                    <!--<field name="name"/>-->
-                    <!--&lt;!&ndash;<field name="sale_order_id"/>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<field name="date_order"/>&ndash;&gt;-->
-                    <!--<field name="state"/>-->
-                <!--</tree>-->
-            <!--</field>-->
-        <!--</record>-->
-        <!--<record id="sale_order_form" model="ir.ui.view">-->
-            <!--<field name="name">sale_order_form</field>-->
-            <!--<field name="model">sale.order</field>-->
-            <!--<field name="arch" type="xml">-->
-                <!--<form>-->
-                    <!--<header>-->
-                        <!--&lt;!&ndash;<field name="identity" invisible="1"/>&ndash;&gt;-->
-                        <!--<button name="platform_purchase" string="平台采购" type="object" class="oe_highlight"/>-->
-                        <!--&lt;!&ndash;<button name="platform_purchase" string="平台采购" type="object" class="oe_highlight"/>&ndash;&gt;-->
-                        <!--<field name="state" widget="statusbar" statusbar_visible="draft,purchase,delivering,delivered"/>-->
-                    <!--</header>-->
-                    <!--<sheet>-->
-                        <!--<div class="oe_title">-->
-                            <!--<h1>-->
-                                <!--<field name="name" class="oe_inline" readonly="1"/>-->
-                            <!--</h1>-->
-                        <!--</div>-->
-                        <!--<group>-->
-                            <!--<group>-->
-                                <!--<field name="sale_order_id" options="{'no_create': True}"/>-->
-                                <!--<field name="total_amount"/>-->
-                            <!--</group>-->
-                            <!--<group>-->
-                                <!--<field name="date_order"/>-->
-                            <!--</group>-->
-                        <!--</group>-->
-                        <!--<notebook>-->
-                            <!--<page>-->
-                                <!--<field name="order_line">-->
-                                    <!--<tree editable="bottom">-->
-                                        <!--<field name="product_id"/>-->
-                                        <!--<field name="platform_price"/>-->
-                                        <!--<field name="product_uom_qty"/>-->
-                                        <!--<field name="product_uom"/>-->
-                                        <!--<field name="total_amount"/>-->
-                                    <!--</tree>-->
-                                <!--</field>-->
-                            <!--</page>-->
-                        <!--</notebook>-->
-                    <!--</sheet>-->
-                <!--</form>-->
-            <!--</field>-->
-        <!--</record>-->
-
-        <!--<record id="sale_order_search" model="ir.ui.view">-->
-			<!--<field name="name">sale_order_search</field>-->
-			<!--<field name="model">sale.order</field>-->
-			<!--<field name="arch" type="xml">-->
-				<!--<search>-->
-					<!--<field name="name"/>-->
-                    <!--&lt;!&ndash;<field name="distributor_id"/>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<field name="supplier_id"/>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<field name="sale_order_id"/>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<field name="purchase_id"/>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<field name="picking_id"/>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<filter string="草稿" domain="[('state','=','draft')]"/>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<filter string="待供应商审核" name="wait_supplier_confirm" domain="[('state','=','wait_supplier_confirm')]"/>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<filter string="待平台审核" name="wait_platform_confirm" domain="[('state','=','wait_platform_confirm')]"/>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<filter string="完成" domain="[('state','=','done')]"/>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<filter string="申诉失败" domain="[('state','=','fail')]"/>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<filter name="state" string="状态" context="{'group_by': 'state'}"/>&ndash;&gt;-->
-				<!--</search>-->
-			<!--</field>-->
-		<!--</record>-->
-
-        <!--<record id="sale_order_act" model="ir.actions.act_window">-->
-            <!--<field name="name">补货单</field>-->
-            <!--<field name="type">ir.actions.act_window</field>-->
-            <!--<field name="res_model">sale.order</field>-->
-            <!--<field name="view_type">form</field>-->
-            <!--<field name="view_mode">tree,form</field>-->
-            <!--<field name="search_view_id" ref="sale_order_search"/>-->
-            <!--<field name="domain">[]</field>-->
-        <!--</record>-->
-        <!--<record id="sale_order_act_tree" model="ir.actions.act_window.view">-->
-            <!--<field name="sequence" eval="1"/>-->
-            <!--<field name="view_mode">tree</field>-->
-            <!--<field name="view_id" ref="sale_order_tree"/>-->
-            <!--<field name="act_window_id" ref="sale_order_act"/>-->
-        <!--</record>-->
-        <!--<record id="sale_order_act_form" model="ir.actions.act_window.view">-->
-            <!--<field name="sequence" eval="1"/>-->
-            <!--<field name="view_mode">form</field>-->
-            <!--<field name="view_id" ref="sale_order_form"/>-->
-            <!--<field name="act_window_id" ref="sale_order_act"/>-->
-        <!--</record>-->
-        <!--<menuitem id="sale_order_menu" name="补货单" parent="b2b_platform.sale_order_parent_menu" action="sale_order_act" sequence="9"/>-->
+        <menuitem id="done_sale_order_menu" name="已发货" parent="b2b_platform.sale_order_parent_menu" sequence="8" action="done_sale_order_act"/>
 	</data>
 </odoo>

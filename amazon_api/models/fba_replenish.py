@@ -15,8 +15,7 @@ class FbaReplenish(models.Model):
     platform_note = fields.Text(string=u'平台备注')
 
     delivery_count = fields.Integer(compute='_compute_delivery_count')
-    distributor_invoice_count = fields.Integer(compute='_compute_invoice_count')
-    supplier_invoice_count = fields.Integer(compute='_compute_invoice_count')
+    invoice_count = fields.Integer(compute='_compute_invoice_count')
     purchase_count = fields.Integer(compute='_compute_purchase_count', store=False)
 
     freight = fields.Float(string=u'运费(元)', digits=(16,2))
@@ -40,8 +39,7 @@ class FbaReplenish(models.Model):
     purchase_orders = fields.One2many('purchase.order', 'fba_replenish_id')
     picking_ids = fields.One2many('stock.picking', 'fba_replenish_id')
     invoices = fields.One2many('invoice', 'fba_replenish_id')
-    distributor_invoices = fields.One2many('invoice', 'fba_replenish_id', domain=[('type', '=', 'distributor')])
-    supplier_invoices = fields.One2many('invoice', 'fba_replenish_id', domain=[('type', '=', 'supplier')])
+    invoices = fields.One2many('invoice', 'fba_replenish_id')
 
     method = fields.Selection([
         ('sea', u'海运'),
@@ -66,6 +64,22 @@ class FbaReplenish(models.Model):
         ('supplier', u'供应商'),
         ('manager', u'管理员'),
     ], compute='_compute_user_type', store=False, string=u'当前用户是经销商还是供应商')
+
+    @api.multi
+    def compute_fb2_replenish_state(self):
+        for record in self:
+            if record.purchase_orders:
+                for purchase in record.purchase_orders:
+                    if purchase.deliverys:
+                        states =  set()
+                        for delivery in purchase.deliverys:
+                            states.add(delivery.b2b_state)
+                        if states == {'done'}:
+                            record.state = 'done'
+                        else:
+                            record.state = 'wait_delivery'
+                    else:
+                        record.state = 'puchase'
 
     @api.multi
     def view_purchase_order(self):
@@ -124,8 +138,7 @@ class FbaReplenish(models.Model):
     @api.multi
     def _compute_invoice_count(self):
         for record in self:
-            record.distributor_invoice_count = len(record.distributor_invoices)
-            record.supplier_invoice_count = len(record.supplier_invoices)
+            record.invoice_count = len(record.invoices)
 
     @api.multi
     def view_distributor_invoice(self):
@@ -139,7 +152,7 @@ class FbaReplenish(models.Model):
             'views': [
                 (self.env.ref('amazon_api.invoice_tree').id, 'tree'),
                 (self.env.ref('amazon_api.invoice_form').id, 'form')],
-            'domain': [('id', 'in', self.distributor_invoices.ids)],
+            'domain': [('fba_replenish_id', '=', self.id)],
             'target': 'current',
         }
 
@@ -219,12 +232,14 @@ class FbaReplenish(models.Model):
     def send_request(self):
         '''补货申请'''
         self.ensure_one()
+        self.check_inventory_enough()
         self.state = 'wait_supplier_confirm'
 
     @api.multi
     def supplier_confirm(self):
         '''供应商确认'''
         self.ensure_one()
+        self.check_inventory_enough()
         if self.state == 'wait_supplier_confirm':
             if self.type == 'supplier_delivery':
                 self.state = 'wait_distributor_confirm'
@@ -238,17 +253,23 @@ class FbaReplenish(models.Model):
         self.state = 'wait_distributor_confirm'
 
     @api.multi
+    def check_inventory_enough(self):
+        for record in self:
+            for line in record.order_line:
+                if line.need_qty > line.usable_inventory:
+                    raise UserError(u'产品%s库存不足！' % (line.product_id.name))
+
+    @api.multi
     def distributor_confirm(self):
         '''经销商确认'''
         self.ensure_one()
+        self.check_inventory_enough()
         self.state = 'purchase'
         cny = self.env['res.currency'].search([('name', '=', 'CNY')], limit=1)
         val = {
             'fba_replenish_id': self.id,
-            'merchant_id': self.supplier.id,
             'partner_id': self.supplier.partner_id.id,
             'state': 'draft',
-            'origin_type': 'FBA',
             'origin': self.name,
             'fba_freight': self.freight,
             'currency_id': cny.id,
@@ -262,7 +283,7 @@ class FbaReplenish(models.Model):
                 'name': line.product_id.name,
                 'price_unit': line.supplier_price,
                 'taxes_id': [(6, False, [])],
-                'product_qty': line.available_qty,
+                'product_qty': line.need_qty,
                 'product_uom': line.product_uom.id,
                 'date_planned': datetime.now(),
                 'freight': 0,
@@ -272,7 +293,7 @@ class FbaReplenish(models.Model):
         #生成经销商发票
         invoice_val = {
             'fba_freight': self.freight,
-            'type': 'distributor',
+            'type': 'distributor_fba',
             'fba_replenish_id': self.id,
             'origin': self.name,
             'order_line': [],
@@ -281,77 +302,12 @@ class FbaReplenish(models.Model):
             invoice_val['order_line'].append((0, 0, {
                 'product_id': line.product_id.id,
                 'platform_price': line.platform_price,
-                'product_uom_qty': line.available_qty,
+                'product_uom_qty': line.need_qty,
                 'product_uom': line.product_uom.id,
                 'freight': 0,
             }))
         invoice = self.env['invoice'].create(invoice_val)
         invoice.invoice_confirm()
-        print invoice
-
-
-    # @api.multi
-    # def distributor_confirm(self):
-    #     '''经销商确认'''
-    #     self.ensure_one()
-    #     self.state = 'wait_delivery'
-    #     stock_picking_obj = self.env['stock.picking']
-    #     loc_obj = self.env['stock.location']
-    #     merchant = self.env.user.merchant_id or self.env.user
-    #     supplier = self.supplier.partner_id
-    #     location = loc_obj.search([
-    #         ('partner_id', '=', supplier.id),
-    #         ('location_id', '=', self.env.ref('b2b_platform.third_warehouse').id)], limit=1)
-    #     if not location:
-    #         location = loc_obj.search([
-    #             ('partner_id', '=', supplier.id),
-    #             ('location_id', '=', self.env.ref('b2b_platform.supplier_stock').id)], limit=1)
-    #     if not location:
-    #         raise UserError(u'Not found supplier b2b location!')
-    #     location_dest_id = self.env.ref('stock.stock_location_customers').id
-    #     val = {
-    #         'partner_id': supplier.id,
-    #         'merchant_id': merchant.id,
-    #         'location_id': location.id,
-    #         'location_dest_id': location_dest_id,
-    #         'picking_type_id': 4,
-    #         'b2b_type': 'outgoing',
-    #         'origin_type': 'fba_delivery',
-    #         'origin': self.name,
-    #         'fba_replenish_id': self.id,
-    #         'pack_operation_product_ids': [],
-    #     }
-    #     for line in self.order_line:
-    #         val['pack_operation_product_ids'].append((0, 0, {
-    #             'product_id': line.product_id.id,
-    #             'product_qty': line.available_qty,
-    #             'qty_done': line.available_qty,
-    #             'product_uom_id': line.product_uom.id,
-    #             'location_id': location.id,
-    #             'location_dest_id': location_dest_id,
-    #             'fba_replenish_line_id': line.id,
-    #         }))
-    #     delivery = stock_picking_obj.create(val)
-    #     #生成经销商发票
-    #     invoice_val = {
-    #         'fba_freight': self.freight,
-    #         'type': 'distributor',
-    #         'fba_replenish_id': self.id,
-    #         'origin': self.name,
-    #         'order_line': [],
-    #     }
-    #     for line in self.order_line:
-    #         invoice_val['order_line'].append((0, 0, {
-    #             'product_id': line.product_id.id,
-    #             'platform_price': line.platform_price,
-    #             'product_uom_qty': line.available_qty,
-    #             'product_uom': line.product_uom.id,
-    #             'freight': 0,
-    #         }))
-    #     invoice = self.env['invoice'].create(invoice_val)
-    #     invoice.invoice_confirm()
-    #     if merchant.left_amount < 0:
-    #         raise UserError(u'余额不足，请及时充值！')
 
     @api.model
     def create(self, val):
@@ -392,10 +348,11 @@ class FbaReplenishLine(models.Model):
     product_uom = fields.Many2one('product.uom', string=u'计量单位', related='product_id.uom_id', readonly=True)
     supplier = fields.Many2one('res.users', related='product_id.product_tmpl_id.merchant_id', string=u'供应商')
 
+    usable_inventory = fields.Float(compute='_compute_usable_inventory', store=False, string=u'当前可用库存')
     need_qty = fields.Float(string=u'需求数量', digits=(16,3))
     available_qty = fields.Float(string=u'补货数量', digits=(16,3))
-    platform_price = fields.Float(compute='_compute_price', store=True, readonly=True, string=u'采购单价(元)')
-    supplier_price = fields.Float(compute='_compute_price', store=True, readonly=True, string=u'供货单价(元)')
+    platform_price = fields.Float(compute='_compute_price', store=True, readonly=True, string=u'平台采购价(元)')
+    supplier_price = fields.Float(compute='_compute_price', store=True, readonly=True, string=u'供应商供货价(元)')
     distributor_total = fields.Float(string=u'金额(元)', digits=(16, 2), compute='')
     supplier_total = fields.Float(string=u'金额(元)',digits=(16,2), compute='')
 
@@ -414,6 +371,12 @@ class FbaReplenishLine(models.Model):
         ('manager', u'管理员'),
     ], related='order_id.user_type', store=False, string=u'当前用户是经销商还是供应商')
 
+    @api.depends('product_id')
+    def _compute_usable_inventory(self):
+        pro_obj = self.env['product.product']
+        for line in self:
+            line.usable_inventory = pro_obj.get_product_usable_inventory(line.product_id)
+
     @api.multi
     def _compute_user_type(self):
         merchant = self.env.user.merchant_id or self.env.user
@@ -425,9 +388,9 @@ class FbaReplenishLine(models.Model):
         #     elif self.user_has_groups('b2b_platform.b2b_manager'):
         #         record.user_type = 'manager'
 
-    @api.onchange('need_qty')
-    def onchange_need_qty(self):
-        print self.env.context
+    # @api.onchange('need_qty')
+    # def onchange_need_qty(self):
+    #     print self.env.context
 
     @api.multi
     def _change_supplier(self):

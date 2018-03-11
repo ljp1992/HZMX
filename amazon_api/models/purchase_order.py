@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+import copy
 
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
@@ -10,8 +11,8 @@ class PurchaseOrder(models.Model):
 
     freight = fields.Float(compute='_compute_freight', store=False, string=u'运费')
 
-    b2b_delivery_count = fields.Integer(compute='_b2b_delivery_count')
-    b2b_invoice_count = fields.Integer(compute='_b2b_invoice_count')
+    b2b_delivery_count = fields.Integer(compute='_b2b_order_count')
+    b2b_invoice_count = fields.Integer(compute='_b2b_order_count')
 
     b2b_total = fields.Float(compute='_compute_total', store=False, string=u'合计')
     fba_freight = fields.Float(string=u'FBA运费')
@@ -34,13 +35,124 @@ class PurchaseOrder(models.Model):
 
     b2b_state = fields.Selection([
         ('draft', u'待处理'),
-        ('confirmed', u'代发货'),
+        ('confirmed', u'待发货'),
         ('done', u'已发货'),
     ], default='draft', string=u'状态')
     origin_type = fields.Selection([
         ('FBA', u'FBA补货'),
         ('sale', u'客户订单'),
-    ], default='sale', string=u'来源')
+    ], default='sale', compute='_compute_origin_type', store=False, string=u'来源')
+
+    @api.multi
+    def _compute_origin_type(self):
+        for record in self:
+            if record.sale_order_id:
+                record.origin_type = 'sale'
+            elif record.fba_replenish_id:
+                record.origin_type = 'FBA'
+
+    @api.multi
+    def compute_puchase_order_state(self):
+        '''计算采购单状态'''
+        for record in self:
+            if record.deliverys:
+                states = set([picking.b2b_state for picking in record.deliverys])
+                if states == {'done'}:
+                    record.b2b_state = 'done'
+                else:
+                    record.b2b_state = 'confirmed'
+            else:
+                record.b2b_state = 'draft'
+            if record.sale_order_id:
+                record.sale_order_id.compute_sale_order_state()
+            if record.fba_replenish_id:
+                record.fba_replenish_id.compute_fb2_replenish_state()
+
+    @api.multi
+    def confirm_purchase_ljp(self):
+        '''确认采购单'''
+        self.ensure_one()
+        stock_picking_obj = self.env['stock.picking']
+        loc_obj = self.env['stock.location']
+        pro_obj = self.env['product.product']
+        merchant = self.env['res.users'].search([('partner_id', '=', self.partner_id.id)], limit=1)
+        if not merchant:
+            raise UserError(u'没有找到供应商账号！')
+        third_location = loc_obj.return_merchant_third_location(merchant)
+        supplier_location = loc_obj.return_merchant_supplier_location(merchant)
+        if not supplier_location:
+            raise UserError(u'Not found supplier b2b location!')
+        location_dest_id = self.env.ref('stock.stock_location_customers').id
+        val = {
+            'partner_id': merchant.partner_id.id,
+            'location_id': supplier_location.id,
+            'location_dest_id': location_dest_id,
+            'picking_type_id': 4,
+            'b2b_type': 'outgoing',
+            'origin': self.name,
+            'purchase_order_id': self.id or False,
+            'pack_operation_product_ids': [],
+        }
+        for line in self.order_line:
+            #自动分配从哪个仓库发货
+            line_val = {
+                'product_id': line.product_id.id,
+                'product_qty': line.product_qty,
+                'qty_done': line.product_qty,
+                'product_uom_id': line.product_uom.id,
+                'location_dest_id': location_dest_id,
+                'b2b_purchase_line_id': line.id,
+            }
+            supplier_loc_inventory = pro_obj.get_loc_pro_usable_inventory(line.product_id, supplier_location)
+            if third_location:
+                third_loc_inventory = pro_obj.get_loc_pro_usable_inventory(line.product_id, third_location)
+                if third_loc_inventory >= line.product_qty:
+                    line_val['location_id'] = third_location.id
+                    val['pack_operation_product_ids'].append((0, 0, line_val))
+                else:
+                    if third_loc_inventory > 0:
+                        line_val_copy = copy.deepcopy(line_val)
+                        line_val.update({
+                            'location_id': third_location.id,
+                            'product_qty': third_loc_inventory,
+                            'qty_done': third_loc_inventory,
+                        })
+                        if supplier_loc_inventory >= line.product_qty - third_loc_inventory:
+                            line_val_copy.update({
+                                'location_id': supplier_location.id,
+                                'product_qty': line.product_qty - third_loc_inventory,
+                                'qty_done': line.product_qty - third_loc_inventory,
+                            })
+                        else:
+                            raise UserError(u'库存不足！')
+                        val['pack_operation_product_ids'].append((0, 0, line_val))
+                        val['pack_operation_product_ids'].append((0, 0, line_val_copy))
+                    else:
+                        if line.product_qty > supplier_loc_inventory:
+                            raise UserError(u'产品%s库存不足！' % (line.product_id.name))
+                        else:
+                            line_val['location_id'] = supplier_location.id
+                            val['pack_operation_product_ids'].append((0, 0, line_val))
+            else:
+                if line.product_qty > supplier_loc_inventory:
+                    raise UserError(u'产品%s库存不足！' % (line.product_id.name))
+                else:
+                    line_val['location_id'] = supplier_location.id
+                    val['pack_operation_product_ids'].append((0, 0, line_val))
+        delivery = stock_picking_obj.create(val)
+        delivery.create_delivery_info()
+        self.compute_puchase_order_state()
+        return {
+            'name': u'发货单',
+            'type': 'ir.actions.act_window',
+            'res_model': 'stock.picking',
+            'view_mode': 'tree,form',
+            'view_type': 'form',
+            'views': [(self.env.ref('amazon_api.stock_picking_tree').id, 'tree'),
+                      (self.env.ref('amazon_api.b2b_stock_picking_form').id, 'form')],
+            'domain': [('id', '=', delivery.id)],
+            'target': 'current',
+        }
 
     @api.multi
     def unlink(self):
@@ -67,6 +179,7 @@ class PurchaseOrder(models.Model):
             if record.platform_purchase_state != 'send':
                 record.hide_delivery_button = True
 
+    @api.multi
     def _compute_total(self):
         for record in self:
             total = 0
@@ -81,12 +194,9 @@ class PurchaseOrder(models.Model):
                 freight += line.freight
             record.freight = freight
 
-    def _b2b_delivery_count(self):
+    def _b2b_order_count(self):
         for record in self:
             record.b2b_delivery_count = len(record.deliverys)
-
-    def _b2b_invoice_count(self):
-        for record in self:
             record.b2b_invoice_count = len(record.b2b_invoice_ids)
 
     def view_invoice(self):
@@ -105,13 +215,9 @@ class PurchaseOrder(models.Model):
 
     @api.model
     def _own_data_search(self, operator, value):
-        user = self.env.user
-        if user.user_type == 'operator':
-            return [('id', '=', 0)]
-        elif user.user_type == 'merchant':
-            return [('partner_id', '=', user.partner_id.id)]
-        else:
-            return []
+        merchant = self.env.user.merchant_id or self.env.user
+        if self.user_has_groups('b2b_platform.b2b_shop_operator') or self.user_has_groups('b2b_platform.b2b_seller'):
+            return [('partner_id', '=', merchant.partner_id.id)]
 
     @api.multi
     def view_delivery_order(self):
@@ -128,74 +234,7 @@ class PurchaseOrder(models.Model):
             'target': 'current',
         }
 
-    @api.multi
-    def confirm_purchase_ljp(self):
-        '''确认采购单'''
-        self.ensure_one()
-        self.b2b_state = 'confirmed'
-        if self.sale_order_id:
-            self.sale_order_id.b2b_state = 'delivering'
-        if self.replenish_order_id:
-            self.replenish_order_id.state = 'delivering'
-        stock_picking_obj = self.env['stock.picking']
-        loc_obj = self.env['stock.location']
-        merchant = self.env['res.users'].search([('partner_id', '=', self.partner_id.id)], limit=1)
-        if not merchant:
-            raise UserError(u'没有找到供应商账号！')
-        location = loc_obj.search([
-            ('partner_id', '=', merchant.partner_id.id),
-            ('location_id', '=', self.env.ref('b2b_platform.third_warehouse').id)], limit=1)
-        if not location:
-            location = loc_obj.search([
-                ('partner_id', '=', merchant.partner_id.id),
-                ('location_id', '=', self.env.ref('b2b_platform.supplier_stock').id)], limit=1)
-        if not location:
-            raise UserError(u'Not found supplier b2b location!')
-        location_dest_id = self.env.ref('stock.stock_location_customers').id
-        origin_type = ''
-        if self.origin_type == 'FBA':
-            origin_type = 'fba_delivery'
-        elif self.origin_type == 'sale':
-            origin_type = 'agent_delivery'
-        val = {
-            'partner_id': merchant.partner_id.id,
-            'merchant_id': merchant.id,
-            'location_id': location.id,
-            'location_dest_id': location_dest_id,
-            'picking_type_id': 4,
-            'b2b_type': 'outgoing',
-            'origin_type': origin_type,
-            'origin': self.name,
-            'purchase_order_id': self.id or False,
-            'sale_order_id': self.sale_order_id.id or False,
-            'fba_replenish_id': self.fba_replenish_id.id or False,
-            'pack_operation_product_ids': [],
-        }
-        for line in self.order_line:
-            val['pack_operation_product_ids'].append((0, 0, {
-                'product_id': line.product_id.id,
-                'product_qty': line.product_qty,
-                'qty_done': line.product_qty,
-                'product_uom_id': line.product_uom.id,
-                'location_id': location.id,
-                'location_dest_id': location_dest_id,
-                'b2b_purchase_line_id': line.id,
-                'b2b_sale_line_id': line.b2b_sale_line_id.id or False,
-                'fba_replenish_line_id': line.fba_replenish_line_id.id or False,
-            }))
-        delivery = stock_picking_obj.create(val)
-        delivery.create_delivery_info()
-        return {
-            'name': u'发货单',
-            'type': 'ir.actions.act_window',
-            'res_model': 'stock.picking',
-            'view_mode': 'tree,form',
-            'view_type': 'form',
-            'views': [(self.env.ref('amazon_api.stock_picking_tree').id, 'tree'),
-                      (self.env.ref('amazon_api.b2b_stock_picking_form').id, 'form')],
-            'domain': [('id', '=', delivery.id)],
-            'target': 'current',
-        }
+
 
     @api.multi
     def _delivery_order_count(self):

@@ -20,8 +20,8 @@
 				<search string="">
 					<field name="name"/>
                     <group>
-                        <filter string="库位" name="locationgroup" context="{'group_by': 'location_id'}"/>
-                        <filter string="产品" name="productgroup" context="{'group_by': 'product_id'}"/>
+                        <filter string="库位" name="location_group" context="{'group_by': 'location_id'}"/>
+                        <filter string="产品" name="product_group" context="{'group_by': 'product_id'}"/>
                    </group>
 				</search>
 			</field>
@@ -34,7 +34,7 @@
 			<field name="view_type">form</field>
 			<field name="search_view_id" ref="stock_quant_search"/>
 			<field name="domain">[('own_prodcut_quant', '=', True)]</field>
-			<field name="context">{'search_default_locationgroup': True}</field>
+			<field name="context">{'search_default_location_group': True}</field>
 		</record>
 		<record id="stock_quant_act_tree" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>

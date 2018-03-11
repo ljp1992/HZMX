@@ -30,10 +30,6 @@ class Invoice(models.Model):
         ('done', u'已结算'),
         ('cancel', u'已取消')], default='draft', string=u'状态')
     type = fields.Selection([
-        ('distributor', u'经销商'),
-        ('supplier', u'供应商'),
-    ], string=u'发票类型')
-    detail_type = fields.Selection([
         ('distributor_platform_purchase', u'平台采购'),
         ('distributor_own_delivery', u'自有产品第三方仓库发货'),
         ('distributor_fba', u'FBA补货'),
@@ -41,7 +37,7 @@ class Invoice(models.Model):
         ('supplier_third_stock', u'第三方仓库发货'),
         ('supplier_fba_own_stock', u'FBA自有仓库发货'),
         ('supplier_fba_third_stock', u'FBA第三方仓库发货'),
-    ], string=u'来源')
+    ], string=u'发票类型')
 
 
     @api.depends('order_line.total')
