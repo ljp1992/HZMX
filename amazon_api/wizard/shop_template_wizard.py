@@ -23,8 +23,8 @@ class ShopTemplateWizard(models.TransientModel):
         '|', ('merchant_id', '=', self.env.user.merchant_id.id), ('merchant_id', '=', self.env.user.id)
     ], string=u'店铺')
     template_id = fields.Many2one('shop.template', string=u'店铺刊登模板')
-    browse_node_id = fields.Many2one('amazon.browse.node', string=u'商品类别')
-    categ_id = fields.Many2one('amazon.category', string=u'亚马逊模板')
+    browse_node_id = fields.Many2one('amazon.browse.node', string=u'产品分类')
+    categ_id = fields.Many2one('amazon.category', string=u'亚马逊分类')
     brand_id = fields.Many2one('product.brand', string=u'品牌')
 
     @api.onchange('template_id')

@@ -77,7 +77,6 @@ class SyncProduct(models.Model):
         data = eval(data)
         tmpl_vals = []
         for (asin, val) in data.items():
-            print val
             title = val.get('Products', {}).get('Product', {}).get('AttributeSets', {}).get('ItemAttributes', {})\
                 .get('Title', {}).get('value', '')
             asin = val.get('Id', {}).get('value', '')
@@ -117,15 +116,12 @@ class SyncProduct(models.Model):
                                 'attribute_id': attr.id,
                             })
                         attr_val_ids.append(attr_val.id)
-                    # print attr_val_ids
                     tmpl_val['product_variant_ids'].append((0, 0, {
                         'asin': asin,
                         'sku': sku,
                         'attribute_value_ids': [(6, False, attr_val_ids)],
                     }))
             tmpl_vals.append(tmpl_val)
-            # except Exception, e:
-            #     print e
         print len(tmpl_vals)
         i = 0
         for val in tmpl_vals:

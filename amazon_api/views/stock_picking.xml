@@ -9,7 +9,6 @@
 					<field name="name" string="单号"/>
                     <field name="partner_id" string="创建人"/>
                     <field name="create_date" string="创建时间"/>
-                    <field name="origin_type"/>
                     <field name="delivery_info_upload_state"/>
                     <field name="b2b_state" invisible="1"/>
                     <field name="state" invisible="1"/>
@@ -35,7 +34,7 @@
                         <button name="b2b_do_new_transfer" string="发货" type="object" class="oe_highlight"
                                 attrs="{'invisible':['|',('b2b_state', '=', 'done'),('own_record', '=', False)]}"/>
                         <button name="upload_delivery_info" string="上传发货信息" type="object" class="oe_highlight"
-                            attrs="{'invisible': ['|', ('own_record', '=', False), ('origin_type', '=', 'fba_delivery')]}"/>
+                            attrs="{'invisible': [('own_record', '=', False)]}"/>
                         <field name="b2b_state" widget="statusbar" statusbar_visible="draft,done"/>
                     </header>
 					<sheet>
@@ -51,7 +50,7 @@
                         </div>
                         <group>
                             <group>
-                                <field name="partner_id" string="创建人" readonly="1"/>
+                                <field name="partner_id" readonly="1" groups="b2b_platform.b2b_manager"/>
                                 <field name="create_date" string="创建时间" readonly="1"/>
                             </group>
                             <group>
