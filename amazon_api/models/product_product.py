@@ -66,7 +66,6 @@ class ProductProduct(models.Model):
         inventory = 0
         for quant in quants:
             inventory += quant.qty
-        print inventory
         # 发货单占用的库存
         occupy_qty = 0
         pickings = self.env['stock.picking'].sudo().search([
@@ -77,7 +76,6 @@ class ProductProduct(models.Model):
             for line in picking.pack_operation_product_ids:
                 if line.product_id == product and line.location_id == location:
                     occupy_qty += line.qty_done
-        print occupy_qty
         return inventory - occupy_qty
 
     @api.model
@@ -93,7 +91,6 @@ class ProductProduct(models.Model):
         supplier_loc = loc_obj.return_merchant_supplier_location(merchant)
         third_loc = loc_obj.return_merchant_third_location(merchant)
         loc_ids = (supplier_loc.ids or []) + (third_loc.ids or [])
-        print loc_ids
         if not loc_ids:
             raise UserError(u'loc_ids is null!')
         quants = self.env['stock.quant'].sudo().search([
@@ -103,7 +100,6 @@ class ProductProduct(models.Model):
         inventory = 0
         for quant in quants:
             inventory += quant.qty
-        print inventory
         #采购单占用的库存
         occupy_qty = 0
         purchases = self.env['purchase.order'].sudo().search([('b2b_state', '!=', 'done')])
@@ -112,7 +108,6 @@ class ProductProduct(models.Model):
                 for line in purchase.order_line:
                     if line.product_id == product:
                         occupy_qty += line.product_qty
-        print occupy_qty
         #发货单占用的库存
         pickings = self.env['stock.picking'].sudo().search([
             ('b2b_state', '!=', 'done'),
@@ -122,7 +117,6 @@ class ProductProduct(models.Model):
             for line in picking.pack_operation_product_ids:
                 if line.product_id == product and line.location_id.id in loc_ids:
                     occupy_qty += line.qty_done
-        print occupy_qty
         return inventory - occupy_qty
 
     # @api.multi
@@ -186,7 +180,6 @@ class ProductProduct(models.Model):
         '''变体的平台变体'''
         for pro in self:
             for platform_pro in pro.product_tmpl_id.platform_tmpl_id.product_variant_ids:
-                print platform_pro.attribute_value_ids, pro.attribute_value_ids
                 if platform_pro.attribute_value_ids == pro.attribute_value_ids:
                     pro.platform_product_id = platform_pro.id
 
@@ -225,9 +218,7 @@ class ProductProduct(models.Model):
     @api.depends('product_tmpl_id.categ_id', 'supplier_price')
     def _compute_platform_price(self):
         for product in self:
-            print product.product_tmpl_id.categ_id
             rate = product.product_tmpl_id.categ_id and product.product_tmpl_id.categ_id.rate or 0
-            print rate
             product.platform_price = product.supplier_price * (1 + rate / 100)
 
     @api.multi
@@ -274,7 +265,6 @@ class ProductProduct(models.Model):
 
     @api.model
     def search(self, args, offset=0, limit=None, order=None, count=False):
-        print args
         context = self.env.context
         if context.get('view_own_product'):
             user = self.env.user

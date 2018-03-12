@@ -76,71 +76,69 @@ class SyncProduct(models.Model):
         data = base64.decodestring(self.data)
         data = eval(data)
         tmpl_vals = []
-        print len(data)
         for (asin, val) in data.items():
+            print val
             title = val.get('Products', {}).get('Product', {}).get('AttributeSets', {}).get('ItemAttributes', {})\
                 .get('Title', {}).get('value', '')
             asin = val.get('Id', {}).get('value', '')
             sku = asin_sku_map.get(asin, '')
-            try:
-                tmpl_val = {
-                    'name': title,
-                    'asin': asin,
-                    'sku': sku,
-                    'state': 'shop',
-                    'shop_id': self.shop_id.id,
-                    'product_variant_ids': []
-                }
-                Relationships = val.get('Products', {}).get('Product', {}).get('Relationships', {})
-
-                if Relationships.has_key('VariationChild'):
-                    VariationChild = Relationships['VariationChild']
-                    if type(VariationChild) is not list:
-                        VariationChild = [VariationChild]
-                    for child in VariationChild:
-                        if type(child) is not dict:
-                            continue
-                        Identifiers = child.pop('Identifiers')
-                        asin = Identifiers.get('MarketplaceASIN', {}).get('ASIN', {}).get('value', '')
-                        sku = asin_sku_map.get(asin, '')
-                        attr_val_ids = []
-                        for (attr_name, attr_val_name) in child.items():
-                            attr_val_name = attr_val_name.get('value', '')
-                            attr = attr_obj.sudo().search([('english_name', '=', attr_name)])
-                            if not attr:
-                                attr = attr_obj.create({'name': attr_name})
-                            attr_val = attr_val_obj.search([
-                                ('attribute_id', '=', attr.id),
-                                ('name', '=', attr_val_name),
-                            ])
-                            if not attr_val:
-                                attr_val = attr_val_obj.create({
-                                    'name': attr_val_name,
-                                    'attribute_id': attr.id,
-                                })
-                            attr_val_ids.append(attr_val.id)
-                        print attr_val_ids
-                        tmpl_val['product_variant_ids'].append((0, 0, {
-                            'asin': asin,
-                            'sku': sku,
-                            'attribute_value_ids': [(6, False, attr_val_ids)],
-                        }))
-                tmpl_vals.append(tmpl_val)
-            except Exception, e:
-                print e
+            tmpl_val = {
+                'name': title,
+                'asin': asin,
+                'sku': sku,
+                'state': 'shop',
+                'shop_id': self.shop_id.id,
+                'product_variant_ids': []
+            }
+            Relationships = val.get('Products', {}).get('Product', {}).get('Relationships', {})
+            if Relationships.has_key('VariationChild'):
+                VariationChild = Relationships['VariationChild']
+                if type(VariationChild) is not list:
+                    VariationChild = [VariationChild]
+                for child in VariationChild:
+                    if type(child) is not dict:
+                        continue
+                    Identifiers = child.pop('Identifiers')
+                    asin = Identifiers.get('MarketplaceASIN', {}).get('ASIN', {}).get('value', '')
+                    sku = asin_sku_map.get(asin, '')
+                    attr_val_ids = []
+                    for (attr_name, attr_val_name) in child.items():
+                        attr_val_name = attr_val_name.get('value', '')
+                        attr = attr_obj.sudo().search([('english_name', '=', attr_name)])
+                        if not attr:
+                            attr = attr_obj.create({'name': attr_name})
+                        attr_val = attr_val_obj.search([
+                            ('attribute_id', '=', attr.id),
+                            ('name', '=', attr_val_name),
+                        ])
+                        if not attr_val:
+                            attr_val = attr_val_obj.create({
+                                'name': attr_val_name,
+                                'attribute_id': attr.id,
+                            })
+                        attr_val_ids.append(attr_val.id)
+                    # print attr_val_ids
+                    tmpl_val['product_variant_ids'].append((0, 0, {
+                        'asin': asin,
+                        'sku': sku,
+                        'attribute_value_ids': [(6, False, attr_val_ids)],
+                    }))
+            tmpl_vals.append(tmpl_val)
+            # except Exception, e:
+            #     print e
         print len(tmpl_vals)
         i = 0
         for val in tmpl_vals:
             i += 1
             self.create_three_tmpl(val)
-            self.message(u'共%d个产品，已创建%d个' % (len(tmpl_vals), i))
+            self.message = u'共%d个产品，已创建%d个' % (len(tmpl_vals), i)
             self._cr.commit()
         self.write({
             'message': u'创建产品完成',
             'state': 'done',
         })
 
-    @api.model
+    @api.multi
     def create_three_tmpl(self, val):
         tmpl_obj = self.env['product.template']
         seller_val = copy.deepcopy(val)
@@ -155,11 +153,12 @@ class SyncProduct(models.Model):
             pro[2]['sku'] = ''
         supplier_val = copy.deepcopy(seller_val)
         supplier_val['state'] = 'platform_published'
-        tmpl_obj.create(val)
-        tmpl_obj.create(seller_val)
-        tmpl_obj.create(supplier_val)
-        print 1111
+        shop_tmpl = tmpl_obj.create(val)
+        seller_tmpl = tmpl_obj.create(seller_val)
+        platform_tmpl = tmpl_obj.create(supplier_val)
+        print shop_tmpl,seller_tmpl,platform_tmpl
         self._cr.commit()
+        print 11111
 
     @api.multi
     def get_relationship_backstage(self):

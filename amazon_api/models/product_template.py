@@ -369,7 +369,7 @@ class ProductTemplate(models.Model):
                 <PurgeAndReplace>false</PurgeAndReplace>
                 <Message>%s</Message>
             </AmazonEnvelope>""" % (seller.merchant_id_num, message)
-        print head
+        # print head
         mws_obj = Feeds(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
                         account_id=str(seller.merchant_id_num), region=shop.country_id.code, proxies={})
         try:
@@ -485,7 +485,7 @@ class ProductTemplate(models.Model):
                 <PurgeAndReplace>false</PurgeAndReplace>
                 %s
                 </AmazonEnvelope>""" % (seller.merchant_id_num, message)
-            print head
+            # print head
             mws_obj = Feeds(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
                             account_id=str(seller.merchant_id_num), region=shop.country_id.code, proxies={})
             try:
@@ -519,7 +519,7 @@ class ProductTemplate(models.Model):
             message = ''
             message_id = 0
             for pro in template.product_variant_ids:
-                print pro.platform_product_id,pro.platform_product_id.qty_available
+                # print pro.platform_product_id,pro.platform_product_id.qty_available
                 inventory = pro.platform_product_id.qty_available
                 inventory = int(inventory)
                 message_id += 1

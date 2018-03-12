@@ -5,5 +5,4 @@ import requests
 
 import copy
 
-a = {1:2,2:3}
-print a.pop(1),a
+print u'共%d个产品，已创建%d个' % (1, 2)
