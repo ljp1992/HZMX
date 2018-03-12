@@ -25,11 +25,17 @@ class BinaryChild(Binary):
             raise UserError(u'template is null!')
         raw_data = ufile.read()
         name = str(uuid.uuid1()) + filename
-        image_url = 'http://imghub360.mxnet.cn/item/' + name
+
+        oss_key = request.env['ir.config_parameter'].get_param('image_oss_key')
+        oss_sec = request.env['ir.config_parameter'].get_param('image_oss_sec')
+        oss_internal_url = request.env['ir.config_parameter'].get_param('image_oss_internal_url')
+        oss_bucket = request.env['ir.config_parameter'].get_param('image_oss_bucket')
+        oss_url = request.env['ir.config_parameter'].get_param('image_oss_url')
+
+        image_url = oss_url + name
         try:
-            auth = oss2.Auth('LTAIy1XF2bUUWM6N', 'GqomKcGskXOIQdbHVVHmMiIrqjjavp')
-            bucket = oss2.Bucket(auth, 'http://oss-cn-hangzhou-internal.aliyuncs.com', 'image-hub360-b2b',
-                                 connect_timeout=3)
+            auth = oss2.Auth(oss_key, oss_sec)
+            bucket = oss2.Bucket(auth, oss_internal_url, oss_bucket, connect_timeout=3)
             bucket.put_object('item/' + name, raw_data)
         except Exception, e:
             return request.make_response(json.dumps({'error': u'连接超时！'}), [('Content-Type', 'application/json')])
