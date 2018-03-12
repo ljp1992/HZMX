@@ -75,7 +75,7 @@
                                     </tree>
                                 </field>
                             </page>
-                            <page string="收件人信息" attrs="{'invisible': [('origin_type', '=', 'fba_delivery')]}">
+                            <page string="收件人信息">
                                 <group>
                                     <group>
                                         <field name="logistics_company_id" options="{'no_create': True}"/>
