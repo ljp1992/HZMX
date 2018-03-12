@@ -436,7 +436,12 @@ class StockPicking(models.Model):
             raise UserError(u'请填写物流公司！')
         if not self.shippment_number:
             raise UserError(u'请填写物流单号！')
-        sale_order = self.sudo().sale_order_id
+        purchase = self.sudo().purchase_order_id
+        if not purchase:
+            raise UserError(u'Not found purchase order!')
+        sale_order = purchase.sale_order_id
+        if not sale_order:
+            raise UserError(u'Not found sale order!')
         shop = sale_order.sudo().shop_id
         seller = shop.seller_id
         marketplaceids = [shop.marketplace_id.marketplace_id]
@@ -476,6 +481,7 @@ class StockPicking(models.Model):
                     <MessageType>OrderFulfillment</MessageType>
                     %s
                 </AmazonEnvelope>""" % (seller.merchant_id_num, message_info)
+        print sale_order,shop,shop.country_id,shop.country_id.code
         mws_obj = Feeds(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
                         account_id=str(seller.merchant_id_num), region=shop.country_id.code, proxies={})
         try:
