@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_cron_mail_gateway_action" model="ir.cron">
+            <field name="name">Fetchmail Inbox Service</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="model">fetchmail.server.inbox</field>
+            <field name="function">_fetch_mails</field>
+            <field name="args">()</field>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

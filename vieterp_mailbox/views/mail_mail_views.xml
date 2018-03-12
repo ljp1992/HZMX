@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_mail_inbox_search">
+            <field name="name">mail.inbox.search</field>
+            <field name="model">mail.inbox</field>
+            <field name="arch" type="xml">
+                <search string="搜索邮件">
+                    <field name="email_from" filter_domain="['|', '|',('email_from','ilike',self), ('email_to','ilike',self), ('subject','ilike',self)]" string="邮件"/>
+                    <field name="date"/>
+                    <filter name="received" string="已接收" domain="[('state','=','received')]"/>
+                    <filter name="outgoing" string="发送中" domain="[('state','=','outgoing')]"/>
+                    <filter name="sent" string="已发送" domain="[('state','=','sent')]"/>
+                    <filter name="exception" string="失败" domain="[('state','=','exception')]"/>
+                    <separator/>
+                    <filter name="type_email" string="邮件" domain="[('message_type','=','email')]"/>
+                    <filter name="type_comment" string="备注" domain="[('message_type','=','comment')]"/>
+                    <filter name="type_notification" string="通知" domain="[('message_type','=','notification')]"/>
+                    <group expand="0" string="扩展过滤器...">
+                        <field name="author_id"/>
+                        <field name="recipient_ids"/>
+                        <field name="model"/>
+                        <field name="res_id"/>
+                    </group>
+                    <group expand="0" string="分组">
+                        <filter string="状态" name="status" domain="[]" context="{'group_by':'state'}"/>
+                        <filter string="作者" name="author" context="{'group_by':'author_id'}"/>
+                        <filter string="线索" name="thread" domain="[]" context="{'group_by':'message_id'}"/>
+                        <filter string="月" name="month" help="Creation Month" domain="[]" context="{'group_by':'date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_mail_inbox_tree">
+            <field name="name">mail.inbox.tree</field>
+            <field name="model">mail.inbox</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="date"/>
+                    <field name="create_uid"/>
+                    <field name="subject"/>
+                    <field name="author_id"/>
+                    <field name="partner_ids"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_mail_inbox_form">
+            <field name="name">mail.inbox.form</field>
+            <field name="model">mail.inbox</field>
+            <field name="arch" type="xml">
+                <form string="Message" edit="false">
+                    <header>
+                        <button name="send" string="现在发送" type="object" states='outgoing' class="oe_highlight"/>
+                        <button name="mark_outgoing" string="重试" type="object" states='exception,cancel'/>
+                        <button name="cancel" string="取消" type="object" states='outgoing'/>
+                        <field name="state" widget="statusbar" statusbar_visible="outgoing,sent,received,exception,cancel"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="subject" placeholder="主题..." required="True"/></h1>
+                        </div>
+                        <group col="8">
+                            <group colspan="8">
+                                <field name="partner_ids" widget="many2many_tags" invisible="1"/>
+                                <field name="email_to" required="True"/>
+                                <field name="email_cc"/>
+                                <field name="reply_to"/>
+                                <field name="template_id"
+                                       domain="[('model_id.model','=','mail.inbox')]"
+                                       context="{'default_model': 'mail.inbox', 'default_body_html': body_html, 'default_subject': subject, 'default_user_signature': True}"/>
+                                <field name="author_id" invisible="1"/>
+                                <field name="email_from" invisible="1"/>
+                                <field name="date" invisible="1"/>
+                                <field name="model" invisible="1"/>
+                                <field name="res_id" invisible="1"/>
+                                <field name="parent_id" invisible="1"/>
+                                <field name="subtype_id" invisible="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="邮件内容">
+                                <field name="body_html" widget="html" required="True"/>
+                            </page>
+                            <page string="附件">
+                                <field name="attachment_ids"/>
+                            </page>
+                            <page string="失败原因" attrs="{'invisible': [('state', '!=', 'exception')]}">
+                                <field name="failure_reason"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_mail_inbox" model="ir.actions.act_window">
+            <field name="name">收件箱</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mail.inbox</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+            <field name="domain">[('state', '=', 'inbox')]</field>
+            <field name="search_view_id" ref="view_mail_inbox_search"/>
+        </record>
+
+        <record id="action_mail_draft" model="ir.actions.act_window">
+            <field name="name">草稿</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mail.inbox</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+            <field name="domain">[('state', '=', 'outgoing')]</field>
+            <field name="search_view_id" ref="view_mail_inbox_search"/>
+        </record>
+
+        <record id="action_mail_outbox" model="ir.actions.act_window">
+            <field name="name">发件箱</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mail.inbox</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+            <field name="domain">['|',('state', '=', 'exception'),('state', '=', 'cancel')]</field>
+            <field name="search_view_id" ref="view_mail_inbox_search"/>
+        </record>
+
+        <record id="action_mail_sent" model="ir.actions.act_window">
+            <field name="name">已发送</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mail.inbox</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+            <field name="domain">['|',('state', '=', 'sent'),('state', '=', 'received')]</field>
+            <field name="search_view_id" ref="view_mail_inbox_search"/>
+        </record>
+
+        <menuitem name="邮件" id="menu_email_root" web_icon="vieterp_mailbox,static/mail.png"/>
+        <menuitem id="menu_mails" name="邮件" parent="menu_email_root"/>
+
+        <menuitem id="menu_mail_inbox" sequence="10" action="action_mail_inbox" parent="menu_mails"/>
+        <menuitem id="menu_mail_draft" sequence="20" action="action_mail_draft" parent="menu_mails"/>
+        <menuitem id="menu_mail_outbox" sequence="30" action="action_mail_outbox" parent="menu_mails"/>
+        <menuitem id="menu_mail_sent" sequence="40" action="action_mail_sent" parent="menu_mails"/>
+    </data>
+</odoo>

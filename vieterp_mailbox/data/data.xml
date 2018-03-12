@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="mail_source_1" model="mail.server.source">
+            <field name="name">Gmail - POP</field>
+            <field name="type">pop</field>
+            <field name="server">pop.gmail.com</field>
+            <field name="port">995</field>
+            <field name="is_ssl">1</field>
+        </record>
+    </data>
+</odoo>

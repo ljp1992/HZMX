@@ -20,7 +20,7 @@
     # any module necessary for this one to work correctly
     'depends': ['base', 'mail', 'sale', 'purchase', 'account', 'website', 'website_sale', 'web_tree_image',
                 'web_form_image', 'document_multi_upload', 'web_export_view', 'l10n_cn_standard',
-                'currency_rate_update'],
+                'currency_rate_update', 'vieterp_mailbox'],
 
     # always loaded
     'data': [

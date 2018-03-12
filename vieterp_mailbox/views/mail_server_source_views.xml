@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_mail_server_source_tree" model="ir.ui.view">
+            <field name="name">mail.server.source.list</field>
+            <field name="model">mail.server.source</field>
+            <field name="arch" type="xml">
+                <tree string="源">
+                    <field name="name"/>
+                    <field name="type"/>
+                    <field name="is_ssl"/>
+                    <field name="server"/>
+                    <field name="port"/>
+                    <field name="state" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_mail_server_source_form" model="ir.ui.view">
+            <field name="name">mail.server.source.form</field>
+            <field name="model">mail.server.source</field>
+            <field name="arch" type="xml">
+                <form string="Incoming Mail Server" edit="0">
+                    <sheet>
+                        <group col="4">
+                            <field name="name"/>
+                            <field name="state" invisible="1"/>
+                        </group>
+                        <group string="Server Information">
+                            <group>
+                                <field name="type"/>
+                                <field name="is_ssl"/>
+                            </group>
+                            <group>
+                                <field name="server" colspan="2" attrs="{'required' : [('type', '!=', 'local')]}" />
+                                <field name="port" required="1" attrs="{'required' : [('type', '!=', 'local')]}" />
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_mail_server_source_search" model="ir.ui.view">
+            <field name="name">mail.server.source.search</field>
+            <field name="model">mail.server.source</field>
+            <field name="arch" type="xml">
+                <search string="搜索邮件服务器">
+                    <field name="name" string="邮件服务器"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_mail_server_source_tree" model="ir.actions.act_window">
+            <field name="name">邮件服务器</field>
+            <field name="res_model">mail.server.source</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="view_mail_server_source_tree"/>
+            <field name="search_view_id" ref="view_mail_server_source_search"/>
+        </record>
+
+        <menuitem id="menu_setting" name="设置" parent="menu_email_root"/>
+        <menuitem
+            parent="menu_setting"
+            id="menu_action_mail_server_source_tree"
+            action="action_mail_server_source_tree"
+            name="邮件源"
+            sequence="14"
+            groups="base.group_user"
+        />
+    </data>
+</odoo>
