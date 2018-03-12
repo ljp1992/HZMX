@@ -5,7 +5,5 @@ import requests
 
 import copy
 
-a = set()
-a.add(1)
-a.add(1)
-print a
+a = {1:2,2:3}
+print a.pop(1),a

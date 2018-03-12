@@ -3,8 +3,9 @@
 	<data>
         <menuitem id="product_root" name="产品" sequence="1"/>
             <menuitem id="platform_tmpl_menu" parent="product_root" name="平台产品" sequence="1"/>
-            <menuitem id="merchant_tmpl_menu" parent="product_root" name="商户产品" sequence="2"/>
-            <menuitem id="shop_tmpl_menu" parent="product_root" name="店铺产品" sequence="3"/>
+            <menuitem id="merchant_tmpl_menu" parent="product_root" name="商户产品" sequence="3"/>
+            <menuitem id="shop_tmpl_menu" parent="product_root" name="店铺产品" sequence="5"/>
+            <menuitem id="sync_product_parent_menu" parent="product_root" name="产品同步" sequence="7"/>
 
         <menuitem id="ecommerce_menu_root" name="跨境电商" sequence="3"/>
             <menuitem id="account_authorized_menu" parent="ecommerce_menu_root" name="账户授权" sequence="1"/>

@@ -112,3 +112,7 @@ replenish_order_manager_id,replenish_order,model_replenish_order,b2b_platform.b2
 replenish_order_line_operator_id,replenish_order_line,model_replenish_order_line,b2b_platform.b2b_shop_operator,1,1,1,1
 replenish_order_line_merchant_id,replenish_order_line,model_replenish_order_line,b2b_platform.b2b_seller,1,1,1,1
 replenish_order_line_manager_id,replenish_order_line,model_replenish_order_line,b2b_platform.b2b_manager,1,1,1,1
+
+sync_product_operator_id,sync_product,model_sync_product,b2b_platform.b2b_shop_operator,1,1,1,1
+sync_product_merchant_id,sync_product,model_sync_product,b2b_platform.b2b_seller,1,1,1,1
+sync_product_manager_id,sync_product,model_sync_product,b2b_platform.b2b_manager,1,1,1,1

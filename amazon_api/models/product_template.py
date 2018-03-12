@@ -17,6 +17,7 @@ class ProductTemplate(models.Model):
     manufacturer = fields.Char(related='brand_id.manufacturer', string=u'制造商')
     sku = fields.Char(string=u'SKU')
     upc = fields.Char(string=u'UPC')
+    asin = fields.Char(string=u'ASIN')
     shop_currency_symbol = fields.Char(related='shop_id.currency_symbol', string=u'店铺货币')
     keywords = fields.Char(string=u'关键字')
 
@@ -667,6 +668,7 @@ class ProductTemplate(models.Model):
                 'chinese_declare': template.chinese_declare,
                 'english_declare': template.english_declare,
                 'sku': template.sku,
+                'asin': template.asin,
                 'upc': template.upc,
                 'brand_id': template.brand_id.id,
                 'keywords': template.keywords,
@@ -721,6 +723,7 @@ class ProductTemplate(models.Model):
                     'attribute_value_ids': [(6, False, pro.attribute_value_ids.ids)],
                     'sku': pro.sku,
                     'upc': pro.upc,
+                    'asin': pro.asin,
                     'volume': pro.volume,
                     'weight': pro.weight,
                     'supplier_price': pro.supplier_price,

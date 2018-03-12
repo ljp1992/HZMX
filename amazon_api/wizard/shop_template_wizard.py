@@ -45,14 +45,20 @@ class ShopTemplateWizard(models.TransientModel):
     @api.multi
     def shop_include(self):
         '''经销商产品收录到店铺'''
+        print 1111,self.env.context
         self.ensure_one()
         template_obj = self.env['product.template']
-        templates = template_obj.browse(self.env.context.get('active_ids'))
+        active_ids = self.env.context.get('active_ids')
+        print active_ids
+        templates = template_obj.sudo().search([('id', 'in', active_ids)])
+        print 2222
+        print templates
         template_ids = []
         for template in templates:
             if template.state != 'seller':
                 raise UserError(u'不是经销商产品！')
             new_template = template.shop_tmpl_ids.filtered(lambda r: r.shop_id == self.shop_id)
+            print new_template
             if new_template:
                 continue
             val = {
@@ -80,6 +86,7 @@ class ShopTemplateWizard(models.TransientModel):
                 'english_declare': template.english_declare,
                 'sku': template.sku,
                 'upc': template.upc,
+                'asin': template.asin,
                 'brand_id': self.brand_id.id,
                 'keywords': self.keywords,
                 'important_description': self.important_description,
@@ -137,6 +144,7 @@ class ShopTemplateWizard(models.TransientModel):
                     'attribute_value_ids': [(6, False, pro.attribute_value_ids.ids)],
                     'sku': pro.sku,
                     'upc': pro.upc,
+                    'asin': pro.asin,
                     'volume': pro.volume,
                     'weight': pro.weight,
                     'supplier_price': pro.supplier_price,

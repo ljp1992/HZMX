@@ -8,6 +8,7 @@ class ProductProduct(models.Model):
 
     sku = fields.Char(string=u'SKU')
     upc = fields.Char(string=u'UPC')
+    asin = fields.Char(string=u'ASIN')
     main_img_url = fields.Char(compute='_get_main_img_url', string=u'主图')
 
     hide_supplier_price = fields.Boolean(compute='_hide_price', store=False)

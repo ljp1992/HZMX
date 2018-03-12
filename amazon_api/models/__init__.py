@@ -45,3 +45,4 @@ from . import account_cash
 from . import account_charge
 from . import appeal_order
 from . import replenish_order
+from . import sync_product
