@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 	<data>
-        <menuitem id="product_root" name="产品" sequence="1" groups="b2b_patform.b2b_shop_operator,b2b_platform.b2b_seller,b2b_;platform.b2b_manager"/>
+        <menuitem id="product_root" name="产品" sequence="1" groups="b2b_platform.b2b_shop_operator,b2b_platform.b2b_seller,b2b_platform.b2b_manager"/>
             <menuitem id="platform_tmpl_menu" parent="product_root" name="平台产品" sequence="1"/>
             <menuitem id="merchant_tmpl_menu" parent="product_root" name="商户产品" sequence="3"/>
             <menuitem id="shop_tmpl_menu" parent="product_root" name="店铺产品" sequence="5"/>
             <menuitem id="sync_product_parent_menu" parent="product_root" name="产品同步" sequence="7"/>
 
-        <menuitem id="ecommerce_menu_root" name="跨境电商" sequence="3" groups="b2b_patform.b2b_shop_operator,b2b_platform.b2b_seller,b2b_;platform.b2b_manager"/>
+        <menuitem id="ecommerce_menu_root" name="跨境电商" sequence="3" groups="b2b_platform.b2b_shop_operator,b2b_platform.b2b_seller,b2b_platform.b2b_manager"/>
             <menuitem id="account_authorized_menu" parent="ecommerce_menu_root" name="账户授权" sequence="1"/>
             <menuitem id="sale_order_parent_menu" parent="ecommerce_menu_root" name="客户订单" sequence="3"/>
             <menuitem id="purchase_parent_menu" parent="ecommerce_menu_root" name="代发采购" sequence="5"/>
@@ -17,7 +17,7 @@
             <menuitem id="order_appeal_parent_menu" parent="ecommerce_menu_root" name="申诉管理" sequence="12"/>
             <menuitem id="log_menu" parent="ecommerce_menu_root" name="日志" sequence="14"/>
 
-        <menuitem id="stock_menu_root" name="仓储" sequence="5" groups="b2b_patform.b2b_shop_operator,b2b_platform.b2b_seller,b2b_;platform.b2b_manager"/>
+        <menuitem id="stock_menu_root" name="仓储" sequence="5" groups="b2b_platform.b2b_shop_operator,b2b_platform.b2b_seller,b2b_platform.b2b_manager"/>
             <menuitem id="Logistics_manage_menu" parent="stock_menu_root" name="物流管理" sequence="1"/>
             <menuitem id="delivery_manage_menu" parent="stock_menu_root" name="发货管理" sequence="3"/>
             <menuitem id="stock_manage_menu" parent="stock_menu_root" name="库存管理" sequence="5"/>
@@ -33,7 +33,7 @@
             <menuitem id="account_close_menu" parent="b2b_acount_root" name="结算管理" sequence="2"/>
             <menuitem id="account_configuration_menu" parent="b2b_acount_root" name="配置" sequence="3"/>
 
-        <menuitem id="platform_manage_root" name="平台运营" sequence="9" groups="b2b_patform.b2b_shop_operator,b2b_platform.b2b_seller,b2b_;platform.b2b_manager"/>
+        <menuitem id="platform_manage_root" name="平台运营" sequence="9" groups="b2b_platform.b2b_shop_operator,b2b_platform.b2b_seller,b2b_platform.b2b_manager"/>
             <menuitem id="acount_manage_parent" name="账号管理" parent="platform_manage_root" sequence="1"/>
             <menuitem id="finance_management_menu" parent="platform_manage_root" name="财务管理" sequence="3"/>
             <menuitem id="fba_replenish_platform_menu" parent="platform_manage_root" name="FBA补货" sequence="5"/>
