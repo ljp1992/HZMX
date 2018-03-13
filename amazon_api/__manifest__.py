@@ -53,6 +53,7 @@
         'views/appeal_order.xml',
         'views/replenish_order.xml',
         'views/sync_product.xml',
+        'views/fetchmail_server_inbox.xml',
 
         'wizard_views/shop_template_wizard.xml',
         'wizard_views/amazon_wizard.xml',

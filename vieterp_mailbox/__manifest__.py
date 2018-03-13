@@ -53,7 +53,7 @@
         'security/record_rules.xml',
         'security/ir.model.access.csv',
         'views/mail_mail_views.xml',
-        'views/fetchmail_server_views.xml',
+        # 'views/fetchmail_server_views.xml',
         'views/mail_server_source_views.xml',
     ],
     # only loaded in demonstration mode

@@ -11,6 +11,7 @@ class vieterp_mail_inbox(models.Model):
     fetchmail_server_id = fields.Many2one('fetchmail.server.inbox', u"收件服务器", readonly=True, index=True,
                                           oldname='server_id')
     template_id = fields.Many2one('mail.template', string=u'邮件模板', index=True)
+
     state = fields.Selection([
         ('inbox', u'收件箱'),
         ('outgoing', u'发送中'),

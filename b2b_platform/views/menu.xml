@@ -9,8 +9,8 @@
 
         <menuitem id="ecommerce_menu_root" name="跨境电商" sequence="3" groups="b2b_platform.b2b_shop_operator,b2b_platform.b2b_seller,b2b_platform.b2b_manager"/>
             <menuitem id="account_authorized_menu" parent="ecommerce_menu_root" name="账户授权" sequence="1"/>
-            <menuitem id="sale_order_parent_menu" parent="ecommerce_menu_root" name="客户订单" sequence="3"/>
-            <menuitem id="purchase_parent_menu" parent="ecommerce_menu_root" name="代发采购" sequence="5"/>
+            <menuitem id="sale_order_parent_menu" parent="ecommerce_menu_root" name="订单列表" sequence="3"/>
+            <menuitem id="purchase_parent_menu" parent="ecommerce_menu_root" name="分销订单" sequence="5"/>
             <menuitem id="stock_parent_menu" parent="ecommerce_menu_root" name="发货管理" sequence="7"/>
             <menuitem id="stock_manage_parent_menu" parent="ecommerce_menu_root" name="库存管理" sequence="8"/>
             <menuitem id="fba_replenish_parent_menu" parent="ecommerce_menu_root" name="FBA补货" sequence="10"/>

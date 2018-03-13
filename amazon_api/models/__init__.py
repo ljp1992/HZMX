@@ -46,3 +46,5 @@ from . import account_charge
 from . import appeal_order
 from . import replenish_order
 from . import sync_product
+from . import mail_inbox
+from . import fetchmail_server_inbox
