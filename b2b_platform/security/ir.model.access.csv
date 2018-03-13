@@ -22,3 +22,16 @@ invoice_manager_id,invoice,model_invoice,b2b_platform.b2b_manager,1,1,1,1
 invoice_line_operator_id,invoice_line,model_invoice_line,b2b_platform.b2b_shop_operator,1,1,1,1
 invoice_line_merchant_id,invoice_line,model_invoice_line,b2b_platform.b2b_seller,1,1,1,1
 invoice_line_manager_id,invoice_line,model_invoice_line,b2b_platform.b2b_manager,1,1,1,1
+
+mail_inbox_operator_id,main.inbox,vieterp_mailbox.model_mail_inbox,b2b_platform.b2b_shop_operator,1,1,1,1
+mail_inbox_seller_id,main.inbox,vieterp_mailbox.model_mail_inbox,b2b_platform.b2b_seller,1,1,1,1
+mail_inbox_manager_id,main.inbox,vieterp_mailbox.model_mail_inbox,b2b_platform.b2b_manager,1,1,1,1
+
+mail_server_source_operator_id,main.inbox,vieterp_mailbox.model_mail_server_source,b2b_platform.b2b_shop_operator,1,1,1,1
+mail_server_source_seller_id,main.inbox,vieterp_mailbox.model_mail_server_source,b2b_platform.b2b_seller,1,1,1,1
+mail_server_source_manager_id,main.inbox,vieterp_mailbox.model_mail_server_source,b2b_platform.b2b_manager,1,1,1,1
+
+fetchmail_server_inbox_operator_id,main.inbox,vieterp_mailbox.model_fetchmail_server_inbox,b2b_platform.b2b_shop_operator,1,1,1,1
+fetchmail_server_inbox_seller_id,main.inbox,vieterp_mailbox.model_fetchmail_server_inbox,b2b_platform.b2b_seller,1,1,1,1
+fetchmail_server_inbox_manager_id,main.inbox,vieterp_mailbox.model_fetchmail_server_inbox,b2b_platform.b2b_manager,1,1,1,1
+

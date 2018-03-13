@@ -117,6 +117,26 @@ class ProductTemplate(models.Model):
         ('to_delete', u'待删除'),
         ('deleted', u'已删除')], default='pending', string=u'库存状态')
 
+    @api.model
+    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+        '''隐藏上传产品信息选项'''
+        result = super(ProductTemplate, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar,
+                                                              submenu=submenu)
+        if view_type in ['tree', 'form'] and result.get('toolbar'):
+            shop_tmpl_act_id = self.env.ref('amazon_api.shop_tmpl_act').id
+            action_id = self._context.get('params', {}).get('action')
+            if shop_tmpl_act_id != action_id:
+                actions = result.get('toolbar', {}).get('action', [])
+                upload_tmpl_xml_ids = ['amazon_api.upload_variant_server', 'amazon_api.upload_image_server',
+                                       'amazon_api.upload_price_server','amazon_api.upload_stock_server']
+                new_actions = []
+                for action in actions:
+                    xml_id = action.get('xml_id', '')
+                    if xml_id not in upload_tmpl_xml_ids:
+                        new_actions.append(action)
+                result['toolbar']['action'] = new_actions
+        return result
+
     def _compute_freight(self):
         for tmpl in self:
             country = tmpl.shop_id.country_id

@@ -330,7 +330,6 @@
             <field name="context">{'search_default_wait_upload': True,'create': False}</field>
         </record>
 
-        <!--变体、图片、价格、库存上传-->
         <record id="shop_tmpl_act_tree" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
@@ -348,6 +347,7 @@
         <menuitem id="shop_product_menu" name="店铺产品" parent="b2b_platform.shop_tmpl_menu" sequence="1"
                   action="shop_tmpl_act"/>
 
+        <!--变体、图片、价格、库存上传-->
         <record id="upload_variant_server" model="ir.actions.server">
             <field name="name">上传变体</field>
             <field name="model_id" ref="model_product_template"/>

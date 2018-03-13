@@ -68,7 +68,6 @@
             <field name="search_view_id" ref="view_email_server_inbox_search"/>
         </record>
 
-
         <menuitem id="menu_setting" name="设置" parent="menu_email_root"/>
         <menuitem
             parent="menu_setting"
