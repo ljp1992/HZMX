@@ -73,10 +73,6 @@ class ResUsers(models.Model):
                 'location_id': location_id,
                 'partner_id': partner_id,
             })
-        #创建账户
-        if not self.b2b_accounts:
-            account = self.env['b2b.account'].create({})
-            self.b2b_account_id = account.id
 
     @api.multi
     def view_transaction_detail(self):

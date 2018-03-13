@@ -35,3 +35,6 @@ fetchmail_server_inbox_operator_id,main.inbox,vieterp_mailbox.model_fetchmail_se
 fetchmail_server_inbox_seller_id,main.inbox,vieterp_mailbox.model_fetchmail_server_inbox,b2b_platform.b2b_seller,1,1,1,1
 fetchmail_server_inbox_manager_id,main.inbox,vieterp_mailbox.model_fetchmail_server_inbox,b2b_platform.b2b_manager,1,1,1,1
 
+ir_cron_operator_id,main.inbox,base.model_ir_cron,b2b_platform.b2b_shop_operator,1,1,1,1
+ir_cron_seller_id,main.inbox,base.model_ir_cron,b2b_platform.b2b_seller,1,1,1,1
+ir_cron_manager_id,main.inbox,base.model_ir_cron,b2b_platform.b2b_manager,1,1,1,1

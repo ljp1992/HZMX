@@ -152,9 +152,7 @@ class SyncProduct(models.Model):
         shop_tmpl = tmpl_obj.create(val)
         seller_tmpl = tmpl_obj.create(seller_val)
         platform_tmpl = tmpl_obj.create(supplier_val)
-        print shop_tmpl,seller_tmpl,platform_tmpl
         self._cr.commit()
-        print 11111
 
     @api.multi
     def get_relationship_backstage(self):
@@ -189,8 +187,6 @@ class SyncProduct(models.Model):
         for row in reader:
             asin = row.get('asin1', '')
             all_asin.add(asin)
-        # all_asin = list(all_asin)[:10]
-        print all_asin
         asin_count = len(all_asin)
         self.message = u'共%d个产品，已获取%d个产品' % (asin_count, 0)
         self._cr.commit()
@@ -262,9 +258,8 @@ class SyncProduct(models.Model):
             result = mws_obj.request_report('_GET_MERCHANT_LISTINGS_DATA_', start_date=None, end_date=None,
                                             marketplaceids=marketplace_ids)
         except Exception, e:
-            raise UserError(str(e))
+            raise UserError(u'亚马逊正在处理请求，请稍后再试！')
         data = result.parsed
-        print data
         report_request_id = data.get('ReportRequestInfo', {}).get('ReportRequestId', {}).get('value', '')
         if report_request_id:
             self.write({
@@ -286,15 +281,14 @@ class SyncProduct(models.Model):
         try:
             result = mws_obj.get_report_request_list(requestids=(self.submit_id,))
         except Exception, e:
-            raise UserError(str(e))
+            raise UserError(u'亚马逊正在处理请求，请稍后再试！')
         data = result.parsed
         report_id = data.get('ReportRequestInfo', {}).get('GeneratedReportId', {}).get('value', '')
         try:
             result = mws_obj.get_report(report_id=str(report_id))
         except Exception, e:
-            raise UserError(str(e))
+            raise UserError(u'亚马逊正在处理请求，请稍后再试！')
         data = result.parsed
-        print data
         data = base64.b64encode(data)
         self.write({
             'state': 'got_report',
@@ -316,21 +310,6 @@ class SyncProduct(models.Model):
                 ('operator_id', 'in', operator_ids),
             ])
             return [('shop_id', 'in', shops.ids)]
-
-    # @api.multi
-    # def get_product_report(self):
-    #     '''获取卖家在售商品报告'''
-    #     self.ensure_one()
-    #     shop = self.shop_id
-    #     seller = shop.seller_id
-    #     mws_obj = Products(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
-    #                        account_id=str(seller.merchant_id_num),
-    #                        region=shop.country_id.code,
-    #                        proxies={})
-    #     result = mws_obj.get_matching_product_for_id(marketplaceid=shop.marketplace_id.marketplace_id, type='ASIN',
-    #                                                  ids=['B07921KSW5'])
-    #     data = result.parsed
-    #     print data
 
 
 
