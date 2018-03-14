@@ -128,6 +128,13 @@
                                         <field name="tmpl_main" readonly="1"/>
                                         <button name="set_tmpl_main" type="object" string="设为主图"/>
                                     </tree>
+                                    <form>
+                                        <field name="url" widget="form_image"/>
+                                        <div class="oe_title">
+                                            <label class="oe_edit_only" for="name"/>
+                                            <h1><field name="name"/></h1>
+                                        </div>
+                                    </form>
                                 </field>
 							</page>
                             <page string="店铺参数" attrs="{'invisible':[('state', '!=', 'shop')]}">
