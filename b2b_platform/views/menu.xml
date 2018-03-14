@@ -44,6 +44,10 @@
             <menuitem id="appeal_order_platform_menu" parent="platform_manage_root" name="申诉单" sequence="7"/>
             <menuitem id="base_data_menu" name="基础数据" parent="platform_manage_root" sequence="9"/>
 
+        <menuitem id="menu_email_root" name="邮件" sequence="11" groups="b2b_platform.b2b_shop_operator,b2b_platform.b2b_seller,b2b_platform.b2b_manager"/>
+            <menuitem id="menu_mails" name="邮件" parent="menu_email_root"/>
+            <menuitem id="menu_setting" name="设置" parent="menu_email_root"/>
+
         <!--隐藏销售、采购、仓库、会计菜单-->
         <record model="ir.ui.menu" id="sales_team.menu_base_partner">
             <field name="groups_id" eval="[(6,0,[ref('base.group_no_one')])]"/>

@@ -1,8 +1,17 @@
 # -*- coding: utf-8 -*-
+import logging
+import poplib
 from imaplib import IMAP4, IMAP4_SSL
 from poplib import POP3, POP3_SSL
-from odoo import tools, models, fields, api
+from odoo import api, fields, models, tools, _
+from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
+MAX_POP_MESSAGES = 50
 MAIL_TIMEOUT = 60
+
+# Workaround for Python 2.7.8 bug https://bugs.python.org/issue23906
+poplib._MAXLINE = 65536
 
 class vieterp_fetchmail_server(models.Model):
     _inherit = 'fetchmail.server'
@@ -18,11 +27,6 @@ class vieterp_fetchmail_server(models.Model):
 
     source_id = fields.Many2one('mail.server.source', string=u'邮件来源')
     object_id = fields.Many2one('ir.model', string=u"创建新的记录", default=_def_object_id)
-
-    @api.multi
-    def fetch_mail(self):
-        result = super(vieterp_fetchmail_server, self).fetch_mail()
-        return True
 
     @api.multi
     def connect(self):

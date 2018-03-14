@@ -20,8 +20,6 @@ class vieterp_mail_inbox(models.Model):
         ('exception', u'发送失败'),
         ('cancel', u'已取消'),
     ], 'Status', readonly=True, copy=False, default='outgoing')
-    trader_id = fields.Many2one('res.partner', u'商户',
-                default=lambda self: self.env.user.partner_id.parent_id or self.env.user.partner_id)
 
     @api.model
     def message_new(self, msg_dict, custom_values=None):
@@ -91,9 +89,6 @@ class b2b_mail_message(models.Model):
     _inherit = ['mail.message']
     _name = 'mail.message'
 
-    trader_id = fields.Many2one('res.partner', u'商户',
-                                default=lambda self: self.env.user.partner_id.parent_id or self.env.user.partner_id)
-
     @api.multi
     def check_access_rule(self, operation):
         """ Access rules of mail.message:
@@ -133,17 +128,6 @@ class b2b_mail_message(models.Model):
                     model_record_ids.setdefault(vals['model'], set()).add(vals['res_id'])
             return model_record_ids
 
-        # 下段内容为QDOO所添加，其余为ODOO原码
-        ###################################################
-        parnter = self.env.user.partner_id.parent_id or self.env.user.partner_id
-        if len(self) > 0:
-            self.sudo()._cr.execute("""SELECT message_type, trader_id FROM mail_message WHERE id = %s;""" % self[0].id)
-            result = self._cr.fetchall()
-            msg_type = result[0][0]
-            trader = int(result[0][1])
-            if parnter and msg_type == 'email' and trader == parnter.id:
-                return
-        ###################################################
         if self._uid == SUPERUSER_ID:
             return
         # Non employees see only messages with a subtype (aka, not internal logs)

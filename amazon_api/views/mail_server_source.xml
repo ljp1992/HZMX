@@ -5,7 +5,7 @@
             <field name="name">mail.server.source.list</field>
             <field name="model">mail.server.source</field>
             <field name="arch" type="xml">
-                <tree string="源">
+                <tree>
                     <field name="name"/>
                     <field name="type"/>
                     <field name="is_ssl"/>
@@ -20,13 +20,15 @@
             <field name="name">mail.server.source.form</field>
             <field name="model">mail.server.source</field>
             <field name="arch" type="xml">
-                <form string="Incoming Mail Server" edit="0">
+                <form>
                     <sheet>
-                        <group col="4">
-                            <field name="name"/>
-                            <field name="state" invisible="1"/>
+                        <field name="state" invisible="1"/>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                            </group>
                         </group>
-                        <group string="Server Information">
+                        <group string="收件服务器">
                             <group>
                                 <field name="type"/>
                                 <field name="is_ssl"/>
@@ -34,6 +36,13 @@
                             <group>
                                 <field name="server" colspan="2" attrs="{'required' : [('type', '!=', 'local')]}" />
                                 <field name="port" required="1" attrs="{'required' : [('type', '!=', 'local')]}" />
+                            </group>
+                        </group>
+                        <group string="发件服务器">
+                            <group>
+                                <field name="smtp_host"/>
+                                <field name="smtp_encryption"/>
+                                <field name="smtp_port"/>
                             </group>
                         </group>
                     </sheet>
@@ -60,14 +69,12 @@
             <field name="search_view_id" ref="view_mail_server_source_search"/>
         </record>
 
-        <menuitem id="menu_setting" name="设置" parent="menu_email_root"/>
-        <menuitem
-            parent="menu_setting"
-            id="menu_action_mail_server_source_tree"
-            action="action_mail_server_source_tree"
-            name="邮件源"
-            sequence="14"
-            groups="base.group_user"
-        />
+        <record model="ir.ui.menu" id="menu_action_mail_server_source_tree">
+            <field name="name">邮箱服务器</field>
+            <field name="action" ref="amazon_api.action_mail_server_source_tree"/>
+            <field name="parent_id" ref="b2b_platform.menu_setting"/>
+            <field name="groups_id" eval="[(6, 0, [ref('b2b_platform.b2b_manager')])]"/>
+            <field name="sequence">14</field>
+        </record>
     </data>
 </odoo>

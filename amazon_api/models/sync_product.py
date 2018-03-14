@@ -310,9 +310,3 @@ class SyncProduct(models.Model):
                 ('operator_id', 'in', operator_ids),
             ])
             return [('shop_id', 'in', shops.ids)]
-
-
-
-
-
-

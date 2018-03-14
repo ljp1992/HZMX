@@ -48,3 +48,5 @@ from . import replenish_order
 from . import sync_product
 from . import mail_inbox
 from . import fetchmail_server_inbox
+from . import fetchmail_server
+from . import mail_server_source
