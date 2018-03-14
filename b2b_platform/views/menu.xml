@@ -10,12 +10,17 @@
         <menuitem id="ecommerce_menu_root" name="跨境电商" sequence="3" groups="b2b_platform.b2b_shop_operator,b2b_platform.b2b_seller,b2b_platform.b2b_manager"/>
             <menuitem id="account_authorized_menu" parent="ecommerce_menu_root" name="账户授权" sequence="1"/>
             <menuitem id="sale_order_parent_menu" parent="ecommerce_menu_root" name="订单列表" sequence="3"/>
-            <menuitem id="purchase_parent_menu" parent="ecommerce_menu_root" name="分销订单" sequence="5"/>
+            <menuitem id="purchase_parent_menu" parent="ecommerce_menu_root" name="代发采购" sequence="5"/>
             <menuitem id="stock_parent_menu" parent="ecommerce_menu_root" name="发货管理" sequence="7"/>
             <menuitem id="stock_manage_parent_menu" parent="ecommerce_menu_root" name="库存管理" sequence="8"/>
             <menuitem id="fba_replenish_parent_menu" parent="ecommerce_menu_root" name="FBA补货" sequence="10"/>
             <menuitem id="order_appeal_parent_menu" parent="ecommerce_menu_root" name="申诉管理" sequence="12"/>
             <menuitem id="log_menu" parent="ecommerce_menu_root" name="日志" sequence="14"/>
+
+        <menuitem id="b2b_merchant_menu_root" name="平台商户" sequence="4" groups="b2b_platform.b2b_shop_operator,b2b_platform.b2b_seller,b2b_platform.b2b_manager"/>
+            <menuitem id="agent_purchase_parent_menu" parent="b2b_merchant_menu_root" name="代发订单" sequence="1"/>
+            <menuitem id="receive_fba_replenish_order_parent_menu" parent="b2b_merchant_menu_root" name="FBA订单" sequence="3"/>
+            <menuitem id="receive_appeal_order_parent_menu" parent="b2b_merchant_menu_root" name="收到申诉" sequence="5"/>
 
         <menuitem id="stock_menu_root" name="仓储" sequence="5" groups="b2b_platform.b2b_shop_operator,b2b_platform.b2b_seller,b2b_platform.b2b_manager"/>
             <menuitem id="Logistics_manage_menu" parent="stock_menu_root" name="物流管理" sequence="1"/>

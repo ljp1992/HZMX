@@ -137,5 +137,72 @@
             <field name="act_window_id" ref="deliveryed_purchase_order_act"/>
         </record>
         <menuitem id="deliveryed_purchase_order_menu" name="已发货" parent="b2b_platform.purchase_parent_menu" sequence="5" action="deliveryed_purchase_order_act"/>
-	</data>
+
+
+
+
+        <!--<record id="agent_purchase_order_act" model="ir.actions.act_window">-->
+            <!--<field name="name">采购订单</field>-->
+            <!--<field name="res_model">purchase.order</field>-->
+            <!--<field name="view_mode">tree</field>-->
+            <!--<field name="view_type">form</field>-->
+            <!--<field name="domain">[('own_data', '=', True), ('b2b_state', 'in', ['draft'])]</field>-->
+        <!--</record>-->
+        <!--<record id="agent_purchase_order_act_tree" model="ir.actions.act_window.view">-->
+            <!--<field name="sequence" eval="1"/>-->
+            <!--<field name="view_mode">tree</field>-->
+            <!--<field name="view_id" ref="amazon_api.purchase_order_tree"/>-->
+            <!--<field name="act_window_id" ref="agent_purchase_order_act"/>-->
+        <!--</record>-->
+        <!--<record id="agent_purchase_order_act_form" model="ir.actions.act_window.view">-->
+            <!--<field name="sequence" eval="1"/>-->
+            <!--<field name="view_mode">form</field>-->
+            <!--<field name="view_id" ref="amazon_api.b2b_purchase_order_form"/>-->
+            <!--<field name="act_window_id" ref="agent_purchase_order_act"/>-->
+        <!--</record>-->
+        <!--<menuitem id="agent_purchase_order_menu" name="待处理" parent="b2b_platform.agent_purchase_parent_menu" sequence="1" action="agent_purchase_order_act"/>-->
+
+        <!--<record id="agent_purchase_order_act_two" model="ir.actions.act_window">-->
+            <!--<field name="name">采购订单</field>-->
+            <!--<field name="res_model">purchase.order</field>-->
+            <!--<field name="view_mode">tree</field>-->
+            <!--<field name="view_type">form</field>-->
+            <!--<field name="domain">[('own_data', '=', True), ('b2b_state', 'in', ['confirmed'])]</field>-->
+        <!--</record>-->
+        <!--<record id="agent_purchase_order_act_tree_two" model="ir.actions.act_window.view">-->
+            <!--<field name="sequence" eval="1"/>-->
+            <!--<field name="view_mode">tree</field>-->
+            <!--<field name="view_id" ref="amazon_api.purchase_order_tree"/>-->
+            <!--<field name="act_window_id" ref="agent_purchase_order_act_two"/>-->
+        <!--</record>-->
+        <!--<record id="agent_purchase_order_act_form_two" model="ir.actions.act_window.view">-->
+            <!--<field name="sequence" eval="1"/>-->
+            <!--<field name="view_mode">form</field>-->
+            <!--<field name="view_id" ref="amazon_api.b2b_purchase_order_form"/>-->
+            <!--<field name="act_window_id" ref="agent_purchase_order_act_two"/>-->
+        <!--</record>-->
+        <!--<menuitem id="agent_purchase_order_menu_two" name="待发货" parent="b2b_platform.agent_purchase_parent_menu" sequence="3" action="agent_purchase_order_act_two"/>-->
+
+        <!--<record id="agent_deliveryed_purchase_order_act" model="ir.actions.act_window">-->
+            <!--<field name="name">已发货</field>-->
+            <!--<field name="res_model">purchase.order</field>-->
+            <!--<field name="view_mode">tree</field>-->
+            <!--<field name="view_type">form</field>-->
+            <!--<field name="domain">[('own_data', '=', True), ('b2b_state', '=', 'done')]</field>-->
+        <!--</record>-->
+        <!--<record id="purchase_order_act_tree_five" model="ir.actions.act_window.view">-->
+            <!--<field name="sequence" eval="1"/>-->
+            <!--<field name="view_mode">tree</field>-->
+            <!--<field name="view_id" ref="amazon_api.purchase_order_tree"/>-->
+            <!--<field name="act_window_id" ref="agent_deliveryed_purchase_order_act"/>-->
+        <!--</record>-->
+        <!--<record id="purchase_order_act_form_five" model="ir.actions.act_window.view">-->
+            <!--<field name="sequence" eval="1"/>-->
+            <!--<field name="view_mode">form</field>-->
+            <!--<field name="view_id" ref="amazon_api.b2b_purchase_order_form"/>-->
+            <!--<field name="act_window_id" ref="agent_deliveryed_purchase_order_act"/>-->
+        <!--</record>-->
+        <!--<menuitem id="agent_deliveryed_purchase_order_menu" name="已发货" parent="b2b_platform.agent_purchase_parent_menu" sequence="5" action="agent_deliveryed_purchase_order_act"/>-->
+
+    </data>
 </odoo>
