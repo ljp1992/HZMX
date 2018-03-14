@@ -20,8 +20,6 @@
 			<field name="arch" type="xml">
 				<form>
                     <field name="user_type" invisible="1"/>
-                    <!--<field name="hide_platform_price" invisible="1"/>-->
-                    <!--<field name="hide_supplier_price" invisible="1"/>-->
                     <header>
                         <button name="send_request" string="补货申请" type="object" class="oe_highlight"
                                 groups="b2b_platform.b2b_shop_operator, b2b_platform.b2b_seller"
