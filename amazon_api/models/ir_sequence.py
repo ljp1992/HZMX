@@ -13,6 +13,7 @@ class IrSequence(models.Model):
     @api.model
     def get_next_tmpl_system_code(self):
         '''获取下一个产品的系统编号 编码格式为 xxBxxMxxTxx'''
+        print 11111
         record = self.search([('code', '=', 'system_code_seq')], limit=1)
         if not record:
             raise UserError(u'Not found system_code_seq!')

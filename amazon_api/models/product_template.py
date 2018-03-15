@@ -8,9 +8,7 @@ import datetime
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
-    # system_code = fields.Char(required=True, default=lambda self: self.env['ir.sequence'].get_next_tmpl_system_code(),
-    #                           string=u'系统编号')
-    system_code = fields.Char(required=True, string=u'系统编号')
+    system_code = fields.Char(string=u'系统编号')
     merchant_code = fields.Char(string=u'商家编号')
     source_url = fields.Char(string=u'产品来源网址')
     pack_method = fields.Char(string=u'包装方式')
@@ -888,6 +886,8 @@ class ProductTemplate(models.Model):
 
     @api.model
     def create(self, val):
+        if not val.get('system_code'):
+            val['system_code'] = self.env['ir.sequence'].get_next_tmpl_system_code()
         result = super(models.Model, self).create(val)
         if not self.env.context.get('not_create_variant') and val.has_key('attribute_line_ids'):
             result.create_variant()
