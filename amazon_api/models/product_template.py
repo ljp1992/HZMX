@@ -119,9 +119,47 @@ class ProductTemplate(models.Model):
         ('to_delete', u'待删除'),
         ('deleted', u'已删除')], default='pending', string=u'库存状态')
 
+    @api.model
+    def add_tmpl_system_code(self):
+        '''给以前没有添加系统编号的产品添加系统编号'''
+        #给未发布的产品添加系统编号
+        while True:
+            tmpls = self.env['product.template'].sudo().search([
+                ('system_code', '=', False),
+                ('state', '=', 'platform_unpublished'),
+            ], limit=100)
+            print tmpls
+            if tmpls:
+                for tmpl in tmpls:
+                    tmpl.system_code = self.env['ir.sequence'].get_next_tmpl_system_code()
+                    tmpl._set_product_system_code()
+            else:
+                break
+        #给已发布的产品添加系统编号
+        while True:
+            tmpls = self.env['product.template'].sudo().search([
+                ('system_code', '=', False),
+                ('state', '=', 'platform_published'),
+            ], limit=100)
+            print tmpls
+            if tmpls:
+                for tmpl in tmpls:
+                    tmpl.system_code = self.env['ir.sequence'].get_next_tmpl_system_code()
+                    tmpl._set_product_system_code()
+                    for seller_tmpl in tmpl.seller_tmpl_ids:
+                        seller_tmpl.system_code = tmpl.system_code
+                        for seller_pro in seller_tmpl.product_variant_ids:
+                            seller_pro.system_code = seller_pro.platform_product_id.system_code
+                    for shop_tmpl in tmpl.shop_tmpl_ids:
+                        shop_tmpl.system_code = tmpl.system_code
+                        for shop_pro in shop_tmpl.product_variant_ids:
+                            shop_pro.system_code = shop_pro.platform_product_id.system_code
+            else:
+                break
+
     @api.multi
     def _set_product_system_code(self):
-        print 1111,self
+        '''变体添加系统编号'''
         for tmpl in self:
             code = tmpl.system_code
             i = 0
@@ -685,6 +723,7 @@ class ProductTemplate(models.Model):
                 continue
             val = {
                 'name': template.name,
+                'system_code': template.system_code,
                 'state': 'seller',
                 'platform_tmpl_id': template.id,
                 'categ_id': template.categ_id.id,

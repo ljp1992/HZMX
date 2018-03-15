@@ -45,14 +45,10 @@ class ShopTemplateWizard(models.TransientModel):
     @api.multi
     def shop_include(self):
         '''经销商产品收录到店铺'''
-        print 1111,self.env.context
         self.ensure_one()
         template_obj = self.env['product.template']
         active_ids = self.env.context.get('active_ids')
-        print active_ids
         templates = template_obj.sudo().search([('id', 'in', active_ids)])
-        print 2222
-        print templates
         template_ids = []
         for template in templates:
             if template.state != 'seller':
@@ -63,6 +59,7 @@ class ShopTemplateWizard(models.TransientModel):
                 continue
             val = {
                 'name': template.name,
+                'system_code': template.system_code,
                 'platform_tmpl_id': template.platform_tmpl_id.id,
                 'state': 'shop',
                 'shop_id': self.shop_id.id,

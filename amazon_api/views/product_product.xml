@@ -36,7 +36,7 @@
                         </group>
                         <group>
                             <group>
-								<field name="system_code"/>
+								<field name="system_code" readonly="1"/>
 								<field name="merchant_code" attrs="{'invisible':[('state', 'in', ['shop', 'seller'])]}"/>
 								<field name="sku" attrs="{'invisible':[('state', '!=', 'shop')]}"/>
                                 <field name="upc" attrs="{'invisible':[('state', '!=', 'shop')]}"/>

@@ -13,7 +13,6 @@ class IrSequence(models.Model):
     @api.model
     def get_next_tmpl_system_code(self):
         '''获取下一个产品的系统编号 编码格式为 xxBxxMxxTxx'''
-        print 11111
         record = self.search([('code', '=', 'system_code_seq')], limit=1)
         if not record:
             raise UserError(u'Not found system_code_seq!')
@@ -37,7 +36,6 @@ class IrSequence(models.Model):
                     billion += 1
         new_code = u'%dB%dM%dT%d' % (billion, million, thousand, unit)
         record.last_num = new_code
-        print new_code
         return new_code
 
     @api.model

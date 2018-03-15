@@ -52,7 +52,7 @@
                                         <field name="categ_id" options="{'no_create':True}" string="平台分类"/>
                                         <field name="merchant_categ_id" options="{'no_create':True}"
                                             attrs="{'invisible':[('state', 'not in', ['seller', 'shop'])]}"/>
-                                        <field name="system_code"/>
+                                        <field name="system_code" readonly="1"/>
                                         <field name="merchant_code" attrs="{'invisible':[('state', 'in', ['shop', 'seller'])]}"/>
                                     </group>
                                     <group>
@@ -292,6 +292,7 @@
 			<field name="arch" type="xml">
 				<tree>
 					<field name="name"/>
+                    <field name="system_code"/>
 					<field name="product_update"/>
                     <field name="relation_update"/>
                     <field name="image_update"/>
@@ -308,7 +309,6 @@
 				<search string="">
 					<field name="name"/>
                     <field name="system_code"/>
-                    <field name="merchant_code"/>
 					<filter string="待更新" name="wait_upload" domain="['|', '|', '|', '|',
 					    ('product_update', '=', 'pending'),
 					    ('relation_update', '=', 'pending'),
