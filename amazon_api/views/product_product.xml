@@ -9,8 +9,9 @@
 					<field name="id"/>
 					<field name="name"/>
 					<field name="attribute_value_ids"/>
+					<field name="system_code"/>
+                    <field name="merchant_code"/>
 					<field name="qty_available"/>
-                    <!--<field name="virtual_available"/>-->
 				</tree>
 			</field>
 		</record>
@@ -34,9 +35,11 @@
 							<field name="attribute_value_ids" widget="many2many_tags" readonly="1"/>
                         </group>
                         <group>
-                            <group attrs="{'invisible':[('state', '!=', 'shop')]}">
-								<field name="sku"/>
-                                <field name="upc"/>
+                            <group>
+								<field name="system_code"/>
+								<field name="merchant_code" attrs="{'invisible':[('state', 'in', ['shop', 'seller'])]}"/>
+								<field name="sku" attrs="{'invisible':[('state', '!=', 'shop')]}"/>
+                                <field name="upc" attrs="{'invisible':[('state', '!=', 'shop')]}"/>
                             </group>
 							<group>
 								<field name="volume" string="体积(m³)"/>
@@ -93,12 +96,25 @@
 				</form>
 			</field>
 		</record>
+
+		<record id="product_product_search" model="ir.ui.view">
+			<field name="name">product_product_search</field>
+			<field name="model">product.product</field>
+			<field name="arch" type="xml">
+				<search>
+					<field name="name"/>
+                    <field name="system_code"/>
+                    <field name="merchant_code"/>
+				</search>
+			</field>
+		</record>
 		
 		<record id="product_product_act" model="ir.actions.act_window">
             <field name="name">产品变体</field>
             <field name="res_model">product.product</field>
             <field name="view_mode">tree</field>
             <field name="view_type">form</field>
+			<field name="search_view_id" ref="product_product_search"/>
 			<field name="domain">[('product_owner', '=', True), ('state', '=', 'platform_published')]</field>
 			<!--<field name="context">{'view_own_product': True}</field>-->
         </record>

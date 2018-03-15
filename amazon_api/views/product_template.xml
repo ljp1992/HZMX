@@ -5,10 +5,12 @@
 			<field name="name">product_template_tree</field>
 			<field name="model">product.template</field>
 			<field name="arch" type="xml">
-				<!--<tree create="context.get('create')">-->
                 <tree>
 					<field name="name"/>
                     <field name="merchant_id" groups="base.group_no_one"/>
+                    <field name="categ_id"/>
+                    <field name="system_code"/>
+                    <field name="merchant_code"/>
 				</tree>
 			</field>
 		</record>
@@ -50,6 +52,8 @@
                                         <field name="categ_id" options="{'no_create':True}" string="平台分类"/>
                                         <field name="merchant_categ_id" options="{'no_create':True}"
                                             attrs="{'invisible':[('state', 'not in', ['seller', 'shop'])]}"/>
+                                        <field name="system_code"/>
+                                        <field name="merchant_code" attrs="{'invisible':[('state', 'in', ['shop', 'seller'])]}"/>
                                     </group>
                                     <group>
                                         <field name="supplier_price"
@@ -178,6 +182,8 @@
 			<field name="arch" type="xml">
 				<search string="">
 					<field name="name"/>
+                    <field name="system_code"/>
+                    <field name="merchant_code"/>
 				</search>
 			</field>
 		</record>
@@ -216,6 +222,8 @@
 			<field name="arch" type="xml">
 				<search string="">
 					<field name="name"/>
+                    <field name="system_code"/>
+                    <field name="merchant_code"/>
 					<filter string="我发布的产品" name="publish_by_me" domain="[('publish_id', '=', uid)]"/>
 				</search>
 			</field>
@@ -299,6 +307,8 @@
 			<field name="arch" type="xml">
 				<search string="">
 					<field name="name"/>
+                    <field name="system_code"/>
+                    <field name="merchant_code"/>
 					<filter string="待更新" name="wait_upload" domain="['|', '|', '|', '|',
 					    ('product_update', '=', 'pending'),
 					    ('relation_update', '=', 'pending'),

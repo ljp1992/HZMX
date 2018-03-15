@@ -1,8 +1,10 @@
 # -*- coding:utf-8 -*-
 import re
 from lxml import etree
-import requests
+import requests,re
 
 import copy
 
-print u'共%d个产品，已创建%d个' % (1, 2)
+a = '1B22M33T991'
+search_obj = re.match(r'(.*?)B(.*?)M(.*?)T(.*)', a)
+print search_obj.group(1),search_obj.group(2),search_obj.group(3),search_obj.group(4)

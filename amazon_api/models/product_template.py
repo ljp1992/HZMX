@@ -8,6 +8,9 @@ import datetime
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
+    system_code = fields.Char(required=True, default=lambda self: self.env['ir.sequence'].get_next_tmpl_system_code(),
+                              string=u'系统编号')
+    merchant_code = fields.Char(string=u'商家编号')
     source_url = fields.Char(string=u'产品来源网址')
     pack_method = fields.Char(string=u'包装方式')
     material = fields.Char(string=u'产品材料')
@@ -116,6 +119,22 @@ class ProductTemplate(models.Model):
         ('failed', u'失败'),
         ('to_delete', u'待删除'),
         ('deleted', u'已删除')], default='pending', string=u'库存状态')
+
+    @api.multi
+    def _set_product_system_code(self):
+        print 1111,self
+        for tmpl in self:
+            code = tmpl.system_code
+            i = 0
+            for pro in tmpl.product_variant_ids:
+                i = int(i)
+                i += 1
+                if i < 10:
+                    i = '00' + str(i)
+                elif i < 100:
+                    i = '0' + str(i)
+                pro.system_code = code + '-' + str(i)
+
 
     @api.model
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
@@ -872,6 +891,7 @@ class ProductTemplate(models.Model):
         if not self.env.context.get('not_create_variant') and val.has_key('attribute_line_ids'):
             result.create_variant()
         result.check_data(val)
+        result._set_product_system_code()
         return result
 
     @api.multi
@@ -880,6 +900,7 @@ class ProductTemplate(models.Model):
         if not self.env.context.get('not_create_variant') and val.has_key('attribute_line_ids'):
             self.create_variant()
         self.check_data(val)
+        self._set_product_system_code()
         return result
 
     @api.multi
@@ -930,7 +951,8 @@ class ProductTemplate(models.Model):
             'view_mode': 'tree,form',
             'view_type': 'form',
             'views': [(self.env.ref('amazon_api.product_product_tree').id, 'tree'),
-                      (self.env.ref('amazon_api.product_product_form').id, 'form')],
+                      (self.env.ref('amazon_api.product_product_form').id, 'form'),],
+            'search_view_id': (self.env.ref('amazon_api.product_product_search').id, ),
             'res_model': 'product.product',
             'domain': [('product_tmpl_id', '=', self.id)],
             'target': 'current',

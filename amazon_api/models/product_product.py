@@ -6,6 +6,8 @@ from odoo.exceptions import UserError
 class ProductProduct(models.Model):
     _inherit = 'product.product'
 
+    system_code = fields.Char(required=True, string=u'系统编号')
+    merchant_code = fields.Char(string=u'商家编号')
     sku = fields.Char(string=u'SKU')
     upc = fields.Char(string=u'UPC')
     asin = fields.Char(string=u'ASIN')
