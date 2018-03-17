@@ -29,11 +29,10 @@ class ProductTemplate(models.Model):
     english_declare = fields.Text(string=u'申报英文')
 
     has_battery = fields.Boolean(string=u'是否带电池')
-    hide_supplier_price = fields.Boolean(compute='_hide_supplier_price', string=u'隐藏供应商成本价')
+    hide_supplier_price = fields.Boolean(compute='_hide_supplier_price', store=False, string=u'隐藏供应商成本价')
     show_merchant_include_button = fields.Boolean(compute='_show_merchant_include_button', string=u'显示经销商收录按钮')
-    # my_template = fields.Boolean(compute='', search='_my_template', string=u'产品是否为用户所拥有')
-    # show_shop_include_button = fields.Boolean(compute='_show_shop_include_button', string='显示店铺收录按钮')
-    hide_platform_price = fields.Boolean(compute='_hide_platform_price')
+    hide_platform_price = fields.Boolean(compute='_hide_platform_price', default=True, store=False)
+    platform_pro_included = fields.Boolean(search='_search_platform_pro_included', store=False, help=u'我收录的平台产品')
 
     handle_days = fields.Integer(string=u'处理天数')
 
@@ -119,6 +118,44 @@ class ProductTemplate(models.Model):
         ('to_delete', u'待删除'),
         ('deleted', u'已删除')], default='pending', string=u'库存状态')
 
+    @api.multi
+    def view_seller_tmpl(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': u'经销商产品',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'views': [(self.env.ref('amazon_api.product_template_form').id, 'form')],
+            'res_model': 'product.template',
+            'res_id': self.seller_tmpl_id.id,
+            'target': 'current',
+        }
+
+    @api.multi
+    def view_platform_tmpl(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': u'经销商产品',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'views': [(self.env.ref('amazon_api.product_template_form').id, 'form')],
+            'res_model': 'product.template',
+            'res_id': self.platform_tmpl_id.id,
+            'target': 'current',
+        }
+
+    @api.model
+    def _search_platform_pro_included(self, operation, value):
+        merchant = self.env.user.merchant_id or self.env.user
+        seller_tmpls = self.env['product.template'].sudo().search([
+            ('state', '=', 'seller'),
+            ('merchant_id', '=', merchant.id),
+        ])
+        supplier_tmpl_ids = [seller_tmpl.platform_tmpl_id.id for seller_tmpl in seller_tmpls]
+        return [('id', 'in', supplier_tmpl_ids)]
+
     @api.model
     def add_tmpl_system_code(self):
         '''给以前没有添加系统编号的产品添加系统编号'''
@@ -182,7 +219,8 @@ class ProductTemplate(models.Model):
             if shop_tmpl_act_id != action_id:
                 actions = result.get('toolbar', {}).get('action', [])
                 upload_tmpl_xml_ids = ['amazon_api.upload_variant_server', 'amazon_api.upload_image_server',
-                                       'amazon_api.upload_price_server','amazon_api.upload_stock_server']
+                                       'amazon_api.upload_price_server','amazon_api.upload_stock_server',
+                                       'amazon_api.upload_relationship_server', 'amazon_api.modify_handle_days_act']
                 new_actions = []
                 for action in actions:
                     xml_id = action.get('xml_id', '')
@@ -510,7 +548,7 @@ class ProductTemplate(models.Model):
                     <PurgeAndReplace>false</PurgeAndReplace>
                     <Message>%s</Message>
                 </AmazonEnvelope>""" % (seller.merchant_id_num, message)
-            print message
+            print shop.country_id,shop.country_id.code
             mws_obj = Feeds(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
                             account_id=str(seller.merchant_id_num), region=shop.country_id.code, proxies={})
             try:
@@ -1062,6 +1100,36 @@ class ProductTemplate(models.Model):
             'domain': [('product_tmpl_id', '=', self.id)],
             'target': 'current',
         }
+
+    @api.model
+    def modify_handle_days(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': u'批量修改处理天数',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'views': [(self.env.ref('amazon_api.handle_days_wizard').id, 'form'), ],
+            'res_model': 'amazon.wizard',
+            'target': 'new',
+        }
+
+    ######################################### 历史数据处理 #################################################
+
+    @api.model
+    def add_seller_tmpl_id(self):
+        '''店铺产品字段seller_tmpl_id没有值'''
+        shop_tmpls = self.env['product.template'].search([
+            ('state', '=', 'shop'),
+            ('seller_tmpl_id', '=', False),
+        ])
+        for shop_tmpl in  shop_tmpls:
+            seller_tmpl = self.env['product.template'].search([
+                ('state', '=', 'seller'),
+                ('platform_tmpl_id', '=', shop_tmpl.platform_tmpl_id.id),
+                ('merchant_id', '=', shop_tmpl.merchant_id.id),
+            ], limit=1)
+            if seller_tmpl:
+                shop_tmpl.seller_tmpl_id = seller_tmpl.id
 
 
     ######################################### 测试脚本 #################################################

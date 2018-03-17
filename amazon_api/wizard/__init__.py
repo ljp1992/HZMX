@@ -6,3 +6,4 @@ from . import sync_sale_order
 from . import stock_adjust
 from . import stock_immediate_transfer
 from . import test
+from . import modify_handle_days

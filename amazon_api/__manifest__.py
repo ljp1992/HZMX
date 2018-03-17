@@ -55,6 +55,7 @@
         'views/fetchmail_server_inbox.xml',
         'views/mail_server_source.xml',
         'views/mail_inbox.xml',
+        # 'views/amazon_category.xml',
 
         'wizard_views/shop_template_wizard.xml',
         'wizard_views/amazon_wizard.xml',
@@ -62,6 +63,7 @@
         'wizard_views/sync_sale_order.xml',
         'wizard_views/stock_immediate_transfer.xml',
         'wizard_views/test.xml',
+        'wizard_views/modify_handle_days.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

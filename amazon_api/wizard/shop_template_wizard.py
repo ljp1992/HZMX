@@ -60,6 +60,7 @@ class ShopTemplateWizard(models.TransientModel):
             val = {
                 'name': template.name,
                 'system_code': template.system_code,
+                'seller_tmpl_id': template.id,
                 'platform_tmpl_id': template.platform_tmpl_id.id,
                 'state': 'shop',
                 'shop_id': self.shop_id.id,

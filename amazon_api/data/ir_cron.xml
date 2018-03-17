@@ -20,7 +20,7 @@
         </record>
 
         <record id="handle_bug" model="ir.cron">
-            <field name="name">处理</field>
+            <field name="name">bug处理</field>
             <field name="user_id">1</field>
             <field name="active" eval="False"/>
             <field name="model">ir.cron</field>
@@ -35,6 +35,18 @@
             <field name="model">submission.history</field>
             <field name="function">get_feed_result_bacdstage</field>
             <field name="interval_number">3</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="args" eval="False"/>
+        </record>
+
+        <record id="down_load_sale_order" model="ir.cron">
+            <field name="name">下载亚马逊订单</field>
+            <field name="user_id">1</field>
+            <field name="active" eval="True"/>
+            <field name="model">sync.sale.order</field>
+            <field name="function">download_sale_order_backstage</field>
+            <field name="interval_number">30</field>
             <field name="interval_type">minutes</field>
             <field name="numbercall">-1</field>
             <field name="args" eval="False"/>

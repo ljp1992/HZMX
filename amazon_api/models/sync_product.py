@@ -148,7 +148,7 @@ class SyncProduct(models.Model):
             pro[2]['asin'] = ''
             pro[2]['sku'] = ''
         supplier_val = copy.deepcopy(seller_val)
-        supplier_val['state'] = 'platform_published'
+        supplier_val['state'] = 'platform_unpublished'
         shop_tmpl = tmpl_obj.create(val)
         seller_tmpl = tmpl_obj.create(seller_val)
         platform_tmpl = tmpl_obj.create(supplier_val)

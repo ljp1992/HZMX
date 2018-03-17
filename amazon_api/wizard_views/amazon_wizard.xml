@@ -10,7 +10,6 @@
 					<group>
 						<group>
 							<field name="logistics_company_name" required="True"/>
-							<!--<field name="logistics_company_code"/>-->
 							<field name="shipment_number" required="True"/>
 							<field name="delivery_time" required="True"/>
 						</group>

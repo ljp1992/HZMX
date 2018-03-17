@@ -7,7 +7,7 @@
 			<field name="arch" type="xml">
                 <tree>
 					<field name="name"/>
-                    <field name="merchant_id" groups="base.group_no_one"/>
+                    <field name="merchant_id" string="供应商"/>
                     <field name="categ_id"/>
                     <field name="system_code"/>
                     <field name="merchant_code"/>
@@ -39,6 +39,8 @@
                             <button name="view_variant" type="object" icon="fa-sitemap" class="oe_stat_button">
                                 <field string="变体" name="product_variant_count" widget="statinfo"/>
                             </button>
+                            <button name="view_seller_tmpl" string="经销商产品" type="object" icon="fa-sitemap" class="oe_stat_button" attrs="{'invisible': [('state', 'in', ['platform_unpublished', 'platform_published', 'seller'])]}"/>
+                            <button name="view_platform_tmpl" string="供应商产品" type="object" icon="fa-sitemap" class="oe_stat_button" attrs="{'invisible': [('state', 'in', ['platform_unpublished', 'platform_published'])]}"/>
                         </div>
                         <field name="main_img_url" widget="form_image" class="oe_avatar"/>
                         <div class="oe_title">
@@ -56,6 +58,7 @@
                                         <field name="merchant_code" attrs="{'invisible':[('state', 'in', ['shop', 'seller'])]}"/>
                                     </group>
                                     <group>
+                                        <field name="merchant_id" string="供应商" readonly="1" options="{'no_open': True}"/>
                                         <field name="supplier_price"
                                                attrs="{'invisible':[('hide_supplier_price', '=', True)]}"/>
                                         <field name="platform_price"
@@ -166,11 +169,8 @@
                                         <button name="set_tmpl_main" type="object" string="设为主图"/>
                                     </tree>
                                     <form>
-                                        <field name="url" widget="form_image"/>
-                                        <div class="oe_title">
-                                            <label class="oe_edit_only" for="name"/>
-                                            <h1><field name="name"/></h1>
-                                        </div>
+                                        <field name="url" widget="form_image" readonly="1"/>
+                                        <field name="name" readonly="1"/>
                                     </form>
                                 </field>
 							</page>
@@ -258,6 +258,7 @@
                     <field name="system_code"/>
                     <field name="merchant_code"/>
 					<filter string="我发布的产品" name="publish_by_me" domain="[('publish_id', '=', uid)]"/>
+                    <filter string="我收录的产品" domain="[('platform_pro_included', '=', True)]"/>
 				</search>
 			</field>
 		</record>
@@ -300,21 +301,18 @@
             <field name="search_view_id" ref="product_template_search"/>
             <field name="context">{'create': False}</field>
         </record>
-
         <record id="merchant_template_act_tree" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="product_template_tree"/>
             <field name="act_window_id" ref="merchant_template_act"/>
         </record>
-
         <record id="merchant_template_act_form" model="ir.actions.act_window.view">
             <field name="sequence" eval="1"/>
             <field name="view_mode">form</field>
             <field name="view_id" ref="product_template_form"/>
             <field name="act_window_id" ref="merchant_template_act"/>
         </record>
-
         <menuitem id="merchant_product_menu" name="商户产品" parent="b2b_platform.merchant_tmpl_menu" sequence="1"
                   action="merchant_template_act"/>
 
@@ -326,6 +324,8 @@
 				<tree>
 					<field name="name"/>
                     <field name="shop_id"/>
+                    <field name="merchant_id" string="供应商"/>
+                    <field name="merchant_categ_id"/>
                     <field name="system_code"/>
 					<field name="product_update"/>
                     <field name="relation_update"/>
@@ -367,6 +367,8 @@
 					    ('image_update', '=', 'failed'),
 					    ('price_update', '=', 'failed'),
 					    ('stock_update', '=', 'failed')]"/>
+                    <filter string="店铺" context="{'group_by': 'shop_id'}"/>
+                    <filter string="商户分类" context="{'group_by': 'merchant_categ_id'}"/>
 				</search>
 			</field>
 		</record>

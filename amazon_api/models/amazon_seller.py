@@ -19,14 +19,6 @@ class AmazonSeller(models.Model):
 
     marketplace_ids = fields.Many2many('amazon.marketplace', 'seller_market_rel', 'seller_id', 'market_id',)
 
-    # @api.model
-    # def _default_merchant_id(self):
-    #     partner = self.env.user.partner_id
-    #     if partner.parent_id:
-    #         return partner.parent_id.id
-    #     else:
-    #         return partner.id
-
     @api.model
     def create(self, val):
         seller = super(AmazonSeller, self).create(val)
@@ -49,35 +41,74 @@ class AmazonSeller(models.Model):
         '''create marketplaces of seller'''
         marketplace_obj = self.env['amazon.marketplace']
         for seller in self:
-            marketplaces = []
-            mws_obj = Sellers(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
-                              account_id=str(seller.merchant_id_num))
-            try:
-                result = mws_obj.list_marketplace_participations()
-                marketplaces.append(result.parsed)
-            except Exception, e:
-                raise UserError(str(e))
-            next_token = result.parsed.get('NextToken', {}).get('value')
-            while next_token:
+            marketplace_ids = set()
+            countrys = self.env['amazon.country'].sudo().search([])
+            regions = [country.code for country in countrys]
+            print regions
+            for region in regions:
+                print region
                 try:
-                    result = mws_obj.list_marketplace_participations_by_next_token(next_token)
-                    marketplaces.append(result.parsed)
+                    mws_obj = Sellers(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
+                                      account_id=str(seller.merchant_id_num), region=region)
+                    result = mws_obj.list_marketplace_participations()
                 except Exception, e:
-                    raise UserError(str(e))
-                next_token = result.parsed.get('NextToken', {}).get('value')
-            marketplace_ids = []
-            print marketplaces
-            for marketplace in marketplaces:
-                print marketplace
-                for item in marketplace.get('ListMarketplaces', {}).get('Marketplace', []):
-                    marketplace_id = item.get('MarketplaceId', {}).get('value', '')
-                    marketplace = marketplace_obj.search([('marketplace_id', '=', marketplace_id)])
-                    if not marketplace:
-                        continue
-                        raise UserError(u'Not found marketplace_id %s in amazon.marketplace model!' % marketplace_id)
-                    if marketplace:
-                        marketplace_ids.append(marketplace.id)
-            seller.marketplace_ids = [(6, False, marketplace_ids)]
+                    print e
+                    continue
+                    # raise UserError(str(e))
+                data = result.parsed
+                print data
+                Participation = data.get('ListParticipations', {}).get('Participation')
+                if Participation:
+                    if type(Participation) is not list:
+                        Participation = [Participation]
+                    for part in Participation:
+                        marketplace_id = part.get('MarketplaceId', {}).get('value', False)
+                        print 'marketplace_id:',marketplace_id
+                        if marketplace_id:
+                            marketplace_ids.add(marketplace_id)
+            print marketplace_ids
+            marketplace_ids = list(marketplace_ids)
+            marketplaces = marketplace_obj.search([('marketplace_id', 'in', marketplace_ids)])
+            seller.marketplace_ids = [(6, False, marketplaces.ids)]
+
+
+    # @api.multi
+    # def load_marketplace(self):
+    #     '''create marketplaces of seller'''
+    #     marketplace_obj = self.env['amazon.marketplace']
+    #     for seller in self:
+    #         marketplaces = []
+    #         mws_obj = Sellers(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
+    #                           account_id=str(seller.merchant_id_num), region='JP')
+    #         try:
+    #             result = mws_obj.list_marketplace_participations()
+    #             print result.parsed
+    #             marketplaces.append(result.parsed)
+    #         except Exception, e:
+    #             raise UserError(str(e))
+    #         next_token = result.parsed.get('NextToken', {}).get('value')
+    #         while next_token:
+    #             try:
+    #                 result = mws_obj.list_marketplace_participations_by_next_token(next_token)
+    #                 print result.parsed
+    #                 marketplaces.append(result.parsed)
+    #             except Exception, e:
+    #                 raise UserError(str(e))
+    #             next_token = result.parsed.get('NextToken', {}).get('value')
+    #         # print marketplaces
+    #         # marketplace_ids = []
+    #         # print marketplaces
+    #         # for marketplace in marketplaces:
+    #         #     print marketplace
+    #         #     for item in marketplace.get('ListMarketplaces', {}).get('Marketplace', []):
+    #         #         marketplace_id = item.get('MarketplaceId', {}).get('value', '')
+    #         #         marketplace = marketplace_obj.search([('marketplace_id', '=', marketplace_id)])
+    #         #         if not marketplace:
+    #         #             continue
+    #         #             raise UserError(u'Not found marketplace_id %s in amazon.marketplace model!' % marketplace_id)
+    #         #         if marketplace:
+    #         #             marketplace_ids.append(marketplace.id)
+    #         # seller.marketplace_ids = [(6, False, marketplace_ids)]
 
     # @api.model
     # def return_act_view(self):

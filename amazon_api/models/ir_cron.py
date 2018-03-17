@@ -18,7 +18,8 @@ class IrCron(models.Model):
 
     def handle_history_data(self):
         '''历史数据处理'''
-        self.env['product.template'].add_tmpl_system_code() #给以前没有添加系统编号的产品添加系统编号
+        # self.env['product.template'].add_tmpl_system_code() #给以前没有添加系统编号的产品添加系统编号
+        self.env['product.template'].add_seller_tmpl_id()
         return
 
     @api.model

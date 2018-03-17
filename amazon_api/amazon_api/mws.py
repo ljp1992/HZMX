@@ -177,6 +177,8 @@ class MWS( object ):
         
         request_description = '&'.join( ['%s=%s' % ( k, urllib.quote( params[k], safe='-_.~' ).encode( 'utf-8' ) ) for k in sorted( params )] )
         signature = self.calc_signature( method, request_description )
+
+        # print self.domain
         url = '%s%s?%s&Signature=%s' % ( self.domain, self.uri, request_description, urllib.quote( signature ) )
         headers = {'User-Agent': 'python-amazon-mws/0.0.1 (Language=Python)'}
         headers.update( kwargs.get( 'extra_headers', {} ) )
@@ -186,7 +188,7 @@ class MWS( object ):
             # My answer is, here i have to get the url parsed string of params in order to sign it, so
             # if i pass the params dict as params to request, request will repeat that step because it will need
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
-            # print url
+            # print url,kwargs.get( 'body', '' ),headers
             response = request( method, url, data=kwargs.get( 'body', '' ), headers=headers,proxies=self.proxies or {})
             self.response = response
             if response.status_code!=200:

@@ -11,8 +11,6 @@ class SyncSaleOrder(models.TransientModel):
     start_date = fields.Datetime(string=u'起始日期', default=lambda self: self.get_start_date(), required=True)
     end_date = fields.Datetime(string=u'终止日期', default=lambda self: self.get_end_date(), required=True)
 
-    # shop_ids = fields.Many2many('amazon.shop', 'wizard_shop_rel', 'wizard_id', 'shop_id',
-    #                             default=lambda self: self._get_default_shops, string=u'店铺')
     shop_ids = fields.Many2many('amazon.shop', 'wizard_shop_rel', 'wizard_id', 'shop_id', required=True, string=u'店铺')
 
     @api.model
@@ -41,20 +39,45 @@ class SyncSaleOrder(models.TransientModel):
         if end_date > datetime.now():
             raise UserError('终止日期不能大于当前日期！')
 
+    @api.model
+    def download_sale_order_backstage(self):
+        '''后台执行 下载亚马逊订单'''
+        print u'下载亚马逊订单'
+        merchants = self.env['res.users'].search([('user_type', '=', 'merchant')])
+        for merchant in merchants:
+            shops = self.env['amazon.shop'].sudo().search([
+                ('merchant_id', '=', merchant.id),
+            ])
+            if shops:
+                wizard = self.env['sync.sale.order'].create({
+                    'start_date': datetime.now() - timedelta(days=1),
+                    'shop_ids': [(6, 0, shops.ids)],
+                })
+                wizard.download_sale_order()
+
     @api.multi
     def download_sale_order(self):
-        '''download sale_order new'''
-        print 'download sale_order'
-        self.ensure_one()
+        '''下载亚马逊订单'''
+        for order in self:
+            order.download_sale_order_start()
+
+    @api.multi
+    def download_sale_order_start(self):
         shops = self.shop_ids
+        print shops
+        if not shops:
+            return
+        merchant = shops[0].seller_id.merchant_id
         partner_obj = self.env['res.partner']
         country_obj = self.env['amazon.country']
-        # state_obj = self.env['res.country.state']
         currency_obj = self.env['amazon.currency']
         sale_order_obj = self.env['sale.order']
         product_obj = self.env['product.product']
         log_obj = self.env['sync.sale.order.log']
-        log_val = {'message': u'订单同步成功！'}
+        log_val = {
+            'merchant_id': merchant.id,
+            'message': u'订单同步成功！',
+        }
         log_lines = []
         orderstatus = ('Unshipped', 'PartiallyShipped', 'Shipped')
         created_after = datetime.strptime(self.start_date, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -64,14 +87,15 @@ class SyncSaleOrder(models.TransientModel):
             seller = shop.seller_id
             marketplaceids = [shop.marketplace_id.marketplace_id]
             country = shop.country_id
-            mws_obj = Orders(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
-                             account_id=str(seller.merchant_id_num), region=country.code, proxies={})
             try:
+                mws_obj = Orders(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
+                                 account_id=str(seller.merchant_id_num), region=country.code, proxies={})
                 result = mws_obj.list_orders(marketplaceids=marketplaceids, created_after=created_after,
                                              created_before=created_before, orderstatus=orderstatus,
                                              fulfillment_channels=('MFN',))
             except Exception, e:
-                raise Warning(str(e))
+                print e
+                # raise Warning(str(e))
             orders = result.parsed.get('Orders', {}).get('Order', {})
             if type(orders) is not list:
                 orders = [orders]
@@ -130,7 +154,10 @@ class SyncSaleOrder(models.TransientModel):
                 exist_product = True
                 for order_item in OrderItem:
                     sku = order_item.get('SellerSKU', {}).get('value', '')
-                    shop_product = product_obj.search([('sku', '=', sku)], limit=1)
+                    shop_product = product_obj.search([
+                        ('sku', '=', sku),
+                        ('shop_id', '=', shop.id),
+                    ], limit=1)
                     if not shop_product:
                         log_lines.append((0, False, {
                             'order_num': e_order,

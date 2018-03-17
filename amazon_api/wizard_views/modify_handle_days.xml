@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<!--处理天数-->
+		<record id="handle_days_wizard" model="ir.ui.view">
+			<field name="name">handle_days_wizard</field>
+			<field name="model">modify.handle.days</field>
+			<field name="arch" type="xml">
+				<form>
+					<group>
+						<group>
+							<field name="handle_days" required="True"/>
+						</group>
+					</group>
+					<footer>
+						<button string='批量修改处理天数' name="modify_handle_days" type="object" class="btn-primary"/>
+						<button string="取消" class="btn-default" special="cancel"/>
+					</footer>
+				</form>
+			</field>
+		</record>
+        
+        <act_window
+            id="modify_handle_days_act"
+            name="批量修改处理天数"
+            res_model="modify.handle.days"
+            src_model="product.template"
+            view_mode="form"
+            multi="True"
+            target="new"
+            key2="client_action_multi"
+        />
+	</data>
+</odoo>
