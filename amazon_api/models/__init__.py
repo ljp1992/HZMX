@@ -50,3 +50,5 @@ from . import mail_inbox
 from . import fetchmail_server_inbox
 from . import fetchmail_server
 from . import mail_server_source
+from . import search_term
+from . import bullet_point

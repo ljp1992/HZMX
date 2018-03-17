@@ -30,7 +30,7 @@ class SubmissionHistory(models.Model):
         ('fail', u'上传失败')], default='uploading', string=u'上传状态')
     type = fields.Selection([
         ('product_update', u'变体信息'),
-        ('relation_update', u'母子关系'),
+        ('relation_update', u'父子关系'),
         ('image_update', u'图片'),
         ('price_update', u'价格'),
         ('stock_update', u'库存'),

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="test_tree" model="ir.ui.view">
+			<field name="name">test_tree</field>
+			<field name="model">test</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="name"/>
+					<field name="shop_id"/>
+				</tree>
+			</field>
+		</record>
+
+		<record id="test_form" model="ir.ui.view">
+			<field name="name">test_form</field>
+			<field name="model">test</field>
+			<field name="arch" type="xml">
+				<form>
+					<header>
+                        <button name="get_product_info" string="获取产品数据" type="object" class="oe_highlight"/>
+					</header>
+					<sheet>
+						<group>
+							<group>
+                                <field name="shop_id" options="{'no_create': True}"/>
+							</group>
+							<group>
+                                <field name="type"/>
+								<field name="name"/>
+							</group>
+						</group>
+                        <group>
+                            <field name="result" nolabel="1"/>
+                        </group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+		<record id="test_act" model="ir.actions.act_window">
+            <field name="name">获取产品信息</field>
+            <field name="res_model">test</field>
+            <field name="view_mode">tree</field>
+            <field name="view_type">form</field>
+        </record>
+
+        <record id="test_act_tree" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="test_tree"/>
+            <field name="act_window_id" ref="test_act"/>
+        </record>
+
+        <record id="test_act_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="test_form"/>
+            <field name="act_window_id" ref="test_act"/>
+        </record>
+
+        <menuitem id="test_menu" name="获取产品信息" parent="b2b_platform.shop_tmpl_menu" sequence="3"
+                  action="test_act" groups="base.group_no_one"/>
+	</data>
+</odoo>

@@ -116,3 +116,13 @@ replenish_order_line_manager_id,replenish_order_line,model_replenish_order_line,
 sync_product_operator_id,sync_product,model_sync_product,b2b_platform.b2b_shop_operator,1,1,1,1
 sync_product_merchant_id,sync_product,model_sync_product,b2b_platform.b2b_seller,1,1,1,1
 sync_product_manager_id,sync_product,model_sync_product,b2b_platform.b2b_manager,1,1,1,1
+
+search_term_operator_id,search_term,model_search_term,b2b_platform.b2b_shop_operator,1,1,1,1
+search_term_merchant_id,search_term,model_search_term,b2b_platform.b2b_seller,1,1,1,1
+search_term_manager_id,search_term,model_search_term,b2b_platform.b2b_manager,1,1,1,1
+
+bullet_point_operator_id,bullet_point,model_bullet_point,b2b_platform.b2b_shop_operator,1,1,1,1
+bullet_point_merchant_id,bullet_point,model_bullet_point,b2b_platform.b2b_seller,1,1,1,1
+bullet_point_manager_id,bullet_point,model_bullet_point,b2b_platform.b2b_manager,1,1,1,1
+
+

@@ -7,7 +7,13 @@ class ProductAttribute(models.Model):
     _inherit = 'product.attribute'
     _order = "id asc"
 
-    english_name = fields.Char(string=u'英文名称')
+    english_name = fields.Char(required=True, string=u'英文')
+    chinese = fields.Char(string=u'中文')
+    spanish = fields.Char(string=u'西班牙语')
+    german = fields.Char(string=u'德文')
+    french = fields.Char(string=u'法语')
+    italian = fields.Char(string=u'意大利语')
+    japanese = fields.Char(string=u'日语')
 
     amazon_categ_ids = fields.Many2many('amazon.category', 'attribute_amazon_categ_rel', 'attr_id', 'categ_id',
                                         string=u'亚马逊模板')

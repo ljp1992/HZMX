@@ -20,3 +20,9 @@ class IrCron(models.Model):
         '''历史数据处理'''
         self.env['product.template'].add_tmpl_system_code() #给以前没有添加系统编号的产品添加系统编号
         return
+
+    @api.model
+    def handle_bug(self):
+        lang = self.env['amazon.lang'].search([('name', '=', 'Janpanese')])
+        lang.name = 'Japanese'
+        return

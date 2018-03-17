@@ -28,7 +28,6 @@
         'views/product_product.xml',
         'views/product_attribute.xml',
         'views/product_attribute_value.xml',
-        'views/product_description.xml',
         'views/product_brand.xml',
         'views/freight_template.xml',
         'views/shop_template.xml',
@@ -62,6 +61,7 @@
         'wizard_views/stock_adjust.xml',
         'wizard_views/sync_sale_order.xml',
         'wizard_views/stock_immediate_transfer.xml',
+        'wizard_views/test.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

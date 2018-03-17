@@ -1,10 +1,32 @@
 问题:
 一级：
+1。产品的卖点描述、关键词、详细说明上传 1.pet supplies     2.sports&outdoors  3.home&kitchen
+2。店铺产品可以方便的追溯到商户产品、供应商产品，查看价格、商户加价率、对店铺加价率、供应商
+3。产品页面显示调整。图片 title 价格 供应商，直观展示
+4。上传父子关系问题核实,更名为父子关系
+5。批量修改处理天数后，批量上传
+6。后台排程批量下载订单 半个小时
+8。隐藏平台价格
+9。修改session时长
+7。邮件修改密码
+8.我收录的产品
+。日本站，欧洲站的访问入库是不一样的
+欧洲站：
+卖家编号:A1GI7B6FHY9ER1
+访问编号:AKIAJFEMUPG662S4B3VA
+密钥:XZA1pahUIYWY4syG4QoRrAvz8pDjUCvW2k03AglN
+
+卖家ID：A6N1U0XOB81WO
+AWS密钥ID：AKIAIQQVIRRWAMRAWD3Q
+密钥：xooYfLbeRhWjzsZIr7tmsCQIAyT5s6ZrwWDEGtmJ
+店铺Id（marketplace ID）：A1VC38T7YXB528
+
+。欧洲五个国家的sku是一样的
+
 。邮件
 。产品下载
 。平台采购、自有发货、申诉、fba补货、补货测试完善
 。tree视图字段添加
-。图片oss服务器地址配置
 
 二级：
 。fba供应商发票。一部分由供应商仓库发货，一部分由第三方仓库发货，运费怎么结算

@@ -122,6 +122,39 @@
                                         <field name="lang_id"/>
                                         <field name="title"/>
                                     </tree>
+                                    <form>
+                                        <sheet>
+                                            <group>
+                                                <group>
+                                                    <field name="lang_id" options="{'no_create':True}" required="True"/>
+                                                </group>
+                                                <group>
+                                                    <field name="title"/>
+                                                </group>
+                                            </group>
+                                            <notebook>
+                                                <page string="详细描述">
+                                                    <group>
+                                                        <field name="detail_description" nolabel="1"/>
+                                                    </group>
+                                                </page>
+                                                <page string="卖点">
+                                                    <field name="bullet_points">
+                                                        <tree editable="bottom">
+                                                            <field name="name"/>
+                                                        </tree>
+                                                    </field>
+                                                </page>
+                                                <page string="关键词">
+                                                    <field name="search_terms">
+                                                        <tree editable="bottom">
+                                                            <field name="name"/>
+                                                        </tree>
+                                                    </field>
+                                                </page>
+                                            </notebook>
+                                        </sheet>
+                                    </form>
                                 </field>
 							</page>
                             <page string="图片">
@@ -292,6 +325,7 @@
 			<field name="arch" type="xml">
 				<tree>
 					<field name="name"/>
+                    <field name="shop_id"/>
                     <field name="system_code"/>
 					<field name="product_update"/>
                     <field name="relation_update"/>
@@ -377,6 +411,21 @@
             <field name="model">product.template</field>
             <field name="name">上传变体</field>
             <field name="value" eval="'ir.actions.server,%d' % upload_variant_server"/>
+        </record>
+
+        <record id="upload_relationship_server" model="ir.actions.server">
+            <field name="name">上传父子关系</field>
+            <field name="model_id" ref="model_product_template"/>
+            <field name="code">
+                model.upload_relationship()
+            </field>
+        </record>
+        <record id="upload_relationship" model="ir.values">
+            <field name="key2">client_action_multi</field>
+            <field name="model">product.template</field>
+            <field name="name">上传父子关系</field>
+            <field name="sequence">1</field>
+            <field name="value" eval="'ir.actions.server,%d' % upload_relationship_server"/>
         </record>
         
         <record id="upload_image_server" model="ir.actions.server">

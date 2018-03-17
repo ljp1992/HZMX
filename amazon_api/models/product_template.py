@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError
-from odoo.addons.amazon_api.amazon_api.mws import Feeds
+from odoo.addons.amazon_api.amazon_api.mws import Feeds,Products
 import datetime
 
 class ProductTemplate(models.Model):
@@ -47,9 +47,9 @@ class ProductTemplate(models.Model):
     freight = fields.Float(compute='_compute_freight', string=u'运费')
 
     publish_id = fields.Many2one('res.users', string=u'发布人')
-    amazon_categ_id = fields.Many2one('amazon.category', inverse='_set_variation_theme_id', string=u'亚马逊模板')
+    amazon_categ_id = fields.Many2one('amazon.category', inverse='_set_variation_theme_id', string=u'亚马逊分类')
     variation_theme_id = fields.Many2one('variation.theme')
-    browse_node_id = fields.Many2one('amazon.browse.node', string=u'商品类别')
+    browse_node_id = fields.Many2one('amazon.browse.node', string=u'产品分类')
     categ_id = fields.Many2one('product.category', inverse='_set_platform_price', string=u'平台分类')
     platform_tmpl_id = fields.Many2one('product.template', string=u'平台产品')
     seller_tmpl_id = fields.Many2one('product.template', string=u'经销商产品')
@@ -128,7 +128,6 @@ class ProductTemplate(models.Model):
                 ('system_code', '=', False),
                 ('state', '=', 'platform_unpublished'),
             ], limit=100)
-            print tmpls
             if tmpls:
                 for tmpl in tmpls:
                     tmpl.system_code = self.env['ir.sequence'].get_next_tmpl_system_code()
@@ -141,7 +140,6 @@ class ProductTemplate(models.Model):
                 ('system_code', '=', False),
                 ('state', '=', 'platform_published'),
             ], limit=100)
-            print tmpls
             if tmpls:
                 for tmpl in tmpls:
                     tmpl.system_code = self.env['ir.sequence'].get_next_tmpl_system_code()
@@ -245,11 +243,12 @@ class ProductTemplate(models.Model):
 
     @api.multi
     def upload_variant(self):
+        '''上传变体'''
         context = self.env.context
         templates = self.env['product.template'].browse(context.get('active_ids'))
         for template in templates:
             if not template.amazon_categ_id:
-                raise UserError(u'产品%s模板信息为空' % (template.name))
+                raise UserError(u'产品%s亚马逊分类' % (template.name))
             if not template.variation_theme_id:
                 raise UserError(u'产品%svariation_theme为空!' % (template.name))
             template.upload_variant_message()
@@ -293,79 +292,116 @@ class ProductTemplate(models.Model):
         return product_data
 
     @api.multi
-    def get_child_product_data(self, attr):
-        '''母产品prodcut data'''
+    def return_attr_val_xml(self, product):
+        '''返回产品属性值xml数据'''
+        shop = self.shop_id
+        lang = shop.lang_id
+        attr_str = ''
+        for attr_val in product.attribute_value_ids:
+            attr = attr_val.attribute_id
+            if lang.name == 'English':
+                attr_str += "<%s>%s</%s>" % (attr.english_name, attr_val.english, attr.english_name)
+            elif lang.name == 'Spanish':
+                attr_str += "<%s>%s</%s>" % (attr.spanish, attr_val.spanish, attr.spanish)
+            elif lang.name == 'German':
+                attr_str += "<%s>%s</%s>" % (attr.german, attr_val.german, attr.german)
+            elif lang.name == 'French':
+                attr_str += "<%s>%s</%s>" % (attr.french, attr_val.french, attr.french)
+            elif lang.name == 'Italian':
+                attr_str += "<%s>%s</%s>" % (attr.italian, attr_val.italian, attr.italian)
+            elif lang.name == 'Japanese':
+                attr_str += "<%s>%s</%s>" % (attr.japanese, attr_val.japanese, attr.japanese)
+            elif lang.name == 'Chinese':
+                attr_str += "<%s>%s</%s>" % (attr.chinese, attr_val.chinese, attr.chinese)
+        return attr_str
+
+    @api.multi
+    def get_child_product_data(self, pro):
+        '''变体prodcut data'''
+        attr_xml = self.return_attr_val_xml(pro)
         categ = self.amazon_categ_id
         parent_categ = categ.parent_id
         theme = self.variation_theme_id
         if parent_categ:
             product_data = """
-                    <ProductData>
-                        <%s>
-                            <ProductType>
-                                <%s>
-                                    <VariationData>
-                                        <Parentage>child</Parentage>
-                                        <VariationTheme>%s</VariationTheme>
-                                    </VariationData>
-                                    %s
-                                </%s>
-                            </ProductType>
-                        </%s>
-                    </ProductData> """ % (parent_categ.name, categ.name, theme.name, attr, categ.name, parent_categ.name)
+                <ProductData>
+                    <%s>
+                        <ProductType>
+                            <%s>
+                                <VariationData>
+                                    <Parentage>child</Parentage>
+                                    <VariationTheme>%s</VariationTheme>
+                                </VariationData>
+                                %s
+                            </%s>
+                        </ProductType>
+                    </%s>
+                </ProductData>""" % (parent_categ.name, categ.name, theme.name, attr_xml, categ.name, parent_categ.name)
         else:
             product_data = """
-                    <ProductData>
-                        <%s>
-                            <ProductType>
-                                    <VariationData>
-                                        <Parentage>parent</Parentage>
-                                        <VariationTheme>%s</VariationTheme>
-                                    </VariationData>
-                                    %s
-                            </ProductType>
-                        </%s>
-                    </ProductData> """ % (categ.name, theme.name, attr, categ.name)
+                <ProductData>
+                    <%s>
+                        <ProductType>
+                                <VariationData>
+                                    <Parentage>parent</Parentage>
+                                    <VariationTheme>%s</VariationTheme>
+                                </VariationData>
+                                %s
+                        </ProductType>
+                    </%s>
+                </ProductData> """ % (categ.name, theme.name, attr_xml, categ.name)
         return product_data
 
     @api.multi
-    def upload_variant_message(self):
+    def get_search_terms(self, description):
+        '''获取关键词'''
+        search_terms = ''
+        for search_term in description.search_terms:
+            search_terms += "<SearchTerms>%s</SearchTerms>" % search_term.name
+        return search_terms
+
+    @api.multi
+    def get_bullet_points(self, description):
+        '''获取卖点描述'''
+        bullet_points = ''
+        for bullet_point in description.bullet_points:
+            bullet_points += "<BulletPoint>%s</BulletPoint>" % bullet_point.name
+        return bullet_points
+
+    @api.model
+    def get_description_data(self):
+        '''获取产品描述'''
         shop = self.shop_id
-        seller = shop.seller_id
-        lang = shop.lang_id
         description = self.description_ids.filtered(lambda r: r.lang_id == shop.lang_id)
         if description and len(description) == 1:
             title = description.title
         else:
             raise UserError(u'not found description!')
         brand = self.brand_id.name
-        product_data = self.get_parent_product_data()
-        info = [{
-            'message_id': 1,
-            'sku': self.sku,
-            'upc': self.upc,
-            'product_data': product_data,
-        }]
+        search_terms = self.get_search_terms(description)
+        bullet_points = self.get_bullet_points(description)
+        description_str = '''
+            <DescriptionData>
+                <Title>%s</Title>
+                <Brand>%s</Brand>
+                <Description>%s</Description>
+                %s
+                %s
+                <IsGiftWrapAvailable>false</IsGiftWrapAvailable>
+                <IsGiftMessageAvailable>false</IsGiftMessageAvailable>
+                <IsDiscontinuedByManufacturer>false</IsDiscontinuedByManufacturer>
+                <DeliveryChannel>direct_ship</DeliveryChannel>
+                <TSDAgeWarning>no_warning_applicable</TSDAgeWarning>
+            </DescriptionData>''' % (title, brand, description.detail_description, bullet_points, search_terms)
+        return description_str
+
+    @api.multi
+    def get_variant_message(self):
+        description = self.get_description_data()
+        parent_product_data = self.get_parent_product_data()
         message_id = 1
-        for pro in self.product_variant_ids:
-            message_id += 1
-            attr_vals = pro.attribute_value_ids
-            attr = ''
-            for attr_val in attr_vals:
-                name = attr_val.attribute_id.english_name
-                if lang.name == 'English':
-                    attr_value = attr_val.english
-                attr += "<%s>%s</%s>" % (name, attr_value, name)
-            product_data = self.get_child_product_data(attr)
-            info.append({
-                'message_id': message_id,
-                'sku': pro.sku,
-                'upc': pro.upc,
-                'product_data': product_data,
-            })
         message = ''
-        for item in info:
-            message += """
+        message += """
             <Message>
                 <MessageID>%s</MessageID>
                 <OperationType>Update</OperationType>
@@ -380,19 +416,40 @@ class ProductTemplate(models.Model):
                     </Condition>
                     <ItemPackageQuantity>1</ItemPackageQuantity>
                     <NumberOfItems>1</NumberOfItems>
-                    <DescriptionData>
-                        <Title>%s</Title>
-                        <Brand>%s</Brand>
-                        <IsGiftWrapAvailable>false</IsGiftWrapAvailable>
-                        <IsGiftMessageAvailable>false</IsGiftMessageAvailable>
-                        <IsDiscontinuedByManufacturer>false</IsDiscontinuedByManufacturer>
-                        <DeliveryChannel>direct_ship</DeliveryChannel>
-                        <TSDAgeWarning>no_warning_applicable</TSDAgeWarning>
-                    </DescriptionData>
+                    %s
                     %s
                 </Product>
-            </Message>""" % (item.get('message_id'), item.get('sku'), item.get('upc'), title, brand,
-                                 item.get('product_data'))
+            </Message>""" % (message_id, self.sku, self.upc, description, parent_product_data)
+        for pro in self.product_variant_ids:
+            child_product_data = self.get_child_product_data(pro)
+            message_id += 1
+            message += """
+                <Message>
+                    <MessageID>%s</MessageID>
+                    <OperationType>Update</OperationType>
+                    <Product>
+                        <SKU>%s</SKU>
+                        <StandardProductID>
+                            <Type>UPC</Type>
+                            <Value>%s</Value>
+                        </StandardProductID>
+                        <Condition>
+                            <ConditionType>New</ConditionType>
+                        </Condition>
+                        <ItemPackageQuantity>1</ItemPackageQuantity>
+                        <NumberOfItems>1</NumberOfItems>
+                        %s
+                        %s
+                    </Product>
+                </Message>""" % (message_id, pro.sku, pro.upc, description, child_product_data)
+        return message
+
+    @api.multi
+    def upload_variant_message(self):
+        '''上传变体'''
+        shop = self.shop_id
+        seller = shop.seller_id
+        message = self.get_variant_message()
         head = """<?xml version="1.0"?>
             <AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
             <Header>
@@ -403,53 +460,11 @@ class ProductTemplate(models.Model):
             <PurgeAndReplace>false</PurgeAndReplace>
             %s
             </AmazonEnvelope>""" % (seller.merchant_id_num, message)
+        print head
         mws_obj = Feeds(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
                         account_id=str(seller.merchant_id_num), region=shop.country_id.code, proxies={})
         try:
             feed_result = mws_obj.submit_feed(head, '_POST_PRODUCT_DATA_',
-                                          marketplaceids=[shop.marketplace_id.marketplace_id])
-        except Exception, e:
-            raise UserError(str(e))
-        submission_id = feed_result.parsed.get('FeedSubmissionInfo', {}).get('FeedSubmissionId', {}).get('value', '')
-        # print feed_result.parsed,submission_id
-        self.env['submission.history'].create({
-            'model': 'product.template',
-            'record_id': self.id,
-            'feed_id': submission_id,
-            'feed_time': datetime.datetime.now(),
-            'feed_xml': head,
-            'shop_id': shop.id,
-            'type': 'product_update'
-        })
-        #upload relationship
-        variant = ''
-        for pro in self.product_variant_ids:
-            variant += """
-                <Relation>
-                    <SKU>%s</SKU>
-                    <Type>Variation</Type>
-                </Relation>""" % (pro.sku)
-        message = """
-            <MessageID>1</MessageID>
-            <Relationship>
-                <ParentSKU>%s</ParentSKU>
-                %s
-            </Relationship>""" % (self.sku, variant)
-        head = """<?xml version="1.0"?>
-            <AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
-                <Header>
-                    <DocumentVersion>1.01</DocumentVersion>
-                    <MerchantIdentifier>%s</MerchantIdentifier>
-                </Header>
-                <MessageType>Relationship</MessageType>
-                <PurgeAndReplace>false</PurgeAndReplace>
-                <Message>%s</Message>
-            </AmazonEnvelope>""" % (seller.merchant_id_num, message)
-        # print head
-        mws_obj = Feeds(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
-                        account_id=str(seller.merchant_id_num), region=shop.country_id.code, proxies={})
-        try:
-            feed_result = mws_obj.submit_feed(head, '_POST_PRODUCT_RELATIONSHIP_DATA_',
                                               marketplaceids=[shop.marketplace_id.marketplace_id])
         except Exception, e:
             raise UserError(str(e))
@@ -461,8 +476,58 @@ class ProductTemplate(models.Model):
             'feed_time': datetime.datetime.now(),
             'feed_xml': head,
             'shop_id': shop.id,
-            'type': 'relation_update'
+            'type': 'product_update'
         })
+
+    @api.multi
+    def upload_relationship(self):
+        '''上传父子关系'''
+        context = self.env.context or {}
+        templates = self.env['product.template'].browse(context.get('active_ids'))
+        for template in templates:
+            shop = template.shop_id
+            seller = shop.seller_id
+            variant = ''
+            for pro in template.product_variant_ids:
+                variant += """
+                    <Relation>
+                        <SKU>%s</SKU>
+                        <Type>Variation</Type>
+                    </Relation>""" % (pro.sku)
+            message = """
+                <MessageID>1</MessageID>
+                <Relationship>
+                    <ParentSKU>%s</ParentSKU>
+                    %s
+                </Relationship>""" % (template.sku, variant)
+            head = """<?xml version="1.0"?>
+                <AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
+                    <Header>
+                        <DocumentVersion>1.01</DocumentVersion>
+                        <MerchantIdentifier>%s</MerchantIdentifier>
+                    </Header>
+                    <MessageType>Relationship</MessageType>
+                    <PurgeAndReplace>false</PurgeAndReplace>
+                    <Message>%s</Message>
+                </AmazonEnvelope>""" % (seller.merchant_id_num, message)
+            print message
+            mws_obj = Feeds(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
+                            account_id=str(seller.merchant_id_num), region=shop.country_id.code, proxies={})
+            try:
+                feed_result = mws_obj.submit_feed(head, '_POST_PRODUCT_RELATIONSHIP_DATA_',
+                                                  marketplaceids=[shop.marketplace_id.marketplace_id])
+            except Exception, e:
+                raise UserError(str(e))
+            submission_id = feed_result.parsed.get('FeedSubmissionInfo', {}).get('FeedSubmissionId', {}).get('value', '')
+            self.env['submission.history'].create({
+                'model': 'product.template',
+                'record_id': template.id,
+                'feed_id': submission_id,
+                'feed_time': datetime.datetime.now(),
+                'feed_xml': head,
+                'shop_id': shop.id,
+                'type': 'relation_update'
+            })
 
     @api.multi
     def upload_price(self):
@@ -997,4 +1062,28 @@ class ProductTemplate(models.Model):
             'domain': [('product_tmpl_id', '=', self.id)],
             'target': 'current',
         }
+
+
+    ######################################### 测试脚本 #################################################
+
+    @api.model
+    def get_pro_data_by_sku(self, sku_list):
+        '''根据sku获取产品信息'''
+        seller = self.instance_id.seller_id
+        marketplaceid = self.instance_id.market_place_id
+        print seller.access_key, seller.secret_key, seller.merchant_id, seller.country_id.amazon_marketplace_code
+        mws_obj = Products(access_key=str(seller.access_key), secret_key=str(seller.secret_key),
+                           account_id=str(seller.merchant_id),
+                           region=seller.country_id.amazon_marketplace_code or seller.country_id.code,
+                           proxies={})
+        # print seller.country_id.amazon_marketplace_code or seller.country_id.code,marketplaceid
+        result = mws_obj.get_matching_product_for_id(marketplaceid=marketplaceid, type='SellerSKU', ids=skus)
+        data = result.parsed
+        if type(data) is not list:
+            data = [data]
+        for item in data:
+            sku = item.get('Id', {}).get('value', '')
+            asin = item.get('Products', {}).get('Product', {}).get('Identifiers', {}).get('MarketplaceASIN', {}).get(
+                'ASIN', {}).get('value', '')
+            print sku, asin
 

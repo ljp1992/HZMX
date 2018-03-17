@@ -7,7 +7,13 @@
 			<field name="arch" type="xml">
 				<tree>
 					<field name="name"/>
+					<field name="chinese"/>
                     <field name="english_name"/>
+					<field name="spanish"/>
+					<field name="german"/>
+					<field name="french"/>
+					<field name="italian"/>
+					<field name="japanese"/>
 				</tree>
 			</field>
 		</record>
@@ -22,8 +28,18 @@
                             <group>
                                 <field name="name" />
                             </group>
+                        </group>
+						<group>
                             <group>
-                                <field name="english_name" required="True"/>
+                                <field name="english_name"/>
+								<field name="chinese"/>
+								<field name="spanish"/>
+								<field name="german"/>
+                            </group>
+                            <group>
+								<field name="french"/>
+								<field name="italian"/>
+								<field name="japanese"/>
                             </group>
                         </group>
 						<notebook>
@@ -41,7 +57,7 @@
                                     </tree>
                                 </field>
 							</page>
-							<page string="亚马逊模板">
+							<page string="亚马逊分类">
 								<field name="amazon_categ_ids">
                                     <tree editable="bottom">
                                         <field name="name"/>
