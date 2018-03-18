@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="product_description_form" model="ir.ui.view">
+			<field name="name">product_description_form</field>
+			<field name="model">product.description</field>
+			<field name="arch" type="xml">
+				<form>
+					<sheet>
+                        <group>
+                            <group>
+                                <field name="lang_id" options="{'no_create':True}" required="True"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="title"/>
+                            </group>
+                            <group>
+                                <field name="keyword"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="short_description"/>
+                            <field name="detail_description"/>
+                        </group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+	</data>
+</odoo>
