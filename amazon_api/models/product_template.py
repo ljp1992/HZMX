@@ -1115,7 +1115,7 @@ class ProductTemplate(models.Model):
 
     @api.multi
     def add_sku(self):
-        '''添加sku'''
+        '''添加sku '''
         print 'add sku'
         for template in self:
             country = self.env['amazon.country'].search([('code', 'in', ['UK', 'DE', 'ES', 'FR', 'IT'])])
