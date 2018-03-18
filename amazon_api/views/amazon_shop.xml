@@ -22,6 +22,7 @@
 			<field name="model">amazon.shop</field>
 			<field name="arch" type="xml">
 				<form>
+					<field name="current_user" invisible="1"/>
 					<header>
 					</header>
 					<sheet>
@@ -38,7 +39,8 @@
 								<field name="rate"/>
 							</group>
 							<group>
-								<field name="operator_id" required="1" options="{'no_create': True}"/>
+
+								<field name="operator_id" required="1" options="{'no_create': True}" domain="['|', ('id', '=', current_user), ('merchant_id', '=', current_user)]"/>
 								<field name="currency_symbol"/>
 								<field name="lang_id"/>
 							</group>

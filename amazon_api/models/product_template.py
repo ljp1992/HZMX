@@ -1113,6 +1113,36 @@ class ProductTemplate(models.Model):
             'target': 'new',
         }
 
+    @api.multi
+    def add_sku(self):
+        '''添加sku'''
+        print 'add sku'
+        for template in self:
+            country = self.env['amazon.country'].search([('code', 'in', ['UK', 'DE', 'ES', 'FR', 'IT'])])
+            shop_tmpl = self.env['product.template'].search([
+                ('platform_tmpl_id', '=', template.platform_tmpl_id.id),
+                ('merchant_id', '=', template.merchant_id.id),
+                ('shop_id.country_id', 'in', country.ids),
+                ('id', '!=', template.id),
+            ], limit=1)
+            if shop_tmpl:
+                template.sku = shop_tmpl.sku
+                for pro in template.product_variant_ids:
+                    for shop_pro in shop_tmpl.product_variant_ids:
+                        if pro.attribute_value_ids == shop_pro.attribute_value_ids:
+                            pro.sku = shop_pro.sku
+            else:
+                sku = self.env['ir.sequence'].get_seller_sku()
+                template.sku = sku
+                i = 0
+                for pro in template.product_variant_ids:
+                    i += 1
+                    if i < 10:
+                        pro_sku = '0' + str(i)
+                    else:
+                        pro_sku = str(i)
+                    pro.sku = sku + '-' + pro_sku
+
     ######################################### 历史数据处理 #################################################
 
     @api.model

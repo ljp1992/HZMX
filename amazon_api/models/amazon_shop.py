@@ -21,6 +21,13 @@ class AmazonShop(models.Model):
                                   string=u'操作员')
     merchant_id = fields.Many2one('res.users', default=lambda self: self.env.user.merchant_id or self.env.user,
                                   string=u'商户')
+    current_user = fields.Many2one('res.users', compute='_compute_current_user', default=lambda self: self.env.user,
+                                   store=False, string=u'当前用户')
+
+    @api.multi
+    def _compute_current_user(self):
+        for record in self:
+            record.current_user = self.env.user
 
     @api.multi
     def _set_operator_tmpl_rule(self):

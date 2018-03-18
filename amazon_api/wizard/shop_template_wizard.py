@@ -155,16 +155,17 @@ class ShopTemplateWizard(models.TransientModel):
                 }
                 self.env['product.product'].create(pro_val)
             # add sku
-            sku = self.env['ir.sequence'].get_seller_sku()
-            new_template.sku = sku
-            i = 0
-            for pro in new_template.product_variant_ids:
-                i += 1
-                if i < 10:
-                    pro_sku = '0' + str(i)
-                else:
-                    pro_sku = str(i)
-                pro.sku = sku + '-' + pro_sku
+            new_template.add_sku()
+            # sku = self.env['ir.sequence'].get_seller_sku()
+            # new_template.sku = sku
+            # i = 0
+            # for pro in new_template.product_variant_ids:
+            #     i += 1
+            #     if i < 10:
+            #         pro_sku = '0' + str(i)
+            #     else:
+            #         pro_sku = str(i)
+            #     pro.sku = sku + '-' + pro_sku
             # add upc
             upc_obj = self.env['upc.code']
             merchant = self.env.user.merchant_id or self.env.user

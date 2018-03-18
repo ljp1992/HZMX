@@ -15,6 +15,7 @@ class ResUsers(models.Model):
 
     own_my_data = fields.Boolean(search='_own_my_data', store=False)
     own_user = fields.Boolean(search='_compute_own_user', store=False)
+    # view_own_user = fields.Boolean(compute='_compute_view_own_user', store=False)
 
     merchant_id = fields.Many2one('res.users', string=u'商户')
 
@@ -30,6 +31,12 @@ class ResUsers(models.Model):
         ('pass', u'审核通过'),
         ('failed', u'未审核通过')
     ], string=u'审核状态')
+
+    # @api.multi
+    # def _compute_view_own_user(self):
+    #     for record in self:
+    #         if self.user_has_groups('b2b_platform.b2b_shop_operator'):
+    #
 
     @api.model
     def _compute_own_user(self, operation, value):
